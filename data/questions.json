@@ -773,26 +773,27 @@
     "topic": "Derivatives",
     "subtopic": "Black-Scholes-Merton",
     "difficulty": "Medium",
-    "status": "Draft",
+    "status": "Verified",
     "question": "What is the intuition behind the Black-Scholes-Merton model?",
     "intuition": "The model prices options by constructing a continuously rebalanced hedged portfolio.",
     "solution": "The key idea is delta hedging. By holding the option and a position in the underlying asset, the random component can be eliminated locally. The hedged portfolio must then earn the risk-free rate, leading to the Black-Scholes PDE and the option pricing formula.",
-    "formula": "∂V/∂t + 0.5σ²S²∂²V/∂S² + rS∂V/∂S - rV = 0",
+    "formula": "V_t + 0.5σ²S²V_SS + rSV_S - rV = 0",
     "tags": [
       "BSM",
       "Delta Hedging",
-      "Option Pricing"
+      "Option Pricing",
+      "PDE"
     ],
     "derivation": "Let the option value be $V(S,t)$ and the stock follow\n\n$$dS=\\mu Sdt+\\sigma S dW.$$\n\nBy Ito's lemma,\n\n$$dV=\\left(V_t+\\mu S V_S+\\frac{1}{2}\\sigma^2S^2V_{SS}\\right)dt+\\sigma S V_S dW.$$\n\nConstruct a delta-hedged portfolio:\n\n$$\\Pi=V-\\Delta S.$$\n\nChoose\n\n$$\\Delta=V_S,$$\n\nso the random $dW$ term is eliminated. The hedged portfolio is locally riskless, so it must earn the risk-free rate:\n\n$$d\\Pi=r\\Pi dt.$$\n\nThis leads to the Black-Scholes PDE:\n\n$$V_t+\\frac{1}{2}\\sigma^2S^2V_{SS}+rSV_S-rV=0.$$",
     "common_mistake": "Do not say BSM assumes the expected stock return is the risk-free rate. The real-world drift disappears through hedging.",
-    "interview_tip": "In interviews, explain the economic logic first: delta hedge removes local risk, so the portfolio earns the risk-free rate."
+    "interview_tip": "Explain the economic logic first: delta hedge removes local risk, so the hedged portfolio earns the risk-free rate."
   },
   {
     "id": "greeks_001",
-    "topic": "Derivatives",
-    "subtopic": "Greeks",
+    "topic": "Greeks",
+    "subtopic": "Delta",
     "difficulty": "Easy",
-    "status": "Draft",
+    "status": "Verified",
     "question": "What is delta?",
     "intuition": "Delta measures the sensitivity of an option price to a small change in the underlying price.",
     "solution": "Delta is the first derivative of the option value with respect to the underlying asset price. For a call option, delta is usually between 0 and 1. For a put option, delta is usually between -1 and 0.",
@@ -800,11 +801,12 @@
     "tags": [
       "Greeks",
       "Delta",
-      "Risk Management"
+      "Hedging",
+      "Option Risk"
     ],
-    "derivation": "Delta is defined as the first partial derivative of the option value with respect to the underlying price:\n\n$$\\Delta=\\frac{\\partial V}{\\partial S}.$$\n\nUsing a first-order Taylor approximation,\n\n$$dV\\approx \\Delta dS.$$\n\nThis means delta gives the local sensitivity of the option value to a small move in the underlying asset.",
-    "common_mistake": "Delta is not a constant. It changes with the underlying price, time to maturity, volatility, and moneyness.",
-    "interview_tip": "Connect delta to hedging: holding $\\Delta$ shares offsets the option's first-order exposure."
+    "derivation": "Delta is defined as\n\n$$\\Delta=\\frac{\\partial V}{\\partial S}.$$\n\nUsing a first-order Taylor approximation,\n\n$$dV\\approx \\Delta dS.$$\n\nSo delta gives the local first-order exposure of the option value to the underlying price.",
+    "common_mistake": "Delta is not constant. It changes with the underlying price, time to maturity, volatility, and moneyness.",
+    "interview_tip": "Connect delta to hedging: holding Δ shares offsets the option's first-order exposure."
   },
   {
     "id": "code_001",
@@ -837,6 +839,690 @@
       "Brainteaser",
       "Logic",
       "Timing"
+    ]
+  },
+  {
+    "id": "deriv_002",
+    "topic": "Derivatives",
+    "subtopic": "No-Arbitrage",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is no-arbitrage pricing?",
+    "intuition": "If two portfolios have the same future payoff, they should have the same price today.",
+    "solution": "No-arbitrage pricing means pricing a derivative by constructing a replicating portfolio or risk-neutral expectation so that no free profit is possible. If a derivative can be replicated exactly by traded assets, its price must equal the cost of the replicating portfolio.",
+    "formula": "Same payoff ⇒ same price",
+    "common_mistake": "Do not confuse no-arbitrage pricing with forecasting the expected return of the underlying asset.",
+    "interview_tip": "State the law of one price before writing formulas.",
+    "tags": [
+      "No-Arbitrage",
+      "Law of One Price",
+      "Replication"
+    ]
+  },
+  {
+    "id": "deriv_003",
+    "topic": "Derivatives",
+    "subtopic": "Forward Contracts",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Derive the no-arbitrage forward price for a non-dividend-paying stock.",
+    "intuition": "Buying the stock today and financing it should be equivalent to entering a forward contract.",
+    "solution": "For a non-dividend-paying stock, the fair forward price is F0 = S0 e^{rT}. If the market forward price is higher, buy the stock and short the forward. If it is lower, short the stock and long the forward.",
+    "derivation": "Portfolio A: buy one stock today. Cost is $S_0$.\n\nPortfolio B: invest enough cash today to pay the forward price at maturity. The present value is $F_0e^{-rT}$.\n\nAt maturity, both ways give ownership of one share. By no-arbitrage,\n\n$$S_0=F_0e^{-rT}.$$\n\nTherefore,\n\n$$F_0=S_0e^{rT}.$$",
+    "formula": "F0 = S0 e^(rT)",
+    "common_mistake": "Do not discount the spot price forward. The spot price grows at the financing rate to get the forward price.",
+    "interview_tip": "Always explain the cash-and-carry arbitrage.",
+    "tags": [
+      "Forward Price",
+      "No-Arbitrage",
+      "Cost of Carry"
+    ]
+  },
+  {
+    "id": "deriv_004",
+    "topic": "Derivatives",
+    "subtopic": "Forward Contracts",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the forward price for a stock with a continuous dividend yield q?",
+    "intuition": "Dividends reduce the forward price because the forward holder does not receive dividends before maturity.",
+    "solution": "With continuous dividend yield q, the forward price is F0 = S0 e^{(r-q)T}. The dividend yield reduces the cost of carry.",
+    "derivation": "Under continuous dividend yield $q$, holding the stock provides a dividend benefit. The effective cost of carry is $r-q$.\n\nThus the no-arbitrage forward price is\n\n$$F_0=S_0e^{(r-q)T}.$$",
+    "formula": "F0 = S0 e^((r-q)T)",
+    "common_mistake": "Do not ignore dividends when pricing forwards on equity indices or dividend-paying stocks.",
+    "interview_tip": "For index options, dividend yield is often essential.",
+    "tags": [
+      "Forward Price",
+      "Dividend Yield",
+      "Cost of Carry"
+    ]
+  },
+  {
+    "id": "deriv_005",
+    "topic": "Derivatives",
+    "subtopic": "Put-Call Parity",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "State and derive put-call parity for European options on a non-dividend-paying stock.",
+    "intuition": "A call plus cash can replicate a put plus stock.",
+    "solution": "For European options with the same strike K and maturity T, put-call parity is C - P = S0 - K e^{-rT}. It follows by comparing the terminal payoffs of a fiduciary call and a protective put.",
+    "derivation": "Compare two portfolios.\n\nPortfolio A: one call plus cash $Ke^{-rT}$.\n\nPortfolio B: one put plus one share.\n\nAt maturity:\n\nPortfolio A payoff:\n\n$$\\max(S_T-K,0)+K=\\max(S_T,K).$$\n\nPortfolio B payoff:\n\n$$\\max(K-S_T,0)+S_T=\\max(S_T,K).$$\n\nThe terminal payoffs are identical, so by no-arbitrage their prices are equal:\n\n$$C+Ke^{-rT}=P+S_0.$$\n\nRearrange:\n\n$$C-P=S_0-Ke^{-rT}.$$",
+    "formula": "C - P = S0 - K e^(-rT)",
+    "common_mistake": "Put-call parity in this form is for European options. American options require inequalities.",
+    "interview_tip": "In interviews, draw the two portfolios and compare terminal payoffs.",
+    "tags": [
+      "Put-Call Parity",
+      "European Options",
+      "No-Arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_006",
+    "topic": "Derivatives",
+    "subtopic": "Risk-Neutral Pricing",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is risk-neutral pricing?",
+    "intuition": "In an arbitrage-free market, derivative prices can be represented as discounted expectations under a risk-neutral measure.",
+    "solution": "Risk-neutral pricing states that the price of a derivative is the discounted expected payoff under a measure where discounted asset prices are martingales. It does not mean investors are actually risk-neutral; it is a pricing representation implied by no-arbitrage.",
+    "derivation": "For a derivative payoff $H(S_T)$, the risk-neutral pricing formula is\n\n$$V_0=e^{-rT}\\mathbb{E}^{\\mathbb{Q}}[H(S_T)].$$\n\nUnder the risk-neutral measure $\\mathbb{Q}$, the stock drift becomes $r$ for a non-dividend-paying stock:\n\n$$dS=rSdt+\\sigma S dW^{\\mathbb{Q}}.$$\n\nThis makes the discounted stock price a martingale:\n\n$$e^{-rt}S_t \\text{ is a martingale under } \\mathbb{Q}.$$",
+    "formula": "V0 = e^(-rT) E^Q[Payoff]",
+    "common_mistake": "Risk-neutral pricing is not real-world forecasting. It is a no-arbitrage pricing tool.",
+    "interview_tip": "Say clearly: we change the probability measure, not the payoff.",
+    "tags": [
+      "Risk-Neutral Pricing",
+      "Martingale",
+      "No-Arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_007",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are the main assumptions of the Black-Scholes-Merton model?",
+    "intuition": "BSM is a clean theoretical model built on continuous trading, lognormal prices, and frictionless markets.",
+    "solution": "The standard assumptions include geometric Brownian motion for the underlying, constant volatility, constant risk-free rate, no arbitrage, no transaction costs, continuous trading, frictionless markets, and usually no dividends in the simplest version.",
+    "formula": "dS = μSdt + σSdW",
+    "common_mistake": "Do not forget that constant volatility is a major limitation of the basic BSM model.",
+    "interview_tip": "After listing assumptions, mention volatility smile/skew as evidence that BSM is imperfect.",
+    "tags": [
+      "BSM",
+      "Assumptions",
+      "Lognormal Model"
+    ]
+  },
+  {
+    "id": "deriv_008",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "State the Black-Scholes formula for a European call and put.",
+    "intuition": "The formula prices European options under lognormal dynamics and risk-neutral valuation.",
+    "solution": "For a non-dividend-paying stock, C = S0 N(d1) - K e^{-rT} N(d2), and P = K e^{-rT} N(-d2) - S0 N(-d1), where d1 = [ln(S0/K)+(r+0.5σ²)T]/(σ√T), and d2=d1-σ√T.",
+    "formula": "C=S0N(d1)-Ke^(-rT)N(d2); P=Ke^(-rT)N(-d2)-S0N(-d1)",
+    "common_mistake": "Do not mix up d1 and d2. The strike discount term uses d2.",
+    "interview_tip": "You do not always need to memorize every detail, but you should know the economic role of d1 and d2.",
+    "tags": [
+      "BSM",
+      "Call Price",
+      "Put Price",
+      "European Options"
+    ]
+  },
+  {
+    "id": "deriv_009",
+    "topic": "Derivatives",
+    "subtopic": "Moneyness",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is moneyness?",
+    "intuition": "Moneyness describes where the strike is relative to the underlying or forward price.",
+    "solution": "Moneyness measures the relationship between the underlying price and strike. Common definitions include S/K, K/S, log-moneyness ln(K/F), and strike divided by forward. In option pricing, forward moneyness is often more useful because it adjusts for interest rates and dividends.",
+    "formula": "log-moneyness = ln(K/F)",
+    "common_mistake": "Different papers use different moneyness conventions, so always define it clearly.",
+    "interview_tip": "For implied volatility smiles, log-moneyness or K/F is usually cleaner than raw strike.",
+    "tags": [
+      "Moneyness",
+      "Forward",
+      "Implied Volatility"
+    ]
+  },
+  {
+    "id": "deriv_010",
+    "topic": "Derivatives",
+    "subtopic": "Intrinsic and Time Value",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are intrinsic value and time value of an option?",
+    "intuition": "Intrinsic value is immediate exercise value; time value is the extra value from optionality before maturity.",
+    "solution": "For a call, intrinsic value is max(S-K,0). For a put, it is max(K-S,0). Time value is option price minus intrinsic value. Out-of-the-money options have zero intrinsic value but can still have positive time value.",
+    "formula": "Time value = Option price - Intrinsic value",
+    "common_mistake": "Do not say an out-of-the-money option is worthless before maturity.",
+    "interview_tip": "Mention that time value usually decreases as maturity approaches, all else equal.",
+    "tags": [
+      "Intrinsic Value",
+      "Time Value",
+      "Options Basics"
+    ]
+  },
+  {
+    "id": "greeks_002",
+    "topic": "Greeks",
+    "subtopic": "Gamma",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is gamma?",
+    "intuition": "Gamma measures how quickly delta changes when the underlying price changes.",
+    "solution": "Gamma is the second derivative of the option value with respect to the underlying price. It measures curvature. High gamma means the option's delta changes quickly, so hedges need more frequent rebalancing.",
+    "derivation": "Delta is\n\n$$\\Delta=\\frac{\\partial V}{\\partial S}.$$\n\nGamma is the derivative of delta with respect to $S$:\n\n$$\\Gamma=\\frac{\\partial \\Delta}{\\partial S}=\\frac{\\partial^2 V}{\\partial S^2}.$$",
+    "formula": "Gamma = ∂²V / ∂S²",
+    "common_mistake": "Do not describe gamma as only good or bad. Long gamma can help in large moves but costs premium/theta.",
+    "interview_tip": "Connect gamma to convexity and hedging frequency.",
+    "tags": [
+      "Greeks",
+      "Gamma",
+      "Convexity",
+      "Hedging"
+    ]
+  },
+  {
+    "id": "greeks_003",
+    "topic": "Greeks",
+    "subtopic": "Vega",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is vega?",
+    "intuition": "Vega measures sensitivity of option value to implied volatility.",
+    "solution": "Vega is the derivative of the option value with respect to volatility. It is usually highest for at-the-money options and longer maturities. Although called vega, it is not a Greek letter.",
+    "formula": "Vega = ∂V / ∂σ",
+    "common_mistake": "Do not confuse vega with realized volatility. Vega measures sensitivity to the volatility input or implied volatility.",
+    "interview_tip": "Mention that long options are generally long vega.",
+    "tags": [
+      "Greeks",
+      "Vega",
+      "Implied Volatility"
+    ]
+  },
+  {
+    "id": "greeks_004",
+    "topic": "Greeks",
+    "subtopic": "Theta",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is theta?",
+    "intuition": "Theta measures how option value changes as time passes.",
+    "solution": "Theta is the sensitivity of option value to the passage of time. Long vanilla options often have negative theta because time decay reduces optionality value, although the sign can depend on rates, dividends, and option type.",
+    "formula": "Theta = ∂V / ∂t",
+    "common_mistake": "Do not say theta is always negative for every option in every market condition.",
+    "interview_tip": "Connect theta to the cost of carrying optionality.",
+    "tags": [
+      "Greeks",
+      "Theta",
+      "Time Decay"
+    ]
+  },
+  {
+    "id": "greeks_005",
+    "topic": "Greeks",
+    "subtopic": "Rho",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is rho?",
+    "intuition": "Rho measures sensitivity of option value to interest rates.",
+    "solution": "Rho is the derivative of the option price with respect to the risk-free rate. Calls usually have positive rho and puts usually have negative rho under the basic BSM framework.",
+    "formula": "Rho = ∂V / ∂r",
+    "common_mistake": "Do not ignore rho for long-dated options; it can matter more when maturity is long.",
+    "interview_tip": "For short-dated equity options, rho is often less important than delta, gamma, vega, and theta.",
+    "tags": [
+      "Greeks",
+      "Rho",
+      "Interest Rates"
+    ]
+  },
+  {
+    "id": "greeks_006",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are the Black-Scholes deltas for a European call and put?",
+    "intuition": "In BSM, delta is related to the normal CDF evaluated at d1.",
+    "solution": "For a non-dividend-paying stock, call delta is N(d1), and put delta is N(d1)-1. With continuous dividend yield q, call delta is e^{-qT}N(d1), and put delta is e^{-qT}(N(d1)-1).",
+    "derivation": "For a non-dividend-paying stock, the call price is\n\n$$C=S_0N(d_1)-Ke^{-rT}N(d_2).$$\n\nDifferentiating with respect to $S_0$ gives\n\n$$\\Delta_C=N(d_1).$$\n\nUsing put-call parity,\n\n$$C-P=S_0-Ke^{-rT},$$\n\ndifferentiate both sides with respect to $S_0$:\n\n$$\\Delta_C-\\Delta_P=1.$$\n\nTherefore,\n\n$$\\Delta_P=N(d_1)-1.$$",
+    "formula": "Call Δ=N(d1); Put Δ=N(d1)-1",
+    "common_mistake": "Do not use N(d2) for delta. N(d2) is linked to exercise probability under the risk-neutral measure.",
+    "interview_tip": "Use put-call parity to quickly derive put delta from call delta.",
+    "tags": [
+      "Greeks",
+      "Delta",
+      "BSM",
+      "Put-Call Parity"
+    ]
+  },
+  {
+    "id": "greeks_007",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the Black-Scholes gamma for a European vanilla option?",
+    "intuition": "Call and put gamma are the same under BSM because they have the same curvature with respect to the underlying.",
+    "solution": "For a non-dividend-paying stock, gamma is φ(d1)/(Sσ√T), where φ is the standard normal density. Calls and puts with the same strike and maturity have the same gamma.",
+    "formula": "Γ = φ(d1)/(Sσ√T)",
+    "common_mistake": "Do not think put gamma is negative. Standard long calls and long puts both have positive gamma.",
+    "interview_tip": "Mention gamma tends to be largest near at-the-money and close to expiry.",
+    "tags": [
+      "Greeks",
+      "Gamma",
+      "BSM"
+    ]
+  },
+  {
+    "id": "greeks_008",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the Black-Scholes vega for a European vanilla option?",
+    "intuition": "Call and put vega are the same for the same strike and maturity under BSM.",
+    "solution": "For a non-dividend-paying stock, vega is S φ(d1)√T. It is positive for both long calls and long puts, meaning higher volatility increases the value of vanilla options.",
+    "formula": "Vega = S φ(d1) √T",
+    "common_mistake": "Do not assume calls and puts have opposite vega. Long calls and long puts are both long vega.",
+    "interview_tip": "Vega is often highest for at-the-money options with longer maturity.",
+    "tags": [
+      "Greeks",
+      "Vega",
+      "BSM"
+    ]
+  },
+  {
+    "id": "greeks_009",
+    "topic": "Greeks",
+    "subtopic": "Greek Relationships",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What Greek relationships can be derived from put-call parity?",
+    "intuition": "If two portfolios have the same value relation, differentiating the relation gives Greek relationships.",
+    "solution": "From C - P = S - K e^{-rT}, we get ΔC - ΔP = 1, ΓC - ΓP = 0, and VegaC - VegaP = 0 for European options with the same strike and maturity under the same assumptions.",
+    "derivation": "Start from put-call parity:\n\n$$C-P=S-Ke^{-rT}.$$\n\nDifferentiate with respect to $S$:\n\n$$\\Delta_C-\\Delta_P=1.$$\n\nDifferentiate again with respect to $S$:\n\n$$\\Gamma_C-\\Gamma_P=0.$$\n\nDifferentiate with respect to $\\sigma$:\n\n$$\\text{Vega}_C-\\text{Vega}_P=0.$$",
+    "formula": "ΔC-ΔP=1; ΓC=ΓP; VegaC=VegaP",
+    "common_mistake": "These relationships rely on matched strike, maturity, underlying, and European exercise style.",
+    "interview_tip": "Differentiating no-arbitrage identities is a fast way to derive Greek identities.",
+    "tags": [
+      "Greeks",
+      "Put-Call Parity",
+      "Delta",
+      "Gamma",
+      "Vega"
+    ]
+  },
+  {
+    "id": "deriv_011",
+    "topic": "Derivatives",
+    "subtopic": "Implied Volatility",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is implied volatility?",
+    "intuition": "Implied volatility is the volatility input that makes the model price match the market option price.",
+    "solution": "Implied volatility is obtained by inverting an option pricing model, usually Black-Scholes. It is not directly observed; it is backed out from market prices. It reflects the market price of optionality and expected risk under the pricing measure.",
+    "formula": "Market price = BS price(S,K,T,r,σ_imp)",
+    "common_mistake": "Do not interpret implied volatility as a guaranteed forecast of future realized volatility.",
+    "interview_tip": "Say that implied volatility is model-dependent because it is extracted through a pricing model.",
+    "tags": [
+      "Implied Volatility",
+      "BSM",
+      "Market Price"
+    ]
+  },
+  {
+    "id": "deriv_012",
+    "topic": "Derivatives",
+    "subtopic": "Volatility Smile",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are volatility smile and volatility skew?",
+    "intuition": "Market option prices imply different volatilities across strikes, contradicting constant-volatility BSM.",
+    "solution": "A volatility smile means implied volatility varies by strike or moneyness. A skew often refers to a pattern where downside strikes have higher implied volatility than upside strikes, especially in equity index options.",
+    "formula": "σ_imp = σ_imp(K,T)",
+    "common_mistake": "Do not assume the implied volatility surface is flat in real markets.",
+    "interview_tip": "For equity indices, mention crash risk and demand for downside protection.",
+    "tags": [
+      "Volatility Smile",
+      "Volatility Skew",
+      "Implied Volatility"
+    ]
+  },
+  {
+    "id": "deriv_013",
+    "topic": "Derivatives",
+    "subtopic": "Digital Options",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a cash-or-nothing digital call option and how is it priced in Black-Scholes?",
+    "intuition": "A digital call pays a fixed amount if the underlying finishes above the strike.",
+    "solution": "A cash-or-nothing digital call pays 1 if S_T > K and 0 otherwise. Under Black-Scholes with no dividends, its price is e^{-rT}N(d2).",
+    "derivation": "The payoff is\n\n$$1_{\\{S_T>K\\}}.$$\n\nBy risk-neutral pricing,\n\n$$V_0=e^{-rT}\\mathbb{E}^{\\mathbb{Q}}[1_{\\{S_T>K\\}}].$$\n\nThis expectation is just the risk-neutral probability:\n\n$$V_0=e^{-rT}\\mathbb{Q}(S_T>K).$$\n\nUnder BSM,\n\n$$\\mathbb{Q}(S_T>K)=N(d_2).$$\n\nTherefore,\n\n$$V_0=e^{-rT}N(d_2).$$",
+    "formula": "Digital call price = e^(-rT) N(d2)",
+    "common_mistake": "Do not use N(d1) for the cash-or-nothing digital probability term.",
+    "interview_tip": "Digital options help explain the meaning of d2 as a risk-neutral exercise probability.",
+    "tags": [
+      "Digital Option",
+      "BSM",
+      "Risk-Neutral Probability"
+    ]
+  },
+  {
+    "id": "deriv_014",
+    "topic": "Derivatives",
+    "subtopic": "Delta Hedging",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "How does delta hedging relate to gamma and theta?",
+    "intuition": "After delta hedging removes first-order exposure, the remaining short-term P&L mainly comes from gamma, theta, and realized variance.",
+    "solution": "Using a Taylor expansion, option P&L is approximately Δ dS + 0.5 Γ(dS)^2 + Θ dt. After delta hedging, the Δ dS term is offset, leaving gamma and theta effects. This is the basis of many volatility-trading interpretations.",
+    "derivation": "A second-order Taylor expansion gives\n\n$$dV\\approx \\Delta dS+\\frac{1}{2}\\Gamma(dS)^2+\\Theta dt.$$\n\nIf we delta hedge, the $\\Delta dS$ term is offset.\n\nThe hedged option P&L is approximately\n\n$$d\\Pi\\approx \\frac{1}{2}\\Gamma(dS)^2+\\Theta dt.$$\n\nSince $(dS)^2$ is linked to realized variance, delta-hedged option P&L is closely connected to the difference between realized volatility and implied volatility.",
+    "formula": "Delta-hedged P&L ≈ 0.5Γ(dS)² + Θdt",
+    "common_mistake": "Do not think delta hedging removes all risk. It removes first-order local price risk only.",
+    "interview_tip": "This is a strong answer for volatility trading interviews.",
+    "tags": [
+      "Delta Hedging",
+      "Gamma",
+      "Theta",
+      "Volatility Trading"
+    ]
+  },
+  {
+    "id": "deriv_015",
+    "topic": "Derivatives",
+    "subtopic": "Replication",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a replicating portfolio?",
+    "intuition": "A replicating portfolio is a trading strategy that produces the same payoff as the derivative.",
+    "solution": "A replicating portfolio uses available traded assets, such as the underlying and cash account, to match a derivative's payoff. If exact replication is possible, the derivative price must equal the cost of the replicating portfolio by no-arbitrage.",
+    "formula": "Derivative value = cost of replicating portfolio",
+    "common_mistake": "Do not confuse replication with statistical correlation. Replication means matching payoffs exactly or dynamically under the model.",
+    "interview_tip": "Use replication to explain why derivatives pricing is different from ordinary expected return forecasting.",
+    "tags": [
+      "Replication",
+      "No-Arbitrage",
+      "Hedging"
+    ]
+  },
+  {
+    "id": "deriv_016",
+    "topic": "Derivatives",
+    "subtopic": "American Options",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why can American options be more valuable than European options?",
+    "intuition": "American options include the right to exercise early.",
+    "solution": "An American option can be exercised at any time before maturity, while a European option can only be exercised at maturity. This extra flexibility cannot reduce value. For non-dividend-paying stocks, it is generally not optimal to exercise an American call early, but American puts may be exercised early.",
+    "formula": "American option value ≥ European option value",
+    "common_mistake": "Do not say all American options should be exercised early. Early exercise depends on rates, dividends, and option type.",
+    "interview_tip": "Mention that early exercise creates a free-boundary problem.",
+    "tags": [
+      "American Options",
+      "Early Exercise",
+      "Option Value"
+    ]
+  },
+  {
+    "id": "deriv_017",
+    "topic": "Derivatives",
+    "subtopic": "Option Bounds",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are simple no-arbitrage bounds for European call and put options?",
+    "intuition": "Option prices are constrained by payoff dominance and replication arguments.",
+    "solution": "For a non-dividend-paying stock, a European call satisfies max(S0 - K e^{-rT}, 0) ≤ C ≤ S0. A European put satisfies max(K e^{-rT} - S0, 0) ≤ P ≤ K e^{-rT}.",
+    "formula": "max(S0-Ke^(-rT),0)≤C≤S0; max(Ke^(-rT)-S0,0)≤P≤Ke^(-rT)",
+    "common_mistake": "Do not forget the discounted strike in European option lower bounds.",
+    "interview_tip": "Bounds questions are often simple no-arbitrage tests.",
+    "tags": [
+      "Option Bounds",
+      "No-Arbitrage",
+      "European Options"
+    ]
+  },
+  {
+    "id": "deriv_018",
+    "topic": "Derivatives",
+    "subtopic": "Completeness",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What does market completeness mean in derivatives pricing?",
+    "intuition": "A complete market allows every contingent claim to be replicated.",
+    "solution": "A market is complete if every derivative payoff can be replicated by trading available assets. In a complete arbitrage-free market, the equivalent martingale measure is unique. In incomplete markets, there may be many risk-neutral measures and pricing often requires additional assumptions or preferences.",
+    "formula": "Complete market ⇒ unique risk-neutral measure",
+    "common_mistake": "Do not assume all realistic markets are complete. Jumps, transaction costs, and stochastic volatility can create incompleteness.",
+    "interview_tip": "This question connects mathematical finance theory to practical model risk.",
+    "tags": [
+      "Market Completeness",
+      "Risk-Neutral Measure",
+      "Model Risk"
+    ]
+  },
+  {
+    "id": "deriv_019",
+    "topic": "Derivatives",
+    "subtopic": "Volatility",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between implied volatility and realized volatility?",
+    "intuition": "Implied volatility comes from option prices; realized volatility comes from historical asset returns.",
+    "solution": "Implied volatility is inferred from option market prices using a pricing model. Realized volatility is computed from actual historical returns over a period. The difference between implied and realized volatility is important in volatility risk premium and option trading.",
+    "formula": "Variance risk premium ≈ implied variance - realized variance",
+    "common_mistake": "Do not compare implied volatility and realized volatility without matching horizon and annualization.",
+    "interview_tip": "This is a useful bridge between option pricing and empirical finance.",
+    "tags": [
+      "Implied Volatility",
+      "Realized Volatility",
+      "Variance Risk Premium"
+    ]
+  },
+  {
+    "id": "deriv_020",
+    "topic": "Derivatives",
+    "subtopic": "Dividends",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do dividends affect option prices?",
+    "intuition": "Dividends reduce the expected forward price of the stock, which tends to reduce call values and increase put values.",
+    "solution": "For continuous dividend yield q, the forward price becomes F0=S0e^{(r-q)T}. Higher dividends generally reduce call prices and increase put prices, because the stock price is expected to drop through dividend payments.",
+    "formula": "F0 = S0e^((r-q)T)",
+    "common_mistake": "Do not ignore dividends when pricing equity index options or ETF options.",
+    "interview_tip": "For your own research context, dividend treatment is important when moving from index options to ETF options.",
+    "tags": [
+      "Dividends",
+      "Option Pricing",
+      "Forward Price"
+    ]
+  },
+  {
+    "id": "deriv_021",
+    "topic": "Derivatives",
+    "subtopic": "Volatility Surface",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is an implied volatility surface?",
+    "intuition": "It is the map of implied volatility across strikes and maturities.",
+    "solution": "An implied volatility surface gives implied volatility as a function of strike or moneyness and time to maturity. It summarizes the cross-section of option prices and is central to option pricing, risk management, and volatility trading.",
+    "formula": "σ_imp = σ_imp(K,T)",
+    "common_mistake": "Do not interpolate implied volatility blindly without checking arbitrage constraints.",
+    "interview_tip": "Mention smile dynamics, skew, term structure, and arbitrage-free interpolation if the interviewer goes deeper.",
+    "tags": [
+      "Volatility Surface",
+      "Implied Volatility",
+      "Smile",
+      "Term Structure"
+    ]
+  },
+  {
+    "id": "deriv_022",
+    "topic": "Derivatives",
+    "subtopic": "Risk Reversal",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "What is a risk reversal in options markets?",
+    "intuition": "A risk reversal compares demand for upside calls and downside puts.",
+    "solution": "A common equity-index risk reversal compares the implied volatility of an out-of-the-money call and an out-of-the-money put with similar delta. It is used to measure skew and the relative pricing of upside versus downside protection.",
+    "formula": "Risk reversal ≈ IV_call(Δ) - IV_put(-Δ)",
+    "common_mistake": "Market conventions differ, so always check whether the quote is call minus put or put minus call.",
+    "interview_tip": "This is useful when discussing volatility skew.",
+    "tags": [
+      "Risk Reversal",
+      "Volatility Skew",
+      "Implied Volatility"
+    ]
+  },
+  {
+    "id": "deriv_023",
+    "topic": "Derivatives",
+    "subtopic": "Butterfly",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "What is an option butterfly spread?",
+    "intuition": "A butterfly is a limited-risk structure that profits most when the underlying finishes near the middle strike.",
+    "solution": "A call butterfly can be built by buying one low-strike call, selling two middle-strike calls, and buying one high-strike call. It has limited downside and upside risk, and its maximum payoff occurs near the middle strike.",
+    "formula": "Long C(K1) - 2C(K2) + Long C(K3)",
+    "common_mistake": "Do not confuse a butterfly with a straddle. A butterfly is more localized around a target price.",
+    "interview_tip": "Butterflies are useful for thinking about curvature and implied density.",
+    "tags": [
+      "Butterfly",
+      "Option Strategy",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "deriv_024",
+    "topic": "Derivatives",
+    "subtopic": "Straddle",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is a straddle?",
+    "intuition": "A straddle is a volatility trade that benefits from a large move in either direction.",
+    "solution": "A long straddle buys a call and a put with the same strike and maturity. It has positive vega and gamma but usually negative theta. It profits if the underlying moves enough to overcome the premium paid.",
+    "formula": "Long straddle = Long call + Long put",
+    "common_mistake": "A straddle is not a directional trade by itself; it is mainly a volatility/large-move trade.",
+    "interview_tip": "Connect straddles to implied versus realized volatility.",
+    "tags": [
+      "Straddle",
+      "Option Strategy",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "deriv_025",
+    "topic": "Derivatives",
+    "subtopic": "Model Risk",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is model risk in derivatives pricing?",
+    "intuition": "A derivative price depends on a model, and the model may be wrong or incomplete.",
+    "solution": "Model risk is the risk that a pricing or risk model gives misleading values because its assumptions are wrong, parameters are poorly estimated, or implementation is flawed. In options, examples include constant volatility assumptions, poor smile interpolation, wrong dividend treatment, and numerical errors.",
+    "formula": "",
+    "common_mistake": "Do not treat model output as truth. It is conditional on assumptions.",
+    "interview_tip": "This is a good place to mention validation, stress testing, and hedging performance.",
+    "tags": [
+      "Model Risk",
+      "Derivatives",
+      "Risk Management"
+    ]
+  },
+  {
+    "id": "deriv_026",
+    "topic": "Derivatives",
+    "subtopic": "Binomial Model",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the intuition behind the binomial option pricing model?",
+    "intuition": "The binomial model prices options by backward induction under risk-neutral probabilities.",
+    "solution": "The underlying moves up or down over small time steps. At maturity, the option payoff is known. Working backward, each node value is the discounted risk-neutral expected value of the next step. As the number of steps increases, the model converges toward continuous-time models under suitable assumptions.",
+    "formula": "V = e^(-rΔt)[pV_up + (1-p)V_down]",
+    "common_mistake": "The risk-neutral probability is a pricing probability, not necessarily the real-world probability of an up move.",
+    "interview_tip": "Binomial trees are useful for American options because they handle early exercise naturally.",
+    "tags": [
+      "Binomial Tree",
+      "Risk-Neutral Pricing",
+      "Numerical Methods"
+    ]
+  },
+  {
+    "id": "deriv_027",
+    "topic": "Derivatives",
+    "subtopic": "Risk-Neutral Probability",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "In a one-step binomial model, what is the risk-neutral probability?",
+    "intuition": "Choose the probability that makes the expected stock growth equal to the risk-free growth under the pricing measure.",
+    "solution": "If the stock moves to uS or dS and the gross risk-free return is R, the risk-neutral probability is p = (R-d)/(u-d), assuming d < R < u.",
+    "derivation": "Under the risk-neutral measure, the expected next stock price discounted at the risk-free rate equals today's price:\n\n$$S=\\frac{1}{R}\\left[p(uS)+(1-p)(dS)\\right].$$\n\nCancel $S$ and multiply by $R$:\n\n$$R=pu+(1-p)d.$$\n\nSolve for $p$:\n\n$$p=\\frac{R-d}{u-d}.$$",
+    "formula": "p = (R-d)/(u-d)",
+    "common_mistake": "The condition d < R < u is needed for no-arbitrage in the one-step model.",
+    "interview_tip": "This is one of the cleanest ways to explain risk-neutral pricing.",
+    "tags": [
+      "Binomial Model",
+      "Risk-Neutral Probability",
+      "No-Arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_028",
+    "topic": "Derivatives",
+    "subtopic": "Futures",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the difference between a forward and a futures contract?",
+    "intuition": "Both lock in a future transaction price, but futures are standardized and marked to market.",
+    "solution": "A forward contract is typically OTC, customized, and settled at maturity. A futures contract is exchange-traded, standardized, margined, and marked to market daily. This daily settlement can create differences between forward and futures prices when rates are stochastic.",
+    "formula": "",
+    "common_mistake": "Do not say forwards and futures are always exactly the same.",
+    "interview_tip": "Mention margining and daily mark-to-market as the key practical difference.",
+    "tags": [
+      "Forwards",
+      "Futures",
+      "Derivatives Basics"
+    ]
+  },
+  {
+    "id": "deriv_029",
+    "topic": "Derivatives",
+    "subtopic": "Option Payoff",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are the payoffs of European call and put options?",
+    "intuition": "Calls benefit from upside; puts benefit from downside.",
+    "solution": "A European call payoff is max(S_T-K,0). A European put payoff is max(K-S_T,0). These are terminal payoffs before subtracting the initial premium.",
+    "formula": "Call payoff=max(S_T-K,0); Put payoff=max(K-S_T,0)",
+    "common_mistake": "Do not confuse payoff with profit. Profit subtracts the premium paid.",
+    "interview_tip": "Always distinguish payoff at maturity from P&L after premium.",
+    "tags": [
+      "Option Payoff",
+      "Call",
+      "Put"
+    ]
+  },
+  {
+    "id": "deriv_030",
+    "topic": "Derivatives",
+    "subtopic": "Breeden-Litzenberger",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "How are option prices related to the risk-neutral density?",
+    "intuition": "The curvature of call prices across strikes reveals the risk-neutral distribution.",
+    "solution": "Under suitable smoothness conditions, the second derivative of the European call price with respect to strike gives the discounted risk-neutral density: ∂²C/∂K² = e^{-rT} f_Q(K). This is known as the Breeden-Litzenberger result.",
+    "derivation": "The European call price can be written as\n\n$$C(K)=e^{-rT}\\int_K^{\\infty}(S_T-K)f_Q(S_T)dS_T.$$\n\nDifferentiate once with respect to $K$:\n\n$$\\frac{\\partial C}{\\partial K}=-e^{-rT}\\int_K^{\\infty}f_Q(S_T)dS_T.$$\n\nDifferentiate again:\n\n$$\\frac{\\partial^2 C}{\\partial K^2}=e^{-rT}f_Q(K).$$",
+    "formula": "∂²C/∂K² = e^(-rT) f_Q(K)",
+    "common_mistake": "This result requires option prices across strikes and careful smoothing/interpolation in practice.",
+    "interview_tip": "This connects directly to option-implied densities and your PhD research.",
+    "tags": [
+      "Risk-Neutral Density",
+      "Breeden-Litzenberger",
+      "Option-Implied Distribution"
     ]
   }
 ]
