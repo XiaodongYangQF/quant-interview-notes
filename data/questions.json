@@ -1,0 +1,195 @@
+[
+  {
+    "id": "prob_001",
+    "topic": "Probability",
+    "subtopic": "Conditional Probability",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is Bayes' rule and why is it important in quant interviews?",
+    "intuition": "Bayes' rule is used when you observe an outcome and need to infer the hidden cause or state.",
+    "solution": "Bayes' rule is P(A|B) = P(B|A)P(A) / P(B). In quant interviews, it appears in conditional probability puzzles, signal extraction, credit risk, and Bayesian updating.",
+    "formula": "P(A|B) = P(B|A)P(A) / P(B)",
+    "tags": [
+      "Bayes",
+      "Conditional Probability",
+      "Interview Basics"
+    ]
+  },
+  {
+    "id": "prob_002",
+    "topic": "Probability",
+    "subtopic": "Classic Puzzle",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "In the Monty Hall problem, should you switch doors?",
+    "intuition": "The host's action is informative because the host knows where the prize is.",
+    "solution": "Yes. The probability that your original door is correct is 1/3. The probability that the prize is in one of the other two doors is 2/3. After the host opens a losing door, switching wins with probability 2/3.",
+    "formula": "P(win by switching) = 2/3",
+    "tags": [
+      "Monty Hall",
+      "Conditional Probability",
+      "Symmetry"
+    ]
+  },
+  {
+    "id": "prob_003",
+    "topic": "Probability",
+    "subtopic": "Expectation",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the expected number of fair coin tosses until the first head?",
+    "intuition": "This is a geometric waiting-time problem.",
+    "solution": "For a geometric random variable counting trials until the first success, E[N] = 1/p. For a fair coin, p = 1/2, so E[N] = 2.",
+    "formula": "E[N] = 1/p",
+    "tags": [
+      "Geometric Distribution",
+      "Expectation",
+      "Coin Toss"
+    ]
+  },
+  {
+    "id": "prob_004",
+    "topic": "Probability",
+    "subtopic": "Order Statistics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the expected maximum of n independent Uniform(0,1) random variables?",
+    "intuition": "The maximum is below x only if all observations are below x.",
+    "solution": "Let M = max(U1, ..., Un). Then P(M <= x) = x^n for x in [0,1]. The density is f_M(x) = n x^(n-1). Therefore E[M] = ∫_0^1 x n x^(n-1) dx = n/(n+1).",
+    "formula": "E[max(U1,...,Un)] = n/(n+1)",
+    "tags": [
+      "Order Statistics",
+      "Uniform Distribution",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_005",
+    "topic": "Probability",
+    "subtopic": "Poisson Distribution",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "For N ~ Poisson(lambda), what is the probability that N is even?",
+    "intuition": "Separate the Poisson probability mass into even and odd terms using the exponential series.",
+    "solution": "The result is P(N is even) = 0.5 * (1 + exp(-2lambda)). This follows from the even terms of the exponential expansion.",
+    "formula": "P(N even) = (1 + e^(-2λ)) / 2",
+    "tags": [
+      "Poisson",
+      "Series",
+      "Probability"
+    ]
+  },
+  {
+    "id": "prob_006",
+    "topic": "Probability",
+    "subtopic": "Random Walk",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "In a symmetric gambler's ruin problem with boundaries 0 and b, starting from i, what is the probability of hitting b before 0?",
+    "intuition": "For a fair random walk, the hitting probability is linear in the starting position.",
+    "solution": "For a symmetric random walk, P(hit b before 0 | start at i) = i / b.",
+    "formula": "P(hit b before 0) = i / b",
+    "tags": [
+      "Random Walk",
+      "Gambler's Ruin",
+      "Martingale"
+    ]
+  },
+  {
+    "id": "stats_001",
+    "topic": "Statistics",
+    "subtopic": "Estimation",
+    "difficulty": "Easy",
+    "status": "Draft",
+    "question": "What is the difference between Method of Moments and Maximum Likelihood Estimation?",
+    "intuition": "Both estimate parameters, but they match different objects.",
+    "solution": "Method of Moments chooses parameters so that theoretical moments match sample moments. Maximum Likelihood Estimation chooses parameters that maximize the likelihood of observing the sample data under the assumed model.",
+    "formula": "MoM: sample moments = model moments; MLE: maximize L(θ)",
+    "tags": [
+      "MLE",
+      "Method of Moments",
+      "Estimation"
+    ]
+  },
+  {
+    "id": "ts_001",
+    "topic": "Time Series",
+    "subtopic": "Stationarity",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "What does stationarity mean in time-series modeling?",
+    "intuition": "A stationary process has stable statistical properties over time.",
+    "solution": "Weak stationarity usually means the mean is constant, the variance is finite and constant, and the autocovariance depends only on the lag, not on calendar time.",
+    "formula": "E[X_t]=μ, Var(X_t)=σ², Cov(X_t,X_{t-k})=γ(k)",
+    "tags": [
+      "Stationarity",
+      "Time Series",
+      "Forecasting"
+    ]
+  },
+  {
+    "id": "deriv_001",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "What is the intuition behind the Black-Scholes-Merton model?",
+    "intuition": "The model prices options by constructing a continuously rebalanced hedged portfolio.",
+    "solution": "The key idea is delta hedging. By holding the option and a position in the underlying asset, the random component can be eliminated locally. The hedged portfolio must then earn the risk-free rate, leading to the Black-Scholes PDE and the option pricing formula.",
+    "formula": "∂V/∂t + 0.5σ²S²∂²V/∂S² + rS∂V/∂S - rV = 0",
+    "tags": [
+      "BSM",
+      "Delta Hedging",
+      "Option Pricing"
+    ]
+  },
+  {
+    "id": "greeks_001",
+    "topic": "Derivatives",
+    "subtopic": "Greeks",
+    "difficulty": "Easy",
+    "status": "Draft",
+    "question": "What is delta?",
+    "intuition": "Delta measures the sensitivity of an option price to a small change in the underlying price.",
+    "solution": "Delta is the first derivative of the option value with respect to the underlying asset price. For a call option, delta is usually between 0 and 1. For a put option, delta is usually between -1 and 0.",
+    "formula": "Delta = ∂V / ∂S",
+    "tags": [
+      "Greeks",
+      "Delta",
+      "Risk Management"
+    ]
+  },
+  {
+    "id": "code_001",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Easy",
+    "status": "Draft",
+    "question": "How would you simulate correlated normal random variables in Python?",
+    "intuition": "Start with independent standard normals and transform them using a covariance decomposition.",
+    "solution": "Use Cholesky decomposition. If Σ = LLᵀ and Z is a vector of independent standard normal variables, then X = LZ has covariance matrix Σ.",
+    "formula": "X = LZ, where Σ = LLᵀ",
+    "tags": [
+      "Python",
+      "Simulation",
+      "Cholesky",
+      "Correlated Normals"
+    ]
+  },
+  {
+    "id": "brain_001",
+    "topic": "Brainteasers",
+    "subtopic": "Logic Puzzle",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "You have two ropes. Each rope takes one hour to burn, but burns unevenly. How do you measure 45 minutes?",
+    "intuition": "Burning a rope from both ends halves the total burning time, even if the burn rate is uneven.",
+    "solution": "Light Rope 1 from both ends and Rope 2 from one end. Rope 1 finishes after 30 minutes. At that moment, light the other end of Rope 2. Rope 2 then finishes in 15 more minutes. Total time is 45 minutes.",
+    "formula": "",
+    "tags": [
+      "Brainteaser",
+      "Logic",
+      "Timing"
+    ]
+  }
+]
