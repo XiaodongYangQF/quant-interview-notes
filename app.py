@@ -3111,7 +3111,6 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.18A: More public-safe coding exercises
             - Version 1.19A: UI cleanup and final portfolio polish
             - Version 2.0: Optional persistent progress tracking
             """
