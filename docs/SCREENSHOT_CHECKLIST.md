@@ -17,6 +17,7 @@ quiz_mode.png
 mock_interview.png
 coding_exercise.png
 formula_revision.png
+performance_analytics.png
 review_mode.png
 formula_sheet.png
 content_dashboard.png
@@ -66,30 +67,37 @@ Show:
 - revealed answer if possible
 - self-assessment buttons
 
-### 7. review_mode.png
+### 7. performance_analytics.png
+Show:
+- quiz/mock analytics metrics
+- topic performance table
+- difficulty performance table
+- suggested next study action
+
+### 8. review_mode.png
 Show:
 - weak-topic count
 - review-list questions
 
-### 8. formula_sheet.png
+### 9. formula_sheet.png
 Show:
 - formula search
 - formula topic filter
 - several formula cards
 
-### 9. content_dashboard.png
+### 10. content_dashboard.png
 Show:
 - quality metrics
 - topic coverage
 - validation checks
 
-### 10. curation_workspace.png
+### 11. curation_workspace.png
 Show:
 - curation filters
 - curation table
 - selected question preview or raw JSON
 
-### 11. content_workflow.png
+### 12. content_workflow.png
 Show:
 - recommended update workflow
 - public/private content rule

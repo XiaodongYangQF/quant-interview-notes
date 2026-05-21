@@ -2373,6 +2373,265 @@ def render_formula_revision_mode(formulas):
                 )
 
 
+
+def build_practice_analytics(questions):
+    """Build analytics from current quiz/mock session state."""
+    quiz_questions = st.session_state.get("quiz_questions", [])
+    results = st.session_state.get("quiz_results", {})
+
+    if not quiz_questions:
+        return None
+
+    rows = []
+    for q in quiz_questions:
+        qid = q.get("id", "")
+        result = results.get(qid, {}).get("result", "Unanswered")
+        rows.append(
+            {
+                "id": qid,
+                "topic": q.get("topic", "Unknown"),
+                "subtopic": q.get("subtopic", ""),
+                "difficulty": q.get("difficulty", ""),
+                "status": q.get("status", ""),
+                "result": result,
+                "score": quiz_score_value(result) if result != "Unanswered" else 0.0,
+                "question": q.get("question", ""),
+            }
+        )
+
+    total = len(rows)
+    answered = sum(row["result"] != "Unanswered" for row in rows)
+    raw_score = sum(row["score"] for row in rows)
+    score_percent = 100 * raw_score / total if total else 0
+
+    topic_summary = []
+    for topic in sorted({row["topic"] for row in rows}):
+        subset = [row for row in rows if row["topic"] == topic]
+        topic_total = len(subset)
+        topic_answered = sum(row["result"] != "Unanswered" for row in subset)
+        topic_score = sum(row["score"] for row in subset)
+        topic_summary.append(
+            {
+                "Topic": topic,
+                "Questions": topic_total,
+                "Answered": topic_answered,
+                "Score": f"{topic_score:.1f}/{topic_total}",
+                "Score %": f"{100 * topic_score / topic_total:.1f}%" if topic_total else "0.0%",
+                "Need review": sum(row["result"] in {"Wrong", "Partially correct", "Need review"} for row in subset),
+            }
+        )
+
+    difficulty_summary = []
+    for difficulty in sorted({row["difficulty"] for row in rows}):
+        subset = [row for row in rows if row["difficulty"] == difficulty]
+        diff_total = len(subset)
+        diff_score = sum(row["score"] for row in subset)
+        difficulty_summary.append(
+            {
+                "Difficulty": difficulty,
+                "Questions": diff_total,
+                "Score": f"{diff_score:.1f}/{diff_total}",
+                "Score %": f"{100 * diff_score / diff_total:.1f}%" if diff_total else "0.0%",
+                "Need review": sum(row["result"] in {"Wrong", "Partially correct", "Need review"} for row in subset),
+            }
+        )
+
+    review_rows = [
+        row for row in rows
+        if row["result"] in {"Wrong", "Partially correct", "Need review", "Unanswered"}
+    ]
+
+    return {
+        "rows": rows,
+        "summary": {
+            "total": total,
+            "answered": answered,
+            "raw_score": raw_score,
+            "score_percent": score_percent,
+            "need_review": len([r for r in rows if r["result"] in {"Wrong", "Partially correct", "Need review"}]),
+            "unanswered": len([r for r in rows if r["result"] == "Unanswered"]),
+        },
+        "topic_summary": topic_summary,
+        "difficulty_summary": difficulty_summary,
+        "review_rows": review_rows,
+    }
+
+
+def build_coding_analytics():
+    """Build analytics from the current coding exercise state."""
+    current = st.session_state.get("coding_current", None)
+    result = st.session_state.get("coding_result", None)
+
+    if current is None:
+        return None
+
+    return {
+        "id": current.get("id", ""),
+        "topic": current.get("topic", ""),
+        "subtopic": current.get("subtopic", ""),
+        "difficulty": current.get("difficulty", ""),
+        "question": current.get("question", ""),
+        "result": result or "Not assessed",
+    }
+
+
+def build_formula_analytics():
+    """Build analytics from the current formula revision state."""
+    current = st.session_state.get("formula_current", None)
+    result = st.session_state.get("formula_result", None)
+
+    if current is None:
+        return None
+
+    return {
+        "id": current.get("id", ""),
+        "name": current.get("name", ""),
+        "topic": current.get("topic", ""),
+        "subtopic": current.get("subtopic", ""),
+        "mode": st.session_state.get("formula_mode", ""),
+        "result": result or "Not assessed",
+    }
+
+
+def render_performance_analytics(questions, formulas):
+    """Render lightweight analytics for current practice sessions."""
+    st.subheader("Performance Analytics")
+
+    st.markdown(
+        """
+        This dashboard summarizes the current practice session. It does not permanently store user data.
+        Use the export buttons if you want to save your results externally.
+        """
+    )
+
+    quiz_analytics = build_practice_analytics(questions)
+    coding_analytics = build_coding_analytics()
+    formula_analytics = build_formula_analytics()
+
+    st.markdown("### Quiz / Mock Interview Analytics")
+
+    if quiz_analytics is None:
+        st.info("No quiz or mock interview session is active yet.")
+    else:
+        summary = quiz_analytics["summary"]
+
+        c1, c2, c3, c4, c5 = st.columns(5)
+        c1.metric("Questions", summary["total"])
+        c2.metric("Answered", summary["answered"])
+        c3.metric("Score", f"{summary['raw_score']:.1f}/{summary['total']}")
+        c4.metric("Score %", f"{summary['score_percent']:.1f}%")
+        c5.metric("Need review", summary["need_review"])
+
+        st.markdown("#### Topic performance")
+        st.dataframe(quiz_analytics["topic_summary"], use_container_width=True, hide_index=True)
+
+        st.markdown("#### Difficulty performance")
+        st.dataframe(quiz_analytics["difficulty_summary"], use_container_width=True, hide_index=True)
+
+        with st.expander("Review-priority questions", expanded=False):
+            if quiz_analytics["review_rows"]:
+                st.dataframe(
+                    [
+                        {
+                            "id": row["id"],
+                            "topic": row["topic"],
+                            "subtopic": row["subtopic"],
+                            "difficulty": row["difficulty"],
+                            "result": row["result"],
+                            "question": row["question"][:140],
+                        }
+                        for row in quiz_analytics["review_rows"]
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            else:
+                st.success("No weak questions in the current session.")
+
+        st.download_button(
+            label="Download quiz/mock analytics JSON",
+            data=json.dumps(quiz_analytics, indent=2, ensure_ascii=False),
+            file_name="quant_interview_practice_analytics.json",
+            mime="application/json",
+        )
+
+        csv_rows = quiz_analytics["rows"]
+        csv_text = "id,topic,subtopic,difficulty,status,result,score,question\n"
+        for row in csv_rows:
+            safe_question = str(row["question"]).replace('"', '""').replace("\n", " ")
+            csv_text += (
+                f'"{row["id"]}","{row["topic"]}","{row["subtopic"]}",'
+                f'"{row["difficulty"]}","{row["status"]}","{row["result"]}",'
+                f'{row["score"]},"{safe_question}"\n'
+            )
+
+        st.download_button(
+            label="Download quiz/mock analytics CSV",
+            data=csv_text,
+            file_name="quant_interview_practice_analytics.csv",
+            mime="text/csv",
+        )
+
+    st.markdown("---")
+    st.markdown("### Coding Exercise Analytics")
+
+    if coding_analytics is None:
+        st.info("No coding exercise is active yet.")
+    else:
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Current result", coding_analytics["result"])
+        c2.metric("Category", coding_analytics["subtopic"])
+        c3.metric("Difficulty", coding_analytics["difficulty"])
+
+        st.dataframe([coding_analytics], use_container_width=True, hide_index=True)
+
+        st.download_button(
+            label="Download coding analytics JSON",
+            data=json.dumps(coding_analytics, indent=2, ensure_ascii=False),
+            file_name="quant_interview_coding_analytics.json",
+            mime="application/json",
+        )
+
+    st.markdown("---")
+    st.markdown("### Formula Revision Analytics")
+
+    if formula_analytics is None:
+        st.info("No formula revision item is active yet.")
+    else:
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Current result", formula_analytics["result"])
+        c2.metric("Topic", formula_analytics["topic"])
+        c3.metric("Mode", formula_analytics["mode"])
+
+        st.dataframe([formula_analytics], use_container_width=True, hide_index=True)
+
+        st.download_button(
+            label="Download formula analytics JSON",
+            data=json.dumps(formula_analytics, indent=2, ensure_ascii=False),
+            file_name="quant_interview_formula_analytics.json",
+            mime="application/json",
+        )
+
+    st.markdown("---")
+    st.markdown("### Suggested next study action")
+
+    if quiz_analytics is not None:
+        weak_topics = [
+            row["Topic"] for row in quiz_analytics["topic_summary"]
+            if row["Need review"] > 0
+        ]
+
+        if weak_topics:
+            st.warning(
+                "Suggested review topics: "
+                + ", ".join(weak_topics[:5])
+            )
+        else:
+            st.success("No weak topics detected in the current quiz/mock session.")
+    else:
+        st.info("Start a quiz or mock interview to generate study suggestions.")
+
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -2533,8 +2792,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_analytics, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Performance Analytics", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
@@ -2763,6 +3022,10 @@ def main():
                     question_card(item, i)
 
 
+    with tab_analytics:
+        render_performance_analytics(questions, formulas)
+
+
     with tab_formula_revision:
         render_formula_revision_mode(formulas)
 
@@ -2836,6 +3099,7 @@ def main():
             - Preset Mock Interview tracks
             - Dedicated Coding Exercise Mode
             - Formula Revision Mode
+            - Performance Analytics dashboard
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
@@ -2847,7 +3111,6 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.17A: Better analytics for quiz performance
             - Version 1.18A: More public-safe coding exercises
             - Version 1.19A: UI cleanup and final portfolio polish
             - Version 2.0: Optional persistent progress tracking
