@@ -558,6 +558,385 @@ def render_home_tab(questions, formulas):
         "then Derivatives/Greeks, then Stochastic Calculus, then Coding."
     )
 
+
+def find_duplicate_values(items, key, normalizer=None):
+    """Find duplicate values for a selected key."""
+    normalizer = normalizer or (lambda x: x)
+    values = []
+
+    for item in items:
+        value = item.get(key, "")
+        if isinstance(value, str):
+            value = value.strip()
+        if value:
+            values.append(normalizer(value))
+
+    counts = Counter(values)
+    return [
+        {"Value": value, "Count": count}
+        for value, count in counts.items()
+        if count > 1
+    ]
+
+
+def build_question_quality_report(questions):
+    """Build quality-control checks for question data."""
+    required_fields = [
+        "id",
+        "topic",
+        "subtopic",
+        "difficulty",
+        "status",
+        "question",
+        "intuition",
+        "solution",
+        "tags",
+    ]
+    valid_difficulties = {"Easy", "Medium", "Hard"}
+    valid_statuses = {"Verified", "Draft"}
+
+    missing_rows = []
+    invalid_rows = []
+
+    for q in questions:
+        qid = q.get("id", "<missing id>")
+
+        for field in required_fields:
+            value = q.get(field)
+            missing = value is None or value == "" or value == []
+            if missing:
+                missing_rows.append(
+                    {
+                        "id": qid,
+                        "topic": q.get("topic", ""),
+                        "field": field,
+                        "question": q.get("question", "")[:120],
+                    }
+                )
+
+        difficulty = q.get("difficulty")
+        if difficulty not in valid_difficulties:
+            invalid_rows.append(
+                {
+                    "id": qid,
+                    "issue": "Invalid difficulty",
+                    "value": difficulty,
+                    "expected": "Easy / Medium / Hard",
+                }
+            )
+
+        status = q.get("status")
+        if status not in valid_statuses:
+            invalid_rows.append(
+                {
+                    "id": qid,
+                    "issue": "Invalid status",
+                    "value": status,
+                    "expected": "Verified / Draft",
+                }
+            )
+
+        tags = q.get("tags", [])
+        if tags and not isinstance(tags, list):
+            invalid_rows.append(
+                {
+                    "id": qid,
+                    "issue": "Tags should be a list",
+                    "value": str(tags),
+                    "expected": "list[str]",
+                }
+            )
+
+        if q.get("code") and not q.get("code_language"):
+            invalid_rows.append(
+                {
+                    "id": qid,
+                    "issue": "Code exists but code_language is missing",
+                    "value": "",
+                    "expected": "python / cpp / text / etc.",
+                }
+            )
+
+    duplicate_ids = find_duplicate_values(questions, "id")
+    duplicate_questions = find_duplicate_values(
+        questions,
+        "question",
+        normalizer=lambda x: " ".join(x.lower().split()),
+    )
+
+    topic_rows = []
+    for topic in sorted({q.get("topic", "Unknown") for q in questions}):
+        topic_questions = [q for q in questions if q.get("topic", "Unknown") == topic]
+        topic_rows.append(
+            {
+                "Topic": topic,
+                "Questions": len(topic_questions),
+                "Verified": sum(q.get("status") == "Verified" for q in topic_questions),
+                "Draft": sum(q.get("status") == "Draft" for q in topic_questions),
+                "With formula": sum(bool(q.get("formula")) for q in topic_questions),
+                "With derivation": sum(bool(q.get("derivation")) for q in topic_questions),
+                "With code": sum(bool(q.get("code")) for q in topic_questions),
+            }
+        )
+
+    optional_coverage_rows = [
+        {"Field": "formula", "Count": sum(bool(q.get("formula")) for q in questions)},
+        {"Field": "derivation", "Count": sum(bool(q.get("derivation")) for q in questions)},
+        {"Field": "code", "Count": sum(bool(q.get("code")) for q in questions)},
+        {"Field": "complexity", "Count": sum(bool(q.get("complexity")) for q in questions)},
+        {"Field": "common_mistake", "Count": sum(bool(q.get("common_mistake")) for q in questions)},
+        {"Field": "interview_tip", "Count": sum(bool(q.get("interview_tip")) for q in questions)},
+    ]
+
+    formula_missing_rows = [
+        {
+            "id": q.get("id", ""),
+            "topic": q.get("topic", ""),
+            "difficulty": q.get("difficulty", ""),
+            "question": q.get("question", "")[:120],
+        }
+        for q in questions
+        if not q.get("formula")
+    ]
+
+    draft_rows = [
+        {
+            "id": q.get("id", ""),
+            "topic": q.get("topic", ""),
+            "subtopic": q.get("subtopic", ""),
+            "difficulty": q.get("difficulty", ""),
+            "question": q.get("question", "")[:120],
+        }
+        for q in questions
+        if q.get("status") == "Draft"
+    ]
+
+    return {
+        "missing_rows": missing_rows,
+        "invalid_rows": invalid_rows,
+        "duplicate_ids": duplicate_ids,
+        "duplicate_questions": duplicate_questions,
+        "topic_rows": topic_rows,
+        "optional_coverage_rows": optional_coverage_rows,
+        "formula_missing_rows": formula_missing_rows,
+        "draft_rows": draft_rows,
+    }
+
+
+def build_formula_quality_report(formulas):
+    """Build quality-control checks for formula sheet data."""
+    required_fields = ["id", "topic", "subtopic", "name", "formula", "explanation", "tags"]
+
+    missing_rows = []
+    invalid_rows = []
+
+    for f in formulas:
+        fid = f.get("id", "<missing id>")
+
+        for field in required_fields:
+            value = f.get(field)
+            missing = value is None or value == "" or value == []
+            if missing:
+                missing_rows.append(
+                    {
+                        "id": fid,
+                        "topic": f.get("topic", ""),
+                        "field": field,
+                        "name": f.get("name", "")[:120],
+                    }
+                )
+
+        tags = f.get("tags", [])
+        if tags and not isinstance(tags, list):
+            invalid_rows.append(
+                {
+                    "id": fid,
+                    "issue": "Tags should be a list",
+                    "value": str(tags),
+                    "expected": "list[str]",
+                }
+            )
+
+    duplicate_ids = find_duplicate_values(formulas, "id")
+    duplicate_names = find_duplicate_values(
+        formulas,
+        "name",
+        normalizer=lambda x: " ".join(x.lower().split()),
+    )
+
+    topic_rows = []
+    for topic in sorted({f.get("topic", "Unknown") for f in formulas}):
+        topic_formulas = [f for f in formulas if f.get("topic", "Unknown") == topic]
+        topic_rows.append(
+            {
+                "Topic": topic,
+                "Formulas": len(topic_formulas),
+            }
+        )
+
+    return {
+        "missing_rows": missing_rows,
+        "invalid_rows": invalid_rows,
+        "duplicate_ids": duplicate_ids,
+        "duplicate_names": duplicate_names,
+        "topic_rows": topic_rows,
+    }
+
+
+def render_content_dashboard(questions, formulas):
+    """Render data-quality dashboard for the app content."""
+    st.subheader("Content Quality Dashboard")
+
+    st.markdown(
+        """
+        This dashboard helps maintain the quality of the JSON content behind the app.
+        It checks missing fields, duplicate IDs, duplicate questions, status coverage,
+        formula coverage, derivation coverage, and code-example coverage.
+        """
+    )
+
+    q_report = build_question_quality_report(questions)
+    f_report = build_formula_quality_report(formulas)
+
+    total_questions = len(questions)
+    total_formulas = len(formulas)
+    total_issues = (
+        len(q_report["missing_rows"])
+        + len(q_report["invalid_rows"])
+        + len(q_report["duplicate_ids"])
+        + len(q_report["duplicate_questions"])
+        + len(f_report["missing_rows"])
+        + len(f_report["invalid_rows"])
+        + len(f_report["duplicate_ids"])
+        + len(f_report["duplicate_names"])
+    )
+
+    metric_cols = st.columns(6)
+    metric_cols[0].metric("Questions", total_questions)
+    metric_cols[1].metric("Formulas", total_formulas)
+    metric_cols[2].metric("Draft questions", sum(q.get("status") == "Draft" for q in questions))
+    metric_cols[3].metric("Missing required fields", len(q_report["missing_rows"]) + len(f_report["missing_rows"]))
+    metric_cols[4].metric("Duplicate ID issues", len(q_report["duplicate_ids"]) + len(f_report["duplicate_ids"]))
+    metric_cols[5].metric("Total flagged issues", total_issues)
+
+    if total_issues == 0:
+        st.success("No major content-quality issues found.")
+    else:
+        st.warning("Some content-quality issues were flagged. Review the tables below.")
+
+    st.markdown("### Question topic coverage")
+    st.dataframe(q_report["topic_rows"], use_container_width=True, hide_index=True)
+
+    st.markdown("### Optional field coverage")
+    coverage_rows = []
+    for row in q_report["optional_coverage_rows"]:
+        count = row["Count"]
+        coverage_rows.append(
+            {
+                "Field": row["Field"],
+                "Count": count,
+                "Coverage %": f"{100 * count / total_questions:.1f}%" if total_questions else "0.0%",
+            }
+        )
+    st.dataframe(coverage_rows, use_container_width=True, hide_index=True)
+
+    st.markdown("### Formula topic coverage")
+    st.dataframe(f_report["topic_rows"], use_container_width=True, hide_index=True)
+
+    st.markdown("### Required-field checks")
+
+    with st.expander("Questions with missing required fields", expanded=False):
+        if q_report["missing_rows"]:
+            st.dataframe(q_report["missing_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No question required-field issues found.")
+
+    with st.expander("Formulas with missing required fields", expanded=False):
+        if f_report["missing_rows"]:
+            st.dataframe(f_report["missing_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No formula required-field issues found.")
+
+    st.markdown("### Duplicate checks")
+
+    dup_col1, dup_col2 = st.columns(2)
+    with dup_col1:
+        st.markdown("**Duplicate question IDs**")
+        if q_report["duplicate_ids"]:
+            st.dataframe(q_report["duplicate_ids"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No duplicate question IDs.")
+
+        st.markdown("**Duplicate formula IDs**")
+        if f_report["duplicate_ids"]:
+            st.dataframe(f_report["duplicate_ids"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No duplicate formula IDs.")
+
+    with dup_col2:
+        st.markdown("**Possible duplicate question text**")
+        if q_report["duplicate_questions"]:
+            st.dataframe(q_report["duplicate_questions"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No duplicate question text detected.")
+
+        st.markdown("**Possible duplicate formula names**")
+        if f_report["duplicate_names"]:
+            st.dataframe(f_report["duplicate_names"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No duplicate formula names detected.")
+
+    st.markdown("### Invalid value checks")
+
+    with st.expander("Invalid question values", expanded=False):
+        if q_report["invalid_rows"]:
+            st.dataframe(q_report["invalid_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No invalid question values found.")
+
+    with st.expander("Invalid formula values", expanded=False):
+        if f_report["invalid_rows"]:
+            st.dataframe(f_report["invalid_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No invalid formula values found.")
+
+    st.markdown("### Draft and formula-review lists")
+
+    review_col1, review_col2 = st.columns(2)
+
+    with review_col1:
+        st.markdown("**Draft questions**")
+        if q_report["draft_rows"]:
+            st.dataframe(q_report["draft_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("No draft questions.")
+
+    with review_col2:
+        st.markdown("**Questions without a formula field**")
+        st.caption("This is not always an error. Some conceptual or coding questions do not need formulas.")
+        if q_report["formula_missing_rows"]:
+            st.dataframe(q_report["formula_missing_rows"], use_container_width=True, hide_index=True)
+        else:
+            st.success("All questions have formula fields.")
+
+    export_payload = {
+        "question_report": q_report,
+        "formula_report": f_report,
+        "summary": {
+            "total_questions": total_questions,
+            "total_formulas": total_formulas,
+            "total_flagged_issues": total_issues,
+        },
+    }
+
+    st.markdown("### Export content-quality report")
+    st.download_button(
+        label="Download content quality report JSON",
+        data=json.dumps(export_payload, indent=2, ensure_ascii=False),
+        file_name="quant_interview_content_quality_report.json",
+        mime="application/json",
+    )
+
 def main():
     st.set_page_config(
         page_title=APP_TITLE,
@@ -647,8 +1026,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_about = st.tabs(
-        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "About"]
+    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_about = st.tabs(
+        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "About"]
     )
 
 
@@ -874,6 +1253,11 @@ def main():
                 for i, item in enumerate(filtered_formulas, start=1):
                     formula_card(item, i)
 
+
+    with tab_quality:
+        render_content_dashboard(questions, formulas)
+
+
     with tab_about:
         st.subheader("About this app")
 
@@ -895,12 +1279,15 @@ def main():
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
+            - Content Quality Dashboard for JSON validation
             - JSON-based data structure
 
             **Suggested next versions**
             - Version 1.9: More C++ and quant developer questions
+            - Version 1.10B: Content cleanup and verification workflow
             - Version 2.0: Persistent progress tracking
             - Version 1.9: More C++ and quant developer questions
+            - Version 1.10B: Content cleanup and verification workflow
             - Version 2.0: Persistent progress tracking
             """
         )
