@@ -14,6 +14,7 @@ Use these exact names:
 home.png
 question_bank.png
 quiz_mode.png
+mock_interview.png
 review_mode.png
 formula_sheet.png
 content_dashboard.png
@@ -43,30 +44,36 @@ Show:
 - active question
 - progress bar or answer area
 
-### 4. review_mode.png
+### 4. mock_interview.png
+Show:
+- track selector
+- track composition table
+- active mock question or summary
+
+### 5. review_mode.png
 Show:
 - weak-topic count
 - review-list questions
 
-### 5. formula_sheet.png
+### 6. formula_sheet.png
 Show:
 - formula search
 - formula topic filter
 - several formula cards
 
-### 6. content_dashboard.png
+### 7. content_dashboard.png
 Show:
 - quality metrics
 - topic coverage
 - validation checks
 
-### 7. curation_workspace.png
+### 8. curation_workspace.png
 Show:
 - curation filters
 - curation table
 - selected question preview or raw JSON
 
-### 8. content_workflow.png
+### 9. content_workflow.png
 Show:
 - recommended update workflow
 - public/private content rule

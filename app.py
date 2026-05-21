@@ -1553,6 +1553,345 @@ git push
         language="bash",
     )
 
+
+def get_mock_interview_tracks():
+    """Return public-safe preset mock interview tracks."""
+    return {
+        "Quant Researcher": {
+            "description": "Balanced research-style interview with probability, statistics, derivatives, stochastic calculus, and coding.",
+            "recommended_questions": 12,
+            "recommended_minutes": 45,
+            "buckets": [
+                {"label": "Probability", "topic": "Probability", "weight": 0.22},
+                {"label": "Statistics", "topic": "Statistics", "weight": 0.20},
+                {"label": "Derivatives", "topic": "Derivatives", "weight": 0.18},
+                {"label": "Stochastic Calculus", "topic": "Stochastic Calculus", "weight": 0.15},
+                {"label": "Time Series / ML", "topics": ["Time Series", "Machine Learning"], "weight": 0.15},
+                {"label": "Coding", "topic": "Coding", "weight": 0.10},
+            ],
+        },
+        "Quant Developer": {
+            "description": "Coding-heavy track for quant developer, systematic trading, and market-data roles.",
+            "recommended_questions": 12,
+            "recommended_minutes": 45,
+            "buckets": [
+                {"label": "C++", "topic": "Coding", "subtopics": ["C++"], "weight": 0.22},
+                {"label": "Algorithms", "topic": "Coding", "subtopics": ["Algorithms"], "weight": 0.20},
+                {"label": "Python", "topic": "Coding", "subtopics": ["Python"], "weight": 0.18},
+                {"label": "Quant Developer", "topic": "Coding", "subtopics": ["Quant Developer"], "weight": 0.18},
+                {"label": "Numerical Methods", "topic": "Coding", "subtopics": ["Numerical Methods"], "weight": 0.12},
+                {"label": "Probability / Statistics", "topics": ["Probability", "Statistics"], "weight": 0.10},
+            ],
+        },
+        "Derivatives Pricing": {
+            "description": "Derivative pricing, Greeks, stochastic calculus, and numerical methods.",
+            "recommended_questions": 12,
+            "recommended_minutes": 45,
+            "buckets": [
+                {"label": "Derivatives", "topic": "Derivatives", "weight": 0.35},
+                {"label": "Greeks", "topic": "Greeks", "weight": 0.18},
+                {"label": "Stochastic Calculus", "topic": "Stochastic Calculus", "weight": 0.22},
+                {"label": "Numerical / Coding", "topic": "Coding", "subtopics": ["Numerical Methods", "Python"], "weight": 0.15},
+                {"label": "Probability", "topic": "Probability", "weight": 0.10},
+            ],
+        },
+        "Probability & Brainteasers": {
+            "description": "Classic quant interview foundations: probability, expected value, and brainteasers.",
+            "recommended_questions": 10,
+            "recommended_minutes": 35,
+            "buckets": [
+                {"label": "Probability", "topic": "Probability", "weight": 0.70},
+                {"label": "Brainteasers", "topic": "Brainteasers", "weight": 0.20},
+                {"label": "Statistics", "topic": "Statistics", "weight": 0.10},
+            ],
+        },
+        "Statistics & Machine Learning": {
+            "description": "Statistics, time series, machine learning, and validation-focused questions.",
+            "recommended_questions": 12,
+            "recommended_minutes": 45,
+            "buckets": [
+                {"label": "Statistics", "topic": "Statistics", "weight": 0.35},
+                {"label": "Machine Learning", "topic": "Machine Learning", "weight": 0.25},
+                {"label": "Time Series", "topic": "Time Series", "weight": 0.25},
+                {"label": "Python / Coding", "topic": "Coding", "subtopics": ["Python"], "weight": 0.15},
+            ],
+        },
+    }
+
+
+def question_matches_bucket(question, bucket):
+    """Check whether a question belongs to a mock-interview bucket."""
+    topic = question.get("topic", "")
+    subtopic = question.get("subtopic", "")
+
+    if "topics" in bucket and topic not in bucket["topics"]:
+        return False
+
+    if "topic" in bucket and topic != bucket["topic"]:
+        return False
+
+    if "subtopics" in bucket and subtopic not in bucket["subtopics"]:
+        return False
+
+    return True
+
+
+def allocate_mock_counts(buckets, total_questions):
+    """Allocate question counts across weighted buckets using largest remainder."""
+    if total_questions <= 0:
+        return [0 for _ in buckets]
+
+    raw = [bucket.get("weight", 0) * total_questions for bucket in buckets]
+    base = [int(x) for x in raw]
+    remaining = total_questions - sum(base)
+
+    remainders = sorted(
+        enumerate([raw_i - base_i for raw_i, base_i in zip(raw, base)]),
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    for i, _ in remainders[:remaining]:
+        base[i] += 1
+
+    return base
+
+
+def select_mock_questions(questions, track_config, n_questions, difficulties, statuses, seed=None):
+    """Select questions for a weighted mock interview."""
+    rng = random.Random(seed)
+    buckets = track_config["buckets"]
+
+    base_pool = [
+        q for q in questions
+        if q.get("difficulty") in difficulties
+        and q.get("status") in statuses
+    ]
+
+    selected = []
+    selected_ids = set()
+    counts = allocate_mock_counts(buckets, n_questions)
+
+    for bucket, count in zip(buckets, counts):
+        if count <= 0:
+            continue
+
+        candidates = [
+            q for q in base_pool
+            if q.get("id") not in selected_ids
+            and question_matches_bucket(q, bucket)
+        ]
+
+        rng.shuffle(candidates)
+        chosen = candidates[:count]
+
+        selected.extend(chosen)
+        selected_ids.update(q.get("id") for q in chosen)
+
+    if len(selected) < n_questions:
+        remaining_pool = [q for q in base_pool if q.get("id") not in selected_ids]
+        rng.shuffle(remaining_pool)
+        needed = n_questions - len(selected)
+        selected.extend(remaining_pool[:needed])
+
+    rng.shuffle(selected)
+    return selected[:n_questions]
+
+
+def build_mock_track_preview(questions, track_config, difficulties, statuses):
+    """Build availability table for a mock track."""
+    rows = []
+    for bucket in track_config["buckets"]:
+        available = [
+            q for q in questions
+            if q.get("difficulty") in difficulties
+            and q.get("status") in statuses
+            and question_matches_bucket(q, bucket)
+        ]
+        rows.append(
+            {
+                "Bucket": bucket["label"],
+                "Weight": f"{100 * bucket.get('weight', 0):.0f}%",
+                "Available questions": len(available),
+            }
+        )
+    return rows
+
+
+def render_mock_interview(questions, topics, difficulties, statuses):
+    """Render mock interview tracks using the existing quiz engine."""
+    st.subheader("Mock Interview Tracks")
+
+    st.markdown(
+        """
+        Choose a preset track to simulate a structured quant interview.
+        The mock interview uses the same hidden-answer and self-assessment workflow
+        as Quiz Mode, but questions are sampled using track-specific topic weights.
+        """
+    )
+
+    tracks = get_mock_interview_tracks()
+
+    left_col, right_col = st.columns([1, 2])
+
+    with left_col:
+        st.markdown("### Track settings")
+
+        track_name = st.selectbox(
+            "Interview track",
+            list(tracks.keys()),
+            key="mock_track_name",
+        )
+        track_config = tracks[track_name]
+
+        st.info(track_config["description"])
+
+        mock_difficulties = st.multiselect(
+            "Difficulties",
+            difficulties,
+            default=difficulties,
+            key="mock_difficulties",
+        )
+
+        mock_statuses = st.multiselect(
+            "Status",
+            statuses,
+            default=["Verified"] if "Verified" in statuses else statuses,
+            key="mock_statuses",
+        )
+
+        recommended_n = track_config.get("recommended_questions", 12)
+        mock_n = st.slider(
+            "Number of questions",
+            min_value=5,
+            max_value=30,
+            value=min(recommended_n, 30),
+            step=1,
+            key="mock_n",
+        )
+
+        recommended_minutes = track_config.get("recommended_minutes", 45)
+        mock_minutes = st.slider(
+            "Target interview time (minutes)",
+            min_value=10,
+            max_value=90,
+            value=recommended_minutes,
+            step=5,
+            key="mock_minutes",
+        )
+
+        seed_text = st.text_input(
+            "Optional random seed",
+            value="",
+            key="mock_seed",
+            help="Use a fixed integer seed to reproduce the same mock interview.",
+        )
+
+        seed = None
+        if seed_text.strip():
+            try:
+                seed = int(seed_text.strip())
+            except ValueError:
+                st.warning("Seed must be an integer. The app will ignore this seed.")
+                seed = None
+
+        preview_rows = build_mock_track_preview(
+            questions,
+            track_config,
+            mock_difficulties,
+            mock_statuses,
+        )
+
+        st.markdown("### Track composition")
+        st.dataframe(preview_rows, use_container_width=True, hide_index=True)
+
+        total_available = sum(row["Available questions"] for row in preview_rows)
+        st.caption(f"Total bucket availability before de-duplication: {total_available}")
+
+        if st.button("Start / Restart Mock Interview"):
+            selected = select_mock_questions(
+                questions,
+                track_config,
+                mock_n,
+                mock_difficulties,
+                mock_statuses,
+                seed=seed,
+            )
+
+            if not selected:
+                st.warning("No questions available for this mock interview setting.")
+            else:
+                reset_quiz()
+                st.session_state.quiz_questions = selected
+                st.session_state.quiz_index = 0
+                st.session_state.quiz_results = {}
+                st.session_state.quiz_started = True
+                st.session_state.quiz_finished = False
+                st.session_state.quiz_show_answer = False
+                st.session_state.mock_track_name = track_name
+                st.session_state.mock_target_minutes = mock_minutes
+                st.rerun()
+
+        if st.button("Reset Mock Interview"):
+            reset_quiz()
+            st.rerun()
+
+    with right_col:
+        if not st.session_state.quiz_started:
+            st.info("Choose a track and click **Start / Restart Mock Interview**.")
+        elif st.session_state.quiz_finished:
+            active_track = st.session_state.get("mock_track_name", "Mock Interview")
+            target_minutes = st.session_state.get("mock_target_minutes", None)
+
+            st.markdown(f"### {active_track} summary")
+            if target_minutes:
+                st.caption(f"Target interview time: {target_minutes} minutes")
+
+            render_quiz_summary()
+        else:
+            active_track = st.session_state.get("mock_track_name", track_name)
+            target_minutes = st.session_state.get("mock_target_minutes", mock_minutes)
+
+            st.markdown(f"### Active mock interview: {active_track}")
+            st.caption(f"Target interview time: {target_minutes} minutes")
+
+            quiz_questions = st.session_state.quiz_questions
+            idx = st.session_state.quiz_index
+            current = quiz_questions[idx]
+
+            progress_value = (idx + 1) / len(quiz_questions)
+            st.progress(progress_value)
+            st.caption(f"Progress: {idx + 1}/{len(quiz_questions)}")
+
+            question_prompt_card(current, idx + 1, len(quiz_questions))
+
+            if not st.session_state.quiz_show_answer:
+                if st.button("Show answer", key="mock_show_answer"):
+                    st.session_state.quiz_show_answer = True
+                    st.rerun()
+            else:
+                quiz_answer_card(current)
+
+                st.markdown("### Self-assessment")
+                c1, c2, c3, c4 = st.columns(4)
+
+                with c1:
+                    if st.button("Correct", key="mock_correct"):
+                        record_quiz_result("Correct")
+                        st.rerun()
+                with c2:
+                    if st.button("Partially correct", key="mock_partial"):
+                        record_quiz_result("Partially correct")
+                        st.rerun()
+                with c3:
+                    if st.button("Wrong", key="mock_wrong"):
+                        record_quiz_result("Wrong")
+                        st.rerun()
+                with c4:
+                    if st.button("Need review", key="mock_review"):
+                        record_quiz_result("Need review")
+                        st.rerun()
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -1713,8 +2052,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
@@ -1904,6 +2243,10 @@ def main():
                             st.rerun()
 
 
+    with tab_mock:
+        render_mock_interview(questions, topics, difficulties, statuses)
+
+
     with tab_review:
         st.subheader("Review Mode")
 
@@ -2001,6 +2344,7 @@ def main():
             - Optional common mistake and interview tip sections
             - Random practice mode
             - Session-based quiz mode with self-assessment
+            - Preset Mock Interview tracks
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
@@ -2012,9 +2356,9 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.14A: Mock interview tracks
             - Version 1.15A: Coding exercise mode
             - Version 1.16A: Formula revision mode
+            - Version 1.17A: Better analytics for quiz performance
             - Version 2.0: Optional persistent progress tracking
             """
         )
