@@ -450,6 +450,10 @@ def initialize_quiz_state():
         "coding_current": None,
         "coding_show_solution": False,
         "coding_result": None,
+        "formula_current": None,
+        "formula_show_answer": False,
+        "formula_result": None,
+        "formula_mode": "Name → Formula",
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -2166,6 +2170,209 @@ def render_coding_exercise_mode(questions, difficulties, statuses):
                 )
 
 
+
+def render_formula_prompt(item, mode):
+    """Render formula revision prompt."""
+    with st.container(border=True):
+        topic = item.get("topic", "Unknown")
+        subtopic = item.get("subtopic", "")
+        name = item.get("name", "Untitled formula")
+        formula = item.get("formula", "")
+
+        st.caption(f"{topic} · {subtopic}")
+
+        if mode == "Name → Formula":
+            st.markdown(f"### {name}")
+            st.info("Try to recall the formula before revealing the answer.")
+        elif mode == "Formula → Meaning":
+            st.markdown("### What does this formula mean?")
+            if formula:
+                st.latex(formula)
+            st.info("Try to explain the formula, its use, and the topic it belongs to.")
+        else:
+            st.markdown(f"### {name}")
+            if formula:
+                st.latex(formula)
+
+
+def render_formula_answer(item, mode):
+    """Render formula revision answer."""
+    topic = item.get("topic", "Unknown")
+    subtopic = item.get("subtopic", "")
+    name = item.get("name", "Untitled formula")
+    formula = item.get("formula", "")
+    explanation = item.get("explanation", "")
+    tags = item.get("tags", [])
+
+    st.markdown("### Answer")
+
+    if mode == "Formula → Meaning":
+        st.markdown(f"**Name:** {name}")
+        st.caption(f"{topic} · {subtopic}")
+    else:
+        if formula:
+            st.latex(formula)
+
+    if explanation:
+        st.markdown("**Explanation**")
+        st.write(explanation)
+
+    if tags:
+        st.markdown(" ".join([f"`{tag}`" for tag in tags]))
+
+
+def render_formula_revision_mode(formulas):
+    """Render formula revision / flashcard mode."""
+    st.subheader("Formula Revision Mode")
+
+    st.markdown(
+        """
+        Use this mode to revise formulas actively instead of only reading the formula sheet.
+        You can practise from formula name to formula, or from formula to meaning.
+        """
+    )
+
+    if not formulas:
+        st.info("No formulas are available yet.")
+        return
+
+    topics = unique_values(formulas, "topic")
+
+    left_col, right_col = st.columns([1, 2])
+
+    with left_col:
+        st.markdown("### Revision settings")
+
+        mode = st.radio(
+            "Revision mode",
+            ["Name → Formula", "Formula → Meaning"],
+            index=0,
+            key="formula_revision_mode",
+        )
+
+        selected_topics = st.multiselect(
+            "Formula topics",
+            topics,
+            default=topics,
+            key="formula_revision_topics",
+        )
+
+        search_text = st.text_input(
+            "Search formulas",
+            key="formula_revision_search",
+        )
+
+        filtered_formulas = [
+            f for f in formulas
+            if f.get("topic") in selected_topics
+            and match_formula_search(f, search_text)
+        ]
+
+        st.metric("Available formulas", len(filtered_formulas))
+
+        st.markdown("### Actions")
+
+        if st.button("Generate random formula"):
+            if not filtered_formulas:
+                st.warning("No formulas match the current filters.")
+            else:
+                st.session_state.formula_current = random.choice(filtered_formulas)
+                st.session_state.formula_show_answer = False
+                st.session_state.formula_result = None
+                st.session_state.formula_mode = mode
+                st.rerun()
+
+        if filtered_formulas:
+            id_to_formula = {
+                f"{f.get('id', '')} — {f.get('name', '')[:70]}": f
+                for f in filtered_formulas
+            }
+
+            selected_label = st.selectbox(
+                "Or choose a formula",
+                list(id_to_formula.keys()),
+                key="formula_selected_item",
+            )
+
+            if st.button("Load selected formula"):
+                st.session_state.formula_current = id_to_formula[selected_label]
+                st.session_state.formula_show_answer = False
+                st.session_state.formula_result = None
+                st.session_state.formula_mode = mode
+                st.rerun()
+
+        if st.button("Reset formula revision"):
+            st.session_state.formula_current = None
+            st.session_state.formula_show_answer = False
+            st.session_state.formula_result = None
+            st.session_state.formula_mode = mode
+            st.rerun()
+
+        st.markdown("### Topic overview")
+        topic_rows = []
+        for topic in topics:
+            subset = [f for f in formulas if f.get("topic") == topic]
+            topic_rows.append(
+                {
+                    "Topic": topic,
+                    "Formulas": len(subset),
+                    "Subtopics": len({f.get("subtopic", "") for f in subset if f.get("subtopic", "")}),
+                }
+            )
+        st.dataframe(topic_rows, use_container_width=True, hide_index=True)
+
+    with right_col:
+        current = st.session_state.get("formula_current", None)
+
+        if current is None:
+            st.info("Generate or load a formula to start revision.")
+            return
+
+        active_mode = st.session_state.get("formula_mode", mode)
+
+        render_formula_prompt(current, active_mode)
+
+        if not st.session_state.get("formula_show_answer", False):
+            if st.button("Reveal answer"):
+                st.session_state.formula_show_answer = True
+                st.rerun()
+        else:
+            render_formula_answer(current, active_mode)
+
+            st.markdown("### Self-assessment")
+            c1, c2, c3 = st.columns(3)
+
+            with c1:
+                if st.button("Remembered"):
+                    st.session_state.formula_result = "Remembered"
+            with c2:
+                if st.button("Partially remembered"):
+                    st.session_state.formula_result = "Partially remembered"
+            with c3:
+                if st.button("Need review"):
+                    st.session_state.formula_result = "Need review"
+
+            if st.session_state.get("formula_result"):
+                st.success(f"Marked as: {st.session_state.formula_result}")
+
+                current_id = current.get("id", "")
+                current_record = {
+                    "id": current_id,
+                    "name": current.get("name", ""),
+                    "topic": current.get("topic", ""),
+                    "subtopic": current.get("subtopic", ""),
+                    "mode": active_mode,
+                    "result": st.session_state.formula_result,
+                }
+
+                st.download_button(
+                    label="Download this formula review result JSON",
+                    data=json.dumps(current_record, indent=2, ensure_ascii=False),
+                    file_name=f"{current_id}_formula_review_result.json",
+                    mime="application/json",
+                )
+
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -2326,8 +2533,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
@@ -2556,6 +2763,10 @@ def main():
                     question_card(item, i)
 
 
+    with tab_formula_revision:
+        render_formula_revision_mode(formulas)
+
+
     with tab_formula:
         st.subheader("Formula Sheet")
 
@@ -2624,6 +2835,7 @@ def main():
             - Session-based quiz mode with self-assessment
             - Preset Mock Interview tracks
             - Dedicated Coding Exercise Mode
+            - Formula Revision Mode
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
@@ -2635,9 +2847,9 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.16A: Formula revision mode
             - Version 1.17A: Better analytics for quiz performance
             - Version 1.18A: More public-safe coding exercises
+            - Version 1.19A: UI cleanup and final portfolio polish
             - Version 2.0: Optional persistent progress tracking
             """
         )
