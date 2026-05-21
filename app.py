@@ -7,6 +7,7 @@ import streamlit as st
 
 APP_TITLE = "Quant Interview Trainer"
 DATA_PATH = Path(__file__).parent / "data" / "questions.json"
+FORMULA_PATH = Path(__file__).parent / "data" / "formulas.json"
 
 
 @st.cache_data
@@ -15,6 +16,15 @@ def load_questions(file_mtime):
     if not DATA_PATH.exists():
         return []
     with DATA_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@st.cache_data
+def load_formulas(file_mtime):
+    """Load formula sheet data from JSON. Cache refreshes when the JSON file changes."""
+    if not FORMULA_PATH.exists():
+        return []
+    with FORMULA_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -42,6 +52,23 @@ def match_search(item, search_text):
         item.get("interview_tip", ""),
         item.get("topic", ""),
         item.get("subtopic", ""),
+        " ".join(item.get("tags", [])),
+    ]
+
+    text = " ".join(searchable_fields).lower()
+    return search_text.lower() in text
+
+
+def match_formula_search(item, search_text):
+    if not search_text:
+        return True
+
+    searchable_fields = [
+        item.get("name", ""),
+        item.get("topic", ""),
+        item.get("subtopic", ""),
+        item.get("formula", ""),
+        item.get("explanation", ""),
         " ".join(item.get("tags", [])),
     ]
 
@@ -95,6 +122,24 @@ def question_card(item, index):
         render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
 
 
+def formula_card(item, index):
+    with st.container(border=True):
+        st.markdown(f"### {index}. {item.get('name', 'Untitled formula')}")
+        st.caption(f"{item.get('topic', 'Unknown')} · {item.get('subtopic', '')}")
+
+        formula = item.get("formula", "")
+        if formula:
+            st.latex(formula)
+
+        explanation = item.get("explanation", "")
+        if explanation:
+            st.write(explanation)
+
+        tags = item.get("tags", [])
+        if tags:
+            st.markdown(" ".join([f"`{tag}`" for tag in tags]))
+
+
 def main():
     st.set_page_config(
         page_title=APP_TITLE,
@@ -102,8 +147,11 @@ def main():
         layout="wide",
     )
 
-    file_mtime = DATA_PATH.stat().st_mtime if DATA_PATH.exists() else 0
-    questions = load_questions(file_mtime)
+    question_mtime = DATA_PATH.stat().st_mtime if DATA_PATH.exists() else 0
+    formula_mtime = FORMULA_PATH.stat().st_mtime if FORMULA_PATH.exists() else 0
+
+    questions = load_questions(question_mtime)
+    formulas = load_formulas(formula_mtime)
 
     st.title("📈 Quant Interview Trainer")
     st.markdown(
@@ -125,7 +173,7 @@ def main():
     tags = unique_tags(questions)
     n_derivations = sum(bool(q.get("derivation")) for q in questions)
 
-    st.sidebar.header("Filters")
+    st.sidebar.header("Question Filters")
 
     search_text = st.sidebar.text_input("Search questions, answers, derivations, or tags")
 
@@ -175,8 +223,8 @@ def main():
     col4.metric("Verified", sum(q.get("status") == "Verified" for q in questions))
     col5.metric("With derivations", n_derivations)
 
-    tab_bank, tab_practice, tab_about = st.tabs(
-        ["Question Bank", "Practice Mode", "About"]
+    tab_bank, tab_practice, tab_formula, tab_about = st.tabs(
+        ["Question Bank", "Practice Mode", "Formula Sheet", "About"]
     )
 
     with tab_bank:
@@ -207,6 +255,37 @@ def main():
         else:
             st.info("Generate a question to start practice mode.")
 
+    with tab_formula:
+        st.subheader("Formula Sheet")
+
+        if not formulas:
+            st.info("No formulas found. Please check data/formulas.json.")
+        else:
+            formula_topics = unique_values(formulas, "topic")
+            formula_search = st.text_input("Search formulas", key="formula_search")
+
+            selected_formula_topics = st.multiselect(
+                "Formula topics",
+                formula_topics,
+                default=formula_topics,
+                key="formula_topics",
+            )
+
+            filtered_formulas = [
+                item
+                for item in formulas
+                if item.get("topic") in selected_formula_topics
+                and match_formula_search(item, formula_search)
+            ]
+
+            st.caption(f"Showing {len(filtered_formulas)} of {len(formulas)} formulas")
+
+            if not filtered_formulas:
+                st.info("No formulas match the current filters.")
+            else:
+                for i, item in enumerate(filtered_formulas, start=1):
+                    formula_card(item, i)
+
     with tab_about:
         st.subheader("About this app")
 
@@ -221,13 +300,13 @@ def main():
             - Optional math derivation sections
             - Optional common mistake and interview tip sections
             - Random practice mode
+            - Formula sheet / quick reference tab
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.2: Derivatives and Greeks question bank
-            - Version 1.3: Stochastic calculus question bank
-            - Version 1.4: Formula sheet
+            - Version 1.4B: Improve formula sheet structure and add copy-friendly formulas
             - Version 1.5: Python/C++ coding interview section
+            - Version 1.6: Statistics, time series, and machine learning question bank
             - Version 2.0: Progress tracking and quiz mode
             """
         )

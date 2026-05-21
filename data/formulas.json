@@ -1,0 +1,513 @@
+[
+  {
+    "id": "prob_formula_001",
+    "topic": "Probability",
+    "subtopic": "Conditional Probability",
+    "name": "Conditional probability",
+    "formula": "P(A \\mid B)=\\frac{P(A\\cap B)}{P(B)}",
+    "explanation": "Probability of A after B is known.",
+    "tags": [
+      "conditional probability",
+      "bayes"
+    ]
+  },
+  {
+    "id": "prob_formula_002",
+    "topic": "Probability",
+    "subtopic": "Conditional Probability",
+    "name": "Bayes' rule",
+    "formula": "P(A \\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}",
+    "explanation": "Used to infer hidden states after observing evidence.",
+    "tags": [
+      "bayes",
+      "conditional probability"
+    ]
+  },
+  {
+    "id": "prob_formula_003",
+    "topic": "Probability",
+    "subtopic": "Total Probability",
+    "name": "Law of total probability",
+    "formula": "P(B)=\\sum_i P(B\\mid A_i)P(A_i)",
+    "explanation": "Breaks an event into mutually exclusive states.",
+    "tags": [
+      "total probability"
+    ]
+  },
+  {
+    "id": "prob_formula_004",
+    "topic": "Probability",
+    "subtopic": "Expectation",
+    "name": "Linearity of expectation",
+    "formula": "\\mathbb{E}[X+Y]=\\mathbb{E}[X]+\\mathbb{E}[Y]",
+    "explanation": "Works even when X and Y are dependent.",
+    "tags": [
+      "expectation"
+    ]
+  },
+  {
+    "id": "prob_formula_005",
+    "topic": "Probability",
+    "subtopic": "Variance",
+    "name": "Variance identity",
+    "formula": "\\operatorname{Var}(X)=\\mathbb{E}[X^2]-(\\mathbb{E}[X])^2",
+    "explanation": "Commonly used to compute variance from moments.",
+    "tags": [
+      "variance",
+      "moments"
+    ]
+  },
+  {
+    "id": "prob_formula_006",
+    "topic": "Probability",
+    "subtopic": "Covariance",
+    "name": "Covariance",
+    "formula": "\\operatorname{Cov}(X,Y)=\\mathbb{E}[XY]-\\mathbb{E}[X]\\mathbb{E}[Y]",
+    "explanation": "Measures co-movement between two random variables.",
+    "tags": [
+      "covariance",
+      "correlation"
+    ]
+  },
+  {
+    "id": "prob_formula_007",
+    "topic": "Probability",
+    "subtopic": "Correlation",
+    "name": "Correlation",
+    "formula": "\\rho_{X,Y}=\\frac{\\operatorname{Cov}(X,Y)}{\\sigma_X\\sigma_Y}",
+    "explanation": "Normalized covariance.",
+    "tags": [
+      "correlation",
+      "covariance"
+    ]
+  },
+  {
+    "id": "prob_formula_008",
+    "topic": "Probability",
+    "subtopic": "Geometric Distribution",
+    "name": "Geometric waiting time",
+    "formula": "\\mathbb{E}[N]=\\frac{1}{p},\\qquad \\operatorname{Var}(N)=\\frac{1-p}{p^2}",
+    "explanation": "For the number of trials until first success.",
+    "tags": [
+      "geometric",
+      "waiting time"
+    ]
+  },
+  {
+    "id": "prob_formula_009",
+    "topic": "Probability",
+    "subtopic": "Binomial Distribution",
+    "name": "Binomial mean and variance",
+    "formula": "X\\sim Bin(n,p):\\quad \\mathbb{E}[X]=np,\\quad \\operatorname{Var}(X)=np(1-p)",
+    "explanation": "Number of successes in n independent Bernoulli trials.",
+    "tags": [
+      "binomial"
+    ]
+  },
+  {
+    "id": "prob_formula_010",
+    "topic": "Probability",
+    "subtopic": "Poisson Distribution",
+    "name": "Poisson probability mass function",
+    "formula": "P(N=k)=\\frac{\\lambda^k e^{-\\lambda}}{k!}",
+    "explanation": "Used for counts and arrivals.",
+    "tags": [
+      "poisson"
+    ]
+  },
+  {
+    "id": "prob_formula_011",
+    "topic": "Probability",
+    "subtopic": "Poisson Distribution",
+    "name": "Poisson even probability",
+    "formula": "P(N\\text{ is even})=\\frac{1+e^{-2\\lambda}}{2}",
+    "explanation": "Classic interview result from the exponential series.",
+    "tags": [
+      "poisson",
+      "even probability"
+    ]
+  },
+  {
+    "id": "prob_formula_012",
+    "topic": "Probability",
+    "subtopic": "Order Statistics",
+    "name": "Expected maximum of Uniform(0,1)",
+    "formula": "\\mathbb{E}[\\max(U_1,\\ldots,U_n)]=\\frac{n}{n+1}",
+    "explanation": "One of the most common order-statistics results.",
+    "tags": [
+      "order statistics",
+      "uniform"
+    ]
+  },
+  {
+    "id": "prob_formula_013",
+    "topic": "Probability",
+    "subtopic": "Order Statistics",
+    "name": "Expected minimum of Uniform(0,1)",
+    "formula": "\\mathbb{E}[\\min(U_1,\\ldots,U_n)]=\\frac{1}{n+1}",
+    "explanation": "Useful companion to the expected maximum.",
+    "tags": [
+      "order statistics",
+      "uniform"
+    ]
+  },
+  {
+    "id": "prob_formula_014",
+    "topic": "Probability",
+    "subtopic": "Random Walk",
+    "name": "Symmetric gambler's ruin",
+    "formula": "P(\\text{hit } b \\text{ before }0\\mid S_0=i)=\\frac{i}{b}",
+    "explanation": "Hitting probability for a fair random walk.",
+    "tags": [
+      "random walk",
+      "gambler's ruin"
+    ]
+  },
+  {
+    "id": "prob_formula_015",
+    "topic": "Probability",
+    "subtopic": "Balls and Bins",
+    "name": "Expected number of empty bins",
+    "formula": "\\mathbb{E}[\\#\\text{ empty bins}]=n\\left(1-\\frac{1}{n}\\right)^n\\approx \\frac{n}{e}",
+    "explanation": "Solved quickly using indicator variables.",
+    "tags": [
+      "balls and bins",
+      "indicator variables"
+    ]
+  },
+  {
+    "id": "deriv_formula_001",
+    "topic": "Derivatives",
+    "subtopic": "Forward Price",
+    "name": "Forward price without dividends",
+    "formula": "F_0=S_0e^{rT}",
+    "explanation": "No-arbitrage forward price for a non-dividend-paying stock.",
+    "tags": [
+      "forward",
+      "no-arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_formula_002",
+    "topic": "Derivatives",
+    "subtopic": "Forward Price",
+    "name": "Forward price with continuous dividend yield",
+    "formula": "F_0=S_0e^{(r-q)T}",
+    "explanation": "Dividend yield reduces the forward price.",
+    "tags": [
+      "forward",
+      "dividend yield"
+    ]
+  },
+  {
+    "id": "deriv_formula_003",
+    "topic": "Derivatives",
+    "subtopic": "Put-Call Parity",
+    "name": "Put-call parity",
+    "formula": "C-P=S_0-Ke^{-rT}",
+    "explanation": "European options, no dividends.",
+    "tags": [
+      "put-call parity",
+      "no-arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_formula_004",
+    "topic": "Derivatives",
+    "subtopic": "Risk-Neutral Pricing",
+    "name": "Risk-neutral pricing",
+    "formula": "V_0=e^{-rT}\\mathbb{E}^{\\mathbb{Q}}[H(S_T)]",
+    "explanation": "Derivative value as discounted expected payoff under Q.",
+    "tags": [
+      "risk-neutral pricing",
+      "martingale"
+    ]
+  },
+  {
+    "id": "deriv_formula_005",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "name": "Black-Scholes PDE",
+    "formula": "V_t+\\frac{1}{2}\\sigma^2S^2V_{SS}+rSV_S-rV=0",
+    "explanation": "Obtained by applying Ito's lemma and delta hedging.",
+    "tags": [
+      "BSM",
+      "PDE",
+      "delta hedging"
+    ]
+  },
+  {
+    "id": "deriv_formula_006",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "name": "Black-Scholes call price",
+    "formula": "C=S_0N(d_1)-Ke^{-rT}N(d_2)",
+    "explanation": "European call price without dividends.",
+    "tags": [
+      "BSM",
+      "call option"
+    ]
+  },
+  {
+    "id": "deriv_formula_007",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "name": "Black-Scholes put price",
+    "formula": "P=Ke^{-rT}N(-d_2)-S_0N(-d_1)",
+    "explanation": "European put price without dividends.",
+    "tags": [
+      "BSM",
+      "put option"
+    ]
+  },
+  {
+    "id": "deriv_formula_008",
+    "topic": "Derivatives",
+    "subtopic": "Black-Scholes-Merton",
+    "name": "Black-Scholes d1 and d2",
+    "formula": "d_1=\\frac{\\ln(S_0/K)+(r+\\frac{1}{2}\\sigma^2)T}{\\sigma\\sqrt{T}},\\qquad d_2=d_1-\\sigma\\sqrt{T}",
+    "explanation": "Core terms in the BSM formula.",
+    "tags": [
+      "BSM",
+      "d1",
+      "d2"
+    ]
+  },
+  {
+    "id": "greek_formula_001",
+    "topic": "Greeks",
+    "subtopic": "Delta",
+    "name": "Delta",
+    "formula": "\\Delta=\\frac{\\partial V}{\\partial S}",
+    "explanation": "First-order sensitivity to the underlying price.",
+    "tags": [
+      "delta",
+      "greeks"
+    ]
+  },
+  {
+    "id": "greek_formula_002",
+    "topic": "Greeks",
+    "subtopic": "Gamma",
+    "name": "Gamma",
+    "formula": "\\Gamma=\\frac{\\partial^2 V}{\\partial S^2}",
+    "explanation": "Curvature or delta sensitivity.",
+    "tags": [
+      "gamma",
+      "greeks"
+    ]
+  },
+  {
+    "id": "greek_formula_003",
+    "topic": "Greeks",
+    "subtopic": "Vega",
+    "name": "Vega",
+    "formula": "\\nu=\\frac{\\partial V}{\\partial \\sigma}",
+    "explanation": "Sensitivity to volatility.",
+    "tags": [
+      "vega",
+      "greeks",
+      "implied volatility"
+    ]
+  },
+  {
+    "id": "greek_formula_004",
+    "topic": "Greeks",
+    "subtopic": "Theta",
+    "name": "Theta",
+    "formula": "\\Theta=\\frac{\\partial V}{\\partial t}",
+    "explanation": "Sensitivity to time.",
+    "tags": [
+      "theta",
+      "time decay"
+    ]
+  },
+  {
+    "id": "greek_formula_005",
+    "topic": "Greeks",
+    "subtopic": "Rho",
+    "name": "Rho",
+    "formula": "\\rho=\\frac{\\partial V}{\\partial r}",
+    "explanation": "Sensitivity to interest rates.",
+    "tags": [
+      "rho",
+      "interest rates"
+    ]
+  },
+  {
+    "id": "greek_formula_006",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "name": "BSM call and put delta",
+    "formula": "\\Delta_C=N(d_1),\\qquad \\Delta_P=N(d_1)-1",
+    "explanation": "Without dividends.",
+    "tags": [
+      "delta",
+      "BSM"
+    ]
+  },
+  {
+    "id": "greek_formula_007",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "name": "BSM gamma",
+    "formula": "\\Gamma=\\frac{\\phi(d_1)}{S\\sigma\\sqrt{T}}",
+    "explanation": "Same for calls and puts with same strike and maturity.",
+    "tags": [
+      "gamma",
+      "BSM"
+    ]
+  },
+  {
+    "id": "greek_formula_008",
+    "topic": "Greeks",
+    "subtopic": "BSM Greeks",
+    "name": "BSM vega",
+    "formula": "\\text{Vega}=S\\phi(d_1)\\sqrt{T}",
+    "explanation": "Same for calls and puts with same strike and maturity.",
+    "tags": [
+      "vega",
+      "BSM"
+    ]
+  },
+  {
+    "id": "stoch_formula_001",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Brownian Motion",
+    "name": "Brownian increment",
+    "formula": "W_t-W_s\\sim N(0,t-s)",
+    "explanation": "Stationary independent Gaussian increments.",
+    "tags": [
+      "brownian motion"
+    ]
+  },
+  {
+    "id": "stoch_formula_002",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Quadratic Variation",
+    "name": "Brownian quadratic variation",
+    "formula": "[W]_T=T,\\qquad (dW_t)^2=dt",
+    "explanation": "Key reason Ito's lemma has a second-derivative term.",
+    "tags": [
+      "quadratic variation",
+      "ito calculus"
+    ]
+  },
+  {
+    "id": "stoch_formula_003",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Rules",
+    "name": "Ito multiplication rules",
+    "formula": "(dt)^2=0,\\qquad dt\\,dW_t=0,\\qquad (dW_t)^2=dt",
+    "explanation": "Basic stochastic differential rules.",
+    "tags": [
+      "ito rules"
+    ]
+  },
+  {
+    "id": "stoch_formula_004",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito's Lemma",
+    "name": "Ito's lemma",
+    "formula": "df=\\left(f_t+\\mu f_x+\\frac{1}{2}\\sigma^2f_{xx}\\right)dt+\\sigma f_xdW_t",
+    "explanation": "For dX=μdt+σdW and f=f(t,X).",
+    "tags": [
+      "ito lemma"
+    ]
+  },
+  {
+    "id": "stoch_formula_005",
+    "topic": "Stochastic Calculus",
+    "subtopic": "GBM",
+    "name": "Geometric Brownian motion solution",
+    "formula": "S_t=S_0\\exp\\left[\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)t+\\sigma W_t\\right]",
+    "explanation": "Solution of dS=μSdt+σSdW.",
+    "tags": [
+      "GBM",
+      "lognormal"
+    ]
+  },
+  {
+    "id": "stoch_formula_006",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Log Returns",
+    "name": "GBM log return distribution",
+    "formula": "\\ln\\frac{S_T}{S_0}\\sim N\\left(\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)T,\\sigma^2T\\right)",
+    "explanation": "GBM implies normally distributed log returns.",
+    "tags": [
+      "GBM",
+      "log returns"
+    ]
+  },
+  {
+    "id": "stoch_formula_007",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Martingales",
+    "name": "Martingale property",
+    "formula": "\\mathbb{E}[M_t\\mid \\mathcal{F}_s]=M_s,\\qquad s\\le t",
+    "explanation": "The best conditional forecast is the current value.",
+    "tags": [
+      "martingale"
+    ]
+  },
+  {
+    "id": "stoch_formula_008",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Market Price of Risk",
+    "name": "Market price of risk",
+    "formula": "\\lambda=\\frac{\\mu-r}{\\sigma}",
+    "explanation": "Excess return per unit volatility in the BSM setting.",
+    "tags": [
+      "market price of risk",
+      "girsanov"
+    ]
+  },
+  {
+    "id": "stoch_formula_009",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Volatility Scaling",
+    "name": "Square-root-of-time volatility scaling",
+    "formula": "\\sigma_T=\\sigma_1\\sqrt{T}",
+    "explanation": "Requires independent increments and stable variance.",
+    "tags": [
+      "volatility scaling"
+    ]
+  },
+  {
+    "id": "stoch_formula_010",
+    "topic": "Stochastic Calculus",
+    "subtopic": "OU Process",
+    "name": "Ornstein-Uhlenbeck process",
+    "formula": "dX_t=\\kappa(\\theta-X_t)dt+\\sigma dW_t",
+    "explanation": "Mean-reverting Gaussian process.",
+    "tags": [
+      "OU process",
+      "mean reversion"
+    ]
+  },
+  {
+    "id": "option_density_001",
+    "topic": "Derivatives",
+    "subtopic": "Risk-Neutral Density",
+    "name": "Breeden-Litzenberger result",
+    "formula": "\\frac{\\partial^2 C}{\\partial K^2}=e^{-rT}f_Q(K)",
+    "explanation": "Connects call price curvature across strikes to the risk-neutral density.",
+    "tags": [
+      "risk-neutral density",
+      "option-implied distribution"
+    ]
+  },
+  {
+    "id": "strategy_formula_001",
+    "topic": "Derivatives",
+    "subtopic": "Delta-Hedged P&L",
+    "name": "Delta-hedged option P&L approximation",
+    "formula": "d\\Pi\\approx \\frac{1}{2}\\Gamma(dS)^2+\\Theta dt",
+    "explanation": "After delta hedging, first-order exposure is removed.",
+    "tags": [
+      "delta hedging",
+      "gamma",
+      "theta"
+    ]
+  }
+]
