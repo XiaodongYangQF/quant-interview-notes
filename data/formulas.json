@@ -509,5 +509,150 @@
       "gamma",
       "theta"
     ]
+  },
+  {
+    "id": "stats_formula_001",
+    "topic": "Statistics",
+    "subtopic": "OLS",
+    "name": "OLS estimator",
+    "formula": "\\hat{\\beta}=(X'X)^{-1}X'y",
+    "explanation": "Least-squares estimator when X'X is invertible.",
+    "tags": [
+      "OLS",
+      "Regression"
+    ]
+  },
+  {
+    "id": "stats_formula_002",
+    "topic": "Statistics",
+    "subtopic": "Central Limit Theorem",
+    "name": "Central Limit Theorem",
+    "formula": "\\frac{\\sqrt{n}(\\bar{X}-\\mu)}{\\sigma}\\Rightarrow N(0,1)",
+    "explanation": "Asymptotic normality of the standardized sample mean.",
+    "tags": [
+      "CLT",
+      "Asymptotics"
+    ]
+  },
+  {
+    "id": "stats_formula_003",
+    "topic": "Statistics",
+    "subtopic": "Bias-Variance",
+    "name": "Bias-variance decomposition",
+    "formula": "\\operatorname{MSE}=\\operatorname{Bias}^2+\\operatorname{Variance}+\\text{Noise}",
+    "explanation": "Core idea behind underfitting and overfitting.",
+    "tags": [
+      "Bias-Variance",
+      "ML"
+    ]
+  },
+  {
+    "id": "stats_formula_004",
+    "topic": "Statistics",
+    "subtopic": "Logistic Regression",
+    "name": "Logistic function",
+    "formula": "P(Y=1\\mid X)=\\frac{1}{1+e^{-X\\beta}}",
+    "explanation": "Maps linear scores into probabilities.",
+    "tags": [
+      "Logistic Regression",
+      "Classification"
+    ]
+  },
+  {
+    "id": "ts_formula_001",
+    "topic": "Time Series",
+    "subtopic": "Stationarity",
+    "name": "Weak stationarity",
+    "formula": "E[X_t]=\\mu,\\quad Var(X_t)=\\sigma^2,\\quad Cov(X_t,X_{t-k})=\\gamma(k)",
+    "explanation": "Mean and variance are constant; autocovariance depends only on lag.",
+    "tags": [
+      "Stationarity"
+    ]
+  },
+  {
+    "id": "ts_formula_002",
+    "topic": "Time Series",
+    "subtopic": "AR(1)",
+    "name": "AR(1) model",
+    "formula": "X_t=c+\\phi X_{t-1}+\\epsilon_t,\\qquad |\\phi|<1",
+    "explanation": "Stationary when the autoregressive coefficient has absolute value less than one.",
+    "tags": [
+      "AR(1)",
+      "Stationarity"
+    ]
+  },
+  {
+    "id": "ts_formula_003",
+    "topic": "Time Series",
+    "subtopic": "AR(1)",
+    "name": "AR(1) unconditional mean",
+    "formula": "E[X_t]=\\frac{c}{1-\\phi}",
+    "explanation": "For stationary AR(1).",
+    "tags": [
+      "AR(1)",
+      "Mean"
+    ]
+  },
+  {
+    "id": "ts_formula_004",
+    "topic": "Time Series",
+    "subtopic": "GARCH",
+    "name": "GARCH(1,1)",
+    "formula": "h_t=\\omega+\\alpha\\epsilon_{t-1}^2+\\beta h_{t-1}",
+    "explanation": "Models conditional variance and volatility clustering.",
+    "tags": [
+      "GARCH",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "ts_formula_005",
+    "topic": "Time Series",
+    "subtopic": "Cointegration",
+    "name": "Cointegration relation",
+    "formula": "Y_t-\\beta X_t \\text{ is stationary}",
+    "explanation": "A stationary long-run relation between non-stationary series.",
+    "tags": [
+      "Cointegration",
+      "Pairs Trading"
+    ]
+  },
+  {
+    "id": "ml_formula_001",
+    "topic": "Machine Learning",
+    "subtopic": "Regularization",
+    "name": "L1 and L2 penalties",
+    "formula": "L1:\\lambda\\sum_j|\\beta_j|,\\qquad L2:\\lambda\\sum_j\\beta_j^2",
+    "explanation": "L1 encourages sparsity; L2 shrinks coefficients.",
+    "tags": [
+      "Regularization",
+      "Lasso",
+      "Ridge"
+    ]
+  },
+  {
+    "id": "ml_formula_002",
+    "topic": "Machine Learning",
+    "subtopic": "Classification Metrics",
+    "name": "Precision and recall",
+    "formula": "Precision=\\frac{TP}{TP+FP},\\qquad Recall=\\frac{TP}{TP+FN}",
+    "explanation": "Useful for imbalanced classification problems.",
+    "tags": [
+      "Precision",
+      "Recall",
+      "Classification"
+    ]
+  },
+  {
+    "id": "ml_formula_003",
+    "topic": "Machine Learning",
+    "subtopic": "PCA",
+    "name": "PCA objective",
+    "formula": "\\text{Principal components} = \\text{eigenvectors of covariance matrix}",
+    "explanation": "Orthogonal directions explaining maximum variance.",
+    "tags": [
+      "PCA",
+      "Dimensionality Reduction"
+    ]
   }
 ]

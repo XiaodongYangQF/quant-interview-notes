@@ -741,7 +741,7 @@
     "topic": "Statistics",
     "subtopic": "Estimation",
     "difficulty": "Easy",
-    "status": "Draft",
+    "status": "Verified",
     "question": "What is the difference between Method of Moments and Maximum Likelihood Estimation?",
     "intuition": "Both estimate parameters, but they match different objects.",
     "solution": "Method of Moments chooses parameters so that theoretical moments match sample moments. Maximum Likelihood Estimation chooses parameters that maximize the likelihood of observing the sample data under the assumed model.",
@@ -750,14 +750,16 @@
       "MLE",
       "Method of Moments",
       "Estimation"
-    ]
+    ],
+    "common_mistake": "Do not say MLE is always unbiased in finite samples.",
+    "interview_tip": "A strong answer mentions consistency, efficiency, and model-dependence."
   },
   {
     "id": "ts_001",
     "topic": "Time Series",
     "subtopic": "Stationarity",
     "difficulty": "Medium",
-    "status": "Draft",
+    "status": "Verified",
     "question": "What does stationarity mean in time-series modeling?",
     "intuition": "A stationary process has stable statistical properties over time.",
     "solution": "Weak stationarity usually means the mean is constant, the variance is finite and constant, and the autocovariance depends only on the lag, not on calendar time.",
@@ -766,7 +768,9 @@
       "Stationarity",
       "Time Series",
       "Forecasting"
-    ]
+    ],
+    "common_mistake": "Do not assume financial prices are stationary; returns are usually closer to stationary than prices.",
+    "interview_tip": "Stationarity is central before fitting ARMA-style models."
   },
   {
     "id": "deriv_001",
@@ -813,7 +817,7 @@
     "topic": "Coding",
     "subtopic": "Python",
     "difficulty": "Easy",
-    "status": "Draft",
+    "status": "Verified",
     "question": "How would you simulate correlated normal random variables in Python?",
     "intuition": "Start with independent standard normals and transform them using a covariance decomposition.",
     "solution": "Use Cholesky decomposition. If Σ = LLᵀ and Z is a vector of independent standard normal variables, then X = LZ has covariance matrix Σ.",
@@ -823,7 +827,12 @@
       "Simulation",
       "Cholesky",
       "Correlated Normals"
-    ]
+    ],
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef simulate_correlated_normals(cov, n_samples=10_000, seed=42):\n    \"\"\"Simulate multivariate normal samples with mean zero and covariance cov.\"\"\"\n    rng = np.random.default_rng(seed)\n    cov = np.asarray(cov, dtype=float)\n\n    # Cholesky factor: cov = L @ L.T\n    L = np.linalg.cholesky(cov)\n\n    z = rng.standard_normal(size=(n_samples, cov.shape[0]))\n    x = z @ L.T\n    return x\n\ncov = np.array([[1.0, 0.7],\n                [0.7, 1.0]])\n\nsamples = simulate_correlated_normals(cov)\nprint(np.cov(samples.T))",
+    "complexity": "Time complexity: O(n d²) after Cholesky; Cholesky itself is O(d³). Space complexity: O(n d).",
+    "common_mistake": "Do not multiply by the covariance matrix directly. Use a matrix square root such as the Cholesky factor.",
+    "interview_tip": "Mention that the covariance matrix must be positive semi-definite; Cholesky requires positive definite matrices."
   },
   {
     "id": "brain_001",
@@ -2074,6 +2083,1110 @@
       "Volatility Scaling",
       "Square Root Time",
       "Variance"
+    ]
+  },
+  {
+    "id": "code_002",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Write a Python function to compute simple returns and log returns from a price array.",
+    "intuition": "Simple returns compare price changes directly; log returns use differences in log prices.",
+    "solution": "Simple returns are P_t/P_{t-1}-1. Log returns are log(P_t/P_{t-1}). Use NumPy arrays and validate that all prices are positive.",
+    "formula": "r_t = P_t/P_{t-1}-1; log r_t = ln(P_t/P_{t-1})",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef compute_returns(prices):\n    \"\"\"Return simple and log returns from a 1D price array.\"\"\"\n    prices = np.asarray(prices, dtype=float)\n\n    if prices.ndim != 1:\n        raise ValueError(\"prices must be a 1D array\")\n    if len(prices) < 2:\n        raise ValueError(\"at least two prices are required\")\n    if np.any(prices <= 0):\n        raise ValueError(\"prices must be strictly positive\")\n\n    simple_returns = prices[1:] / prices[:-1] - 1.0\n    log_returns = np.diff(np.log(prices))\n\n    return simple_returns, log_returns\n\nprices = np.array([100, 101, 99, 102])\nsimple_r, log_r = compute_returns(prices)\nprint(simple_r)\nprint(log_r)",
+    "complexity": "Time complexity: O(n). Space complexity: O(n).",
+    "common_mistake": "Do not compute log returns when prices are zero or negative.",
+    "interview_tip": "For financial data, always mention input validation and missing-data handling.",
+    "tags": [
+      "Python",
+      "Returns",
+      "NumPy",
+      "Financial Data"
+    ]
+  },
+  {
+    "id": "code_003",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Write a Python function to compute rolling volatility from returns.",
+    "intuition": "Rolling volatility is the rolling standard deviation of returns, often annualized by square-root-of-time scaling.",
+    "solution": "Use a rolling window, compute the sample standard deviation, and multiply by sqrt(annualization_factor).",
+    "formula": "σ_ann = std(returns) × √252",
+    "code_language": "python",
+    "code": "import pandas as pd\nimport numpy as np\n\ndef rolling_volatility(returns, window=21, annualization=252):\n    \"\"\"Compute annualized rolling volatility from a return series.\"\"\"\n    returns = pd.Series(returns, dtype=float)\n\n    if window <= 1:\n        raise ValueError(\"window must be greater than 1\")\n\n    return returns.rolling(window).std(ddof=1) * np.sqrt(annualization)\n\nreturns = pd.Series([0.01, -0.02, 0.005, 0.004, -0.003] * 20)\nvol = rolling_volatility(returns, window=21)\nprint(vol.tail())",
+    "complexity": "Time complexity: O(n) with pandas rolling implementation. Space complexity: O(n).",
+    "common_mistake": "Do not annualize variance and volatility in the same way. Volatility scales with square-root time.",
+    "interview_tip": "Mention that square-root-time scaling assumes independent returns and stable variance.",
+    "tags": [
+      "Python",
+      "Rolling Volatility",
+      "Pandas",
+      "Risk"
+    ]
+  },
+  {
+    "id": "code_004",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a vectorized Python function for Black-Scholes European call pricing.",
+    "intuition": "Vectorization lets the same function price one option or many options efficiently.",
+    "solution": "Use NumPy arrays and scipy.stats.norm.cdf for the normal CDF. Validate inputs and handle positive time and volatility.",
+    "formula": "C=S N(d1)-K e^{-rT} N(d2)",
+    "code_language": "python",
+    "code": "import numpy as np\nfrom scipy.stats import norm\n\ndef black_scholes_call(S, K, T, r, sigma, q=0.0):\n    \"\"\"Vectorized Black-Scholes call price with continuous dividend yield q.\"\"\"\n    S = np.asarray(S, dtype=float)\n    K = np.asarray(K, dtype=float)\n    T = np.asarray(T, dtype=float)\n    sigma = np.asarray(sigma, dtype=float)\n\n    if np.any(S <= 0) or np.any(K <= 0):\n        raise ValueError(\"S and K must be positive\")\n    if np.any(T <= 0) or np.any(sigma <= 0):\n        raise ValueError(\"T and sigma must be positive\")\n\n    d1 = (np.log(S / K) + (r - q + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))\n    d2 = d1 - sigma * np.sqrt(T)\n\n    call = S * np.exp(-q * T) * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)\n    return call\n\nprint(black_scholes_call(S=100, K=100, T=1, r=0.05, sigma=0.2))",
+    "complexity": "Time complexity: O(n). Space complexity: O(n), where n is the number of options.",
+    "common_mistake": "Do not forget dividend yield q when pricing index or ETF options.",
+    "interview_tip": "For quant roles, explain both formula correctness and production concerns such as input validation.",
+    "tags": [
+      "Python",
+      "Black-Scholes",
+      "Vectorization",
+      "Option Pricing"
+    ]
+  },
+  {
+    "id": "code_005",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a Python function to compute implied volatility using bisection.",
+    "intuition": "Implied volatility is the volatility that makes the model price equal the market price.",
+    "solution": "Use a root-finding method on the difference between the Black-Scholes price and the market price. Bisection is slower than Newton's method but robust.",
+    "formula": "Find σ such that BS_price(σ) - market_price = 0",
+    "code_language": "python",
+    "code": "import numpy as np\nfrom scipy.stats import norm\n\ndef bs_call(S, K, T, r, sigma, q=0.0):\n    d1 = (np.log(S / K) + (r - q + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))\n    d2 = d1 - sigma * np.sqrt(T)\n    return S * np.exp(-q*T) * norm.cdf(d1) - K * np.exp(-r*T) * norm.cdf(d2)\n\ndef implied_vol_call_bisection(market_price, S, K, T, r, q=0.0,\n                               low=1e-6, high=5.0, tol=1e-8, max_iter=200):\n    \"\"\"Compute call implied volatility using bisection.\"\"\"\n    if market_price <= 0:\n        raise ValueError(\"market_price must be positive\")\n\n    f_low = bs_call(S, K, T, r, low, q) - market_price\n    f_high = bs_call(S, K, T, r, high, q) - market_price\n\n    if f_low * f_high > 0:\n        raise ValueError(\"Root is not bracketed. Check inputs or bounds.\")\n\n    for _ in range(max_iter):\n        mid = 0.5 * (low + high)\n        f_mid = bs_call(S, K, T, r, mid, q) - market_price\n\n        if abs(f_mid) < tol:\n            return mid\n\n        if f_low * f_mid <= 0:\n            high = mid\n            f_high = f_mid\n        else:\n            low = mid\n            f_low = f_mid\n\n    return 0.5 * (low + high)\n\niv = implied_vol_call_bisection(10.45, S=100, K=100, T=1, r=0.05)\nprint(iv)",
+    "complexity": "Time complexity: O(iterations). Space complexity: O(1).",
+    "common_mistake": "Do not run root finding without checking no-arbitrage bounds and whether the root is bracketed.",
+    "interview_tip": "Bisection is robust; Newton is faster but needs vega and can fail with poor initial guesses.",
+    "tags": [
+      "Python",
+      "Implied Volatility",
+      "Bisection",
+      "Root Finding"
+    ]
+  },
+  {
+    "id": "code_006",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a Monte Carlo estimator for a European call option.",
+    "intuition": "Simulate terminal stock prices under the risk-neutral measure and discount the average payoff.",
+    "solution": "Under risk-neutral GBM, simulate S_T = S_0 exp((r-q-0.5σ²)T + σ√T Z). The call price is e^{-rT} times the sample mean of max(S_T-K,0).",
+    "formula": "C ≈ e^{-rT} mean[max(S_T-K,0)]",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef monte_carlo_call(S0, K, T, r, sigma, q=0.0, n_paths=200_000, seed=42):\n    \"\"\"Monte Carlo price for a European call under risk-neutral GBM.\"\"\"\n    rng = np.random.default_rng(seed)\n\n    z = rng.standard_normal(n_paths)\n    ST = S0 * np.exp((r - q - 0.5 * sigma**2) * T + sigma * np.sqrt(T) * z)\n\n    payoff = np.maximum(ST - K, 0.0)\n    price = np.exp(-r * T) * payoff.mean()\n    standard_error = np.exp(-r * T) * payoff.std(ddof=1) / np.sqrt(n_paths)\n\n    return price, standard_error\n\nprice, se = monte_carlo_call(100, 100, 1, 0.05, 0.2)\nprint(price, se)",
+    "complexity": "Time complexity: O(n_paths). Space complexity: O(n_paths), or O(1) if simulated in batches.",
+    "common_mistake": "Do not simulate under the physical drift μ when pricing by risk-neutral Monte Carlo.",
+    "interview_tip": "Always report standard error, not only the Monte Carlo price.",
+    "tags": [
+      "Python",
+      "Monte Carlo",
+      "Option Pricing",
+      "Risk-Neutral Pricing"
+    ]
+  },
+  {
+    "id": "code_007",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How can antithetic variates reduce Monte Carlo variance?",
+    "intuition": "Pair each random draw with its negative to create negatively correlated payoff samples.",
+    "solution": "For standard normal Z, use both Z and -Z. Average the payoffs from both paths. This often reduces variance for monotonic payoffs such as vanilla calls.",
+    "formula": "Estimator = 0.5[f(Z)+f(-Z)]",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef monte_carlo_call_antithetic(S0, K, T, r, sigma, q=0.0, n_pairs=100_000, seed=42):\n    \"\"\"European call Monte Carlo using antithetic variates.\"\"\"\n    rng = np.random.default_rng(seed)\n\n    z = rng.standard_normal(n_pairs)\n    z_pair = np.concatenate([z, -z])\n\n    ST = S0 * np.exp((r - q - 0.5 * sigma**2) * T + sigma * np.sqrt(T) * z_pair)\n    payoff = np.maximum(ST - K, 0.0)\n\n    price = np.exp(-r * T) * payoff.mean()\n    standard_error = np.exp(-r * T) * payoff.std(ddof=1) / np.sqrt(len(payoff))\n\n    return price, standard_error\n\nprint(monte_carlo_call_antithetic(100, 100, 1, 0.05, 0.2))",
+    "complexity": "Time complexity: O(n_pairs). Space complexity: O(n_pairs).",
+    "common_mistake": "Antithetic variates reduce variance in many cases, but not guaranteed for every payoff.",
+    "interview_tip": "Mention variance reduction when asked how to improve Monte Carlo efficiency.",
+    "tags": [
+      "Python",
+      "Monte Carlo",
+      "Variance Reduction",
+      "Antithetic Variates"
+    ]
+  },
+  {
+    "id": "code_008",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a binomial tree pricer for a European call option.",
+    "intuition": "Work backward from maturity using risk-neutral probabilities.",
+    "solution": "Build terminal stock prices, compute terminal payoffs, and step backward using discounted risk-neutral expectation.",
+    "formula": "V = e^{-rΔt}[pV_up + (1-p)V_down]",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef binomial_european_call(S0, K, T, r, sigma, n_steps):\n    \"\"\"CRR binomial tree price for a European call.\"\"\"\n    if n_steps <= 0:\n        raise ValueError(\"n_steps must be positive\")\n\n    dt = T / n_steps\n    u = np.exp(sigma * np.sqrt(dt))\n    d = 1.0 / u\n    disc = np.exp(-r * dt)\n\n    p = (np.exp(r * dt) - d) / (u - d)\n    if not (0 <= p <= 1):\n        raise ValueError(\"Risk-neutral probability outside [0,1]. Check inputs.\")\n\n    j = np.arange(n_steps + 1)\n    ST = S0 * (u ** j) * (d ** (n_steps - j))\n    values = np.maximum(ST - K, 0.0)\n\n    for _ in range(n_steps):\n        values = disc * (p * values[1:] + (1 - p) * values[:-1])\n\n    return values[0]\n\nprint(binomial_european_call(100, 100, 1, 0.05, 0.2, 200))",
+    "complexity": "Time complexity: O(n_steps²) if full tree is built; this vectorized backward version uses O(n_steps²) operations and O(n_steps) space.",
+    "common_mistake": "Do not use real-world probability in the backward induction.",
+    "interview_tip": "Mention that binomial trees are especially useful for American options.",
+    "tags": [
+      "Python",
+      "Binomial Tree",
+      "Option Pricing",
+      "CRR"
+    ]
+  },
+  {
+    "id": "code_009",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "Modify a binomial tree to price an American put option.",
+    "intuition": "At each node, compare continuation value with immediate exercise value.",
+    "solution": "Use backward induction. For an American put, the value at each node is max(K-S, continuation_value).",
+    "formula": "V = max(K-S, continuation value)",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef binomial_american_put(S0, K, T, r, sigma, n_steps):\n    \"\"\"CRR binomial tree price for an American put.\"\"\"\n    dt = T / n_steps\n    u = np.exp(sigma * np.sqrt(dt))\n    d = 1.0 / u\n    disc = np.exp(-r * dt)\n\n    p = (np.exp(r * dt) - d) / (u - d)\n    if not (0 <= p <= 1):\n        raise ValueError(\"Risk-neutral probability outside [0,1].\")\n\n    j = np.arange(n_steps + 1)\n    stock = S0 * (u ** j) * (d ** (n_steps - j))\n    values = np.maximum(K - stock, 0.0)\n\n    for step in range(n_steps - 1, -1, -1):\n        j = np.arange(step + 1)\n        stock = S0 * (u ** j) * (d ** (step - j))\n\n        continuation = disc * (p * values[1:] + (1 - p) * values[:-1])\n        exercise = np.maximum(K - stock, 0.0)\n\n        values = np.maximum(exercise, continuation)\n\n    return values[0]\n\nprint(binomial_american_put(100, 100, 1, 0.05, 0.2, 200))",
+    "complexity": "Time complexity: O(n_steps²). Space complexity: O(n_steps).",
+    "common_mistake": "Do not forget the early exercise comparison at every node.",
+    "interview_tip": "This is a classic coding interview problem for derivatives roles.",
+    "tags": [
+      "Python",
+      "American Option",
+      "Binomial Tree",
+      "Early Exercise"
+    ]
+  },
+  {
+    "id": "code_010",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a function to compute historical Value-at-Risk using returns.",
+    "intuition": "Historical VaR uses empirical quantiles of past returns or losses.",
+    "solution": "For returns, the 95% one-period VaR can be estimated as the negative 5% return quantile. If using losses, VaR is the 95% loss quantile.",
+    "formula": "VaR_α = -quantile(returns, 1-α)",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef historical_var(returns, confidence=0.95):\n    \"\"\"Historical VaR using returns. Positive output means loss threshold.\"\"\"\n    returns = np.asarray(returns, dtype=float)\n\n    if returns.ndim != 1:\n        raise ValueError(\"returns must be a 1D array\")\n    if not 0 < confidence < 1:\n        raise ValueError(\"confidence must be between 0 and 1\")\n\n    return -np.quantile(returns, 1 - confidence)\n\nreturns = np.array([0.01, -0.02, 0.005, -0.03, 0.012, -0.01])\nprint(historical_var(returns, 0.95))",
+    "complexity": "Time complexity: O(n log n) or O(n) depending on quantile implementation. Space complexity: O(n).",
+    "common_mistake": "Be clear whether VaR is based on returns or losses; sign conventions often cause errors.",
+    "interview_tip": "Always state the confidence level, horizon, and sign convention.",
+    "tags": [
+      "Python",
+      "VaR",
+      "Risk Management",
+      "Quantile"
+    ]
+  },
+  {
+    "id": "code_011",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a function to compute Expected Shortfall from returns.",
+    "intuition": "Expected Shortfall is the average loss conditional on being in the tail beyond VaR.",
+    "solution": "For returns, find the lower-tail quantile and average the returns below it, then report the result as a positive loss.",
+    "formula": "ES_α = -E[r | r ≤ q_{1-α}]",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef historical_expected_shortfall(returns, confidence=0.95):\n    \"\"\"Historical Expected Shortfall using returns. Positive output means loss.\"\"\"\n    returns = np.asarray(returns, dtype=float)\n\n    q = np.quantile(returns, 1 - confidence)\n    tail_returns = returns[returns <= q]\n\n    if len(tail_returns) == 0:\n        raise ValueError(\"No tail observations found.\")\n\n    return -tail_returns.mean()\n\nreturns = np.array([0.01, -0.02, 0.005, -0.03, 0.012, -0.01, -0.05])\nprint(historical_expected_shortfall(returns, 0.95))",
+    "complexity": "Time complexity: O(n). Space complexity: O(n).",
+    "common_mistake": "Do not compute ES as only the VaR quantile. ES is an average beyond the quantile.",
+    "interview_tip": "This connects well with risk management, Basel-style thinking, and your PhD density forecasting work.",
+    "tags": [
+      "Python",
+      "Expected Shortfall",
+      "VaR",
+      "Risk Management"
+    ]
+  },
+  {
+    "id": "code_012",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a function to compute maximum drawdown from a return series.",
+    "intuition": "Maximum drawdown measures the largest peak-to-trough loss in cumulative wealth.",
+    "solution": "Convert returns into a cumulative wealth index, compute the running peak, then measure percentage drawdowns from the peak.",
+    "formula": "Drawdown_t = Wealth_t / RunningPeak_t - 1",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef max_drawdown(returns):\n    \"\"\"Compute maximum drawdown from simple returns.\"\"\"\n    returns = np.asarray(returns, dtype=float)\n\n    wealth = np.cumprod(1.0 + returns)\n    running_peak = np.maximum.accumulate(wealth)\n    drawdown = wealth / running_peak - 1.0\n\n    return drawdown.min(), drawdown\n\nreturns = np.array([0.02, -0.01, -0.05, 0.03, -0.02, 0.01])\nmdd, dd_series = max_drawdown(returns)\nprint(mdd)\nprint(dd_series)",
+    "complexity": "Time complexity: O(n). Space complexity: O(n).",
+    "common_mistake": "Do not compute maximum drawdown from raw returns only; it is based on cumulative wealth.",
+    "interview_tip": "Drawdown is a path-dependent risk measure, unlike standard deviation.",
+    "tags": [
+      "Python",
+      "Maximum Drawdown",
+      "Risk",
+      "Performance"
+    ]
+  },
+  {
+    "id": "code_013",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a function to compute the Sharpe ratio from returns.",
+    "intuition": "Sharpe ratio measures excess return per unit of volatility.",
+    "solution": "Subtract the per-period risk-free rate from returns, compute the mean excess return divided by standard deviation, and annualize if needed.",
+    "formula": "Sharpe = mean(excess returns) / std(excess returns)",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef sharpe_ratio(returns, risk_free_rate=0.0, periods_per_year=252):\n    \"\"\"Annualized Sharpe ratio from periodic simple returns.\"\"\"\n    returns = np.asarray(returns, dtype=float)\n\n    excess = returns - risk_free_rate / periods_per_year\n    vol = excess.std(ddof=1)\n\n    if vol == 0:\n        return np.nan\n\n    return np.sqrt(periods_per_year) * excess.mean() / vol\n\nreturns = np.array([0.001, -0.002, 0.003, 0.001, -0.001])\nprint(sharpe_ratio(returns))",
+    "complexity": "Time complexity: O(n). Space complexity: O(n).",
+    "common_mistake": "Do not mix annual risk-free rates with daily returns without converting the rate.",
+    "interview_tip": "Mention that Sharpe assumes volatility is a good risk proxy and can be misleading with skewed returns.",
+    "tags": [
+      "Python",
+      "Sharpe Ratio",
+      "Performance",
+      "Risk"
+    ]
+  },
+  {
+    "id": "code_014",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "Write a simple event-driven backtest loop for a trading signal.",
+    "intuition": "A backtest should avoid lookahead bias by using today's signal for tomorrow's return.",
+    "solution": "Shift the signal by one period before multiplying by returns. This ensures the position is based only on information available before the return is realized.",
+    "formula": "strategy_return_t = position_{t-1} × return_t",
+    "code_language": "python",
+    "code": "import pandas as pd\nimport numpy as np\n\ndef simple_signal_backtest(returns, signal):\n    \"\"\"Backtest a signal using lagged positions to avoid lookahead bias.\"\"\"\n    returns = pd.Series(returns, dtype=float)\n    signal = pd.Series(signal, dtype=float)\n\n    if len(returns) != len(signal):\n        raise ValueError(\"returns and signal must have the same length\")\n\n    # Use yesterday's signal as today's position.\n    position = signal.shift(1).fillna(0.0)\n\n    strategy_returns = position * returns\n    equity_curve = (1.0 + strategy_returns).cumprod()\n\n    return pd.DataFrame({\n        \"returns\": returns,\n        \"signal\": signal,\n        \"position\": position,\n        \"strategy_returns\": strategy_returns,\n        \"equity_curve\": equity_curve,\n    })\n\nreturns = pd.Series([0.01, -0.02, 0.015, 0.004])\nsignal = pd.Series([1, 1, -1, 1])\nprint(simple_signal_backtest(returns, signal))",
+    "complexity": "Time complexity: O(n). Space complexity: O(n).",
+    "common_mistake": "Do not use the same-period signal if it was computed using the same-period close price.",
+    "interview_tip": "Lookahead bias is a major red flag in quant interviews.",
+    "tags": [
+      "Python",
+      "Backtesting",
+      "Lookahead Bias",
+      "Trading Strategy"
+    ]
+  },
+  {
+    "id": "code_015",
+    "topic": "Coding",
+    "subtopic": "Algorithms",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "How do you find the first non-repeating character in a string?",
+    "intuition": "Count characters first, then scan in original order.",
+    "solution": "Use a hash map to count frequencies, then return the first character with count equal to one.",
+    "formula": "",
+    "code_language": "python",
+    "code": "from collections import Counter\n\ndef first_non_repeating_char(s):\n    counts = Counter(s)\n\n    for ch in s:\n        if counts[ch] == 1:\n            return ch\n\n    return None\n\nprint(first_non_repeating_char(\"swiss\"))",
+    "complexity": "Time complexity: O(n). Space complexity: O(k), where k is the number of distinct characters.",
+    "common_mistake": "Do not sort the characters because sorting loses original order and costs extra time.",
+    "interview_tip": "Hash maps are frequently used in coding interviews.",
+    "tags": [
+      "Algorithms",
+      "Hash Map",
+      "String"
+    ]
+  },
+  {
+    "id": "code_016",
+    "topic": "Coding",
+    "subtopic": "Algorithms",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Given an array of prices, find the maximum profit from one buy and one sell.",
+    "intuition": "Track the minimum price so far and the best profit so far.",
+    "solution": "Scan the array once. At each price, compute the profit from buying at the minimum price seen so far and selling today. Update the best profit.",
+    "formula": "max_profit = max(price_t - min_price_so_far)",
+    "code_language": "python",
+    "code": "def max_profit_one_trade(prices):\n    if len(prices) < 2:\n        return 0.0\n\n    min_price = prices[0]\n    best_profit = 0.0\n\n    for price in prices[1:]:\n        best_profit = max(best_profit, price - min_price)\n        min_price = min(min_price, price)\n\n    return best_profit\n\nprint(max_profit_one_trade([100, 98, 105, 102, 110]))",
+    "complexity": "Time complexity: O(n). Space complexity: O(1).",
+    "common_mistake": "Do not use a future buy price before the sell date. The buy must happen before the sell.",
+    "interview_tip": "This is a classic finance-flavored algorithm question.",
+    "tags": [
+      "Algorithms",
+      "Array",
+      "Trading",
+      "Dynamic Programming"
+    ]
+  },
+  {
+    "id": "code_017",
+    "topic": "Coding",
+    "subtopic": "Algorithms",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you compute a moving average efficiently?",
+    "intuition": "Use a rolling sum so each new window is updated in O(1).",
+    "solution": "Maintain the sum of the current window. Add the new element and remove the element leaving the window.",
+    "formula": "MA_t = average of last k observations",
+    "code_language": "python",
+    "code": "def moving_average(values, window):\n    if window <= 0:\n        raise ValueError(\"window must be positive\")\n    if len(values) < window:\n        return []\n\n    result = []\n    window_sum = sum(values[:window])\n    result.append(window_sum / window)\n\n    for i in range(window, len(values)):\n        window_sum += values[i] - values[i - window]\n        result.append(window_sum / window)\n\n    return result\n\nprint(moving_average([1, 2, 3, 4, 5], 3))",
+    "complexity": "Time complexity: O(n). Space complexity: O(n) for the output.",
+    "common_mistake": "Do not recompute each window sum from scratch; that gives O(nk) time.",
+    "interview_tip": "Rolling-window logic appears often in finance and time-series coding tasks.",
+    "tags": [
+      "Algorithms",
+      "Moving Average",
+      "Rolling Window"
+    ]
+  },
+  {
+    "id": "code_018",
+    "topic": "Coding",
+    "subtopic": "Algorithms",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you detect if a time series has missing dates?",
+    "intuition": "Compare the observed index with a complete expected date range.",
+    "solution": "Create a complete date range from start to end and take the difference from the observed date index.",
+    "formula": "",
+    "code_language": "python",
+    "code": "import pandas as pd\n\ndef find_missing_dates(dates, freq=\"B\"):\n    \"\"\"Find missing dates relative to an expected frequency.\n\n    freq='B' means business days.\n    \"\"\"\n    dates = pd.DatetimeIndex(pd.to_datetime(dates)).sort_values()\n\n    expected = pd.date_range(dates.min(), dates.max(), freq=freq)\n    missing = expected.difference(dates)\n\n    return missing\n\ndates = [\"2024-01-01\", \"2024-01-02\", \"2024-01-04\"]\nprint(find_missing_dates(dates, freq=\"D\"))",
+    "complexity": "Time complexity: O(n + m), where m is length of the expected date range. Space complexity: O(m).",
+    "common_mistake": "Do not assume calendar days and business days are the same.",
+    "interview_tip": "Data quality checks are highly relevant for quant research roles.",
+    "tags": [
+      "Python",
+      "Pandas",
+      "Data Cleaning",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "code_019",
+    "topic": "Coding",
+    "subtopic": "Numerical Methods",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write a bisection root-finding function.",
+    "intuition": "Bisection repeatedly halves an interval that brackets a root.",
+    "solution": "Check that f(a) and f(b) have opposite signs. Then repeatedly evaluate the midpoint and keep the half interval that still brackets the root.",
+    "formula": "mid = (a+b)/2",
+    "code_language": "python",
+    "code": "def bisection(f, a, b, tol=1e-10, max_iter=100):\n    fa = f(a)\n    fb = f(b)\n\n    if fa * fb > 0:\n        raise ValueError(\"Root is not bracketed.\")\n\n    for _ in range(max_iter):\n        mid = 0.5 * (a + b)\n        fm = f(mid)\n\n        if abs(fm) < tol or 0.5 * (b - a) < tol:\n            return mid\n\n        if fa * fm <= 0:\n            b = mid\n            fb = fm\n        else:\n            a = mid\n            fa = fm\n\n    return 0.5 * (a + b)\n\nroot = bisection(lambda x: x*x - 2, 0, 2)\nprint(root)",
+    "complexity": "Time complexity: O(log((b-a)/tol)). Space complexity: O(1).",
+    "common_mistake": "Bisection requires a bracket. It cannot start from arbitrary points without a sign change.",
+    "interview_tip": "This is useful for implied volatility and many numerical finance problems.",
+    "tags": [
+      "Numerical Methods",
+      "Bisection",
+      "Root Finding"
+    ]
+  },
+  {
+    "id": "code_020",
+    "topic": "Coding",
+    "subtopic": "Numerical Methods",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "Write Newton's method for root finding and explain when it may fail.",
+    "intuition": "Newton's method uses local slope information to jump toward the root.",
+    "solution": "Newton updates x_{n+1}=x_n-f(x_n)/f'(x_n). It is fast near the root but can fail if the derivative is near zero, the initial guess is poor, or the function is not well-behaved.",
+    "formula": "x_{n+1}=x_n - f(x_n)/f'(x_n)",
+    "code_language": "python",
+    "code": "def newton(f, df, x0, tol=1e-10, max_iter=50):\n    x = float(x0)\n\n    for _ in range(max_iter):\n        fx = f(x)\n        dfx = df(x)\n\n        if abs(dfx) < 1e-14:\n            raise ZeroDivisionError(\"Derivative is too close to zero.\")\n\n        x_next = x - fx / dfx\n\n        if abs(x_next - x) < tol:\n            return x_next\n\n        x = x_next\n\n    return x\n\nroot = newton(lambda x: x*x - 2, lambda x: 2*x, x0=1.0)\nprint(root)",
+    "complexity": "Time complexity: problem-dependent; often fast locally. Space complexity: O(1).",
+    "common_mistake": "Do not assume Newton always converges.",
+    "interview_tip": "For implied volatility, Newton uses vega as the derivative.",
+    "tags": [
+      "Numerical Methods",
+      "Newton Method",
+      "Root Finding"
+    ]
+  },
+  {
+    "id": "code_021",
+    "topic": "Coding",
+    "subtopic": "C++",
+    "difficulty": "Easy",
+    "status": "Draft",
+    "question": "Why is C++ used in some quant finance roles?",
+    "intuition": "C++ gives control over performance, memory, and latency.",
+    "solution": "C++ is common in low-latency trading, pricing libraries, risk systems, and performance-critical infrastructure. It offers speed, deterministic memory control, and mature numerical libraries.",
+    "formula": "",
+    "code_language": "cpp",
+    "code": "#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<double> prices = {100.0, 101.5, 99.8};\n\n    for (double p : prices) {\n        std::cout << p << \"\\n\";\n    }\n\n    return 0;\n}",
+    "complexity": "Not applicable.",
+    "common_mistake": "Do not claim C++ is always better than Python. Python is excellent for research; C++ is useful for production and latency-sensitive systems.",
+    "interview_tip": "For quant developer interviews, know vectors, references, const correctness, RAII, and basic STL.",
+    "tags": [
+      "C++",
+      "Quant Developer",
+      "Low Latency"
+    ]
+  },
+  {
+    "id": "code_022",
+    "topic": "Coding",
+    "subtopic": "C++",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "Write a simple C++ function to compute the mean of a vector.",
+    "intuition": "Use const references to avoid unnecessary copying.",
+    "solution": "Pass the vector by const reference, check for empty input, accumulate values, and divide by size.",
+    "formula": "mean = sum(x_i)/n",
+    "code_language": "cpp",
+    "code": "#include <vector>\n#include <numeric>\n#include <stdexcept>\n#include <iostream>\n\ndouble mean(const std::vector<double>& x) {\n    if (x.empty()) {\n        throw std::invalid_argument(\"Input vector is empty.\");\n    }\n\n    double sum = std::accumulate(x.begin(), x.end(), 0.0);\n    return sum / static_cast<double>(x.size());\n}\n\nint main() {\n    std::vector<double> x = {1.0, 2.0, 3.0};\n    std::cout << mean(x) << std::endl;\n    return 0;\n}",
+    "complexity": "Time complexity: O(n). Space complexity: O(1).",
+    "common_mistake": "Do not pass large vectors by value unless copying is intended.",
+    "interview_tip": "C++ interviewers often care about const references and memory efficiency.",
+    "tags": [
+      "C++",
+      "Vector",
+      "STL",
+      "Numerical Computing"
+    ]
+  },
+  {
+    "id": "stats_002",
+    "topic": "Statistics",
+    "subtopic": "Maximum Likelihood",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Derive the MLE of the mean μ for iid Normal(μ, σ²) when σ² is known.",
+    "intuition": "The normal likelihood is maximized by minimizing the sum of squared deviations.",
+    "solution": "The MLE of μ is the sample mean.",
+    "derivation": "For iid $X_i\\sim N(\\mu,\\sigma^2)$ with known $\\sigma^2$, the log-likelihood is\n\n$$\\ell(\\mu)=-\\frac{n}{2}\\log(2\\pi\\sigma^2)-\\frac{1}{2\\sigma^2}\\sum_{i=1}^n(X_i-\\mu)^2.$$\n\nDifferentiate with respect to $\\mu$:\n\n$$\\frac{\\partial \\ell}{\\partial \\mu}=\\frac{1}{\\sigma^2}\\sum_{i=1}^n(X_i-\\mu).$$\n\nSet this equal to zero:\n\n$$\\sum_{i=1}^n(X_i-\\mu)=0.$$\n\nTherefore,\n\n$$\\hat{\\mu}_{MLE}=\\bar{X}.$$",
+    "formula": "μ_hat = X_bar",
+    "common_mistake": "Do not confuse the MLE of variance with the unbiased sample variance.",
+    "interview_tip": "For normal MLE questions, write the log-likelihood first.",
+    "tags": [
+      "MLE",
+      "Normal Distribution",
+      "Sample Mean"
+    ]
+  },
+  {
+    "id": "stats_003",
+    "topic": "Statistics",
+    "subtopic": "OLS",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the OLS estimator in matrix form?",
+    "intuition": "OLS chooses coefficients that minimize squared residuals.",
+    "solution": "For y = Xβ + ε, the OLS estimator is β_hat = (X'X)^{-1}X'y, assuming X'X is invertible.",
+    "derivation": "OLS minimizes the sum of squared residuals:\n\n$$S(\\beta)=(y-X\\beta)'(y-X\\beta).$$\n\nDifferentiate with respect to $\\beta$:\n\n$$\\frac{\\partial S}{\\partial \\beta}=-2X'y+2X'X\\beta.$$\n\nSet equal to zero:\n\n$$X'X\\hat{\\beta}=X'y.$$\n\nIf $X'X$ is invertible,\n\n$$\\hat{\\beta}=(X'X)^{-1}X'y.$$",
+    "formula": "β_hat = (X'X)^(-1)X'y",
+    "common_mistake": "Do not ignore multicollinearity; if X'X is singular, the inverse does not exist.",
+    "interview_tip": "Mention projection geometry if the interviewer asks for intuition.",
+    "tags": [
+      "OLS",
+      "Regression",
+      "Matrix Algebra"
+    ]
+  },
+  {
+    "id": "stats_004",
+    "topic": "Statistics",
+    "subtopic": "Hypothesis Testing",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is a p-value?",
+    "intuition": "A p-value measures how surprising the observed result is under the null hypothesis.",
+    "solution": "A p-value is the probability, under the null hypothesis, of observing a test statistic at least as extreme as the one observed. A small p-value suggests the data are unlikely under the null.",
+    "formula": "p-value = P(test statistic at least as extreme | H0)",
+    "common_mistake": "A p-value is not the probability that the null hypothesis is true.",
+    "interview_tip": "Interviewers often test whether you understand interpretation rather than formula memorization.",
+    "tags": [
+      "Hypothesis Testing",
+      "p-value",
+      "Inference"
+    ]
+  },
+  {
+    "id": "stats_005",
+    "topic": "Statistics",
+    "subtopic": "Confidence Intervals",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "How do you interpret a 95% confidence interval?",
+    "intuition": "The confidence level describes the long-run procedure, not a probability statement about a fixed parameter.",
+    "solution": "A 95% confidence interval means that if we repeated the sampling procedure many times, about 95% of such intervals would contain the true parameter.",
+    "formula": "estimate ± critical value × standard error",
+    "common_mistake": "Do not say there is a 95% probability that the fixed true parameter is inside this specific interval under frequentist interpretation.",
+    "interview_tip": "This is a common conceptual statistics interview question.",
+    "tags": [
+      "Confidence Interval",
+      "Inference",
+      "Standard Error"
+    ]
+  },
+  {
+    "id": "stats_006",
+    "topic": "Statistics",
+    "subtopic": "Central Limit Theorem",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the Central Limit Theorem?",
+    "intuition": "Averages of many independent observations tend to be approximately normal.",
+    "solution": "Under suitable conditions, the standardized sample mean converges in distribution to a standard normal distribution as sample size increases.",
+    "formula": "sqrt(n)(X_bar - μ)/σ → N(0,1)",
+    "common_mistake": "The CLT does not say the original data are normally distributed.",
+    "interview_tip": "Mention independence and finite variance conditions if asked.",
+    "tags": [
+      "CLT",
+      "Asymptotics",
+      "Normal Approximation"
+    ]
+  },
+  {
+    "id": "stats_007",
+    "topic": "Statistics",
+    "subtopic": "Bias and Variance",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the bias-variance tradeoff?",
+    "intuition": "Simple models may underfit; complex models may overfit.",
+    "solution": "Expected prediction error can be decomposed into bias, variance, and irreducible noise. Increasing model complexity often reduces bias but increases variance.",
+    "formula": "MSE = Bias² + Variance + Noise",
+    "common_mistake": "Do not only minimize in-sample error; out-of-sample performance matters.",
+    "interview_tip": "This concept connects statistics, machine learning, and model validation.",
+    "tags": [
+      "Bias-Variance",
+      "Overfitting",
+      "Machine Learning"
+    ]
+  },
+  {
+    "id": "stats_008",
+    "topic": "Statistics",
+    "subtopic": "Multicollinearity",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is multicollinearity and why is it a problem?",
+    "intuition": "Predictors contain overlapping information, making coefficient estimates unstable.",
+    "solution": "Multicollinearity occurs when explanatory variables are highly correlated. It inflates standard errors and makes individual coefficient estimates unstable, although prediction may still be acceptable.",
+    "formula": "High correlation among columns of X",
+    "common_mistake": "Do not say multicollinearity necessarily biases OLS coefficients. It mainly affects variance and interpretability.",
+    "interview_tip": "Mention VIF, regularization, or feature selection as possible remedies.",
+    "tags": [
+      "Multicollinearity",
+      "OLS",
+      "Regression"
+    ]
+  },
+  {
+    "id": "stats_009",
+    "topic": "Statistics",
+    "subtopic": "Heteroskedasticity",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is heteroskedasticity and how does it affect OLS?",
+    "intuition": "The error variance changes across observations.",
+    "solution": "Heteroskedasticity means Var(ε_i|X_i) is not constant. OLS coefficients can remain unbiased under exogeneity, but usual standard errors become invalid. Robust standard errors can be used.",
+    "formula": "Var(ε_i|X_i) ≠ σ²",
+    "common_mistake": "Do not say heteroskedasticity automatically biases OLS coefficients.",
+    "interview_tip": "Mention White robust standard errors.",
+    "tags": [
+      "Heteroskedasticity",
+      "OLS",
+      "Robust Standard Errors"
+    ]
+  },
+  {
+    "id": "stats_010",
+    "topic": "Statistics",
+    "subtopic": "Autocorrelation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is autocorrelation in regression residuals?",
+    "intuition": "Errors are correlated over time.",
+    "solution": "Autocorrelation means regression errors are correlated across observations, often in time-series data. It can make standard errors incorrect and affect inference. HAC/Newey-West standard errors are often used.",
+    "formula": "Cov(ε_t, ε_{t-k}) ≠ 0",
+    "common_mistake": "Do not ignore time dependence in financial data.",
+    "interview_tip": "Mention Newey-West standard errors for finance regressions.",
+    "tags": [
+      "Autocorrelation",
+      "Newey-West",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "stats_011",
+    "topic": "Statistics",
+    "subtopic": "Logistic Regression",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is logistic regression used for?",
+    "intuition": "It models binary outcomes through probabilities constrained between 0 and 1.",
+    "solution": "Logistic regression models P(Y=1|X) using the logistic function. It is commonly used for classification, default prediction, and binary event forecasting.",
+    "formula": "P(Y=1|X)=1/(1+exp(-Xβ))",
+    "common_mistake": "Logistic regression predicts probabilities, not continuous returns.",
+    "interview_tip": "Mention log-odds if asked about interpretation.",
+    "tags": [
+      "Logistic Regression",
+      "Classification",
+      "Binary Outcome"
+    ]
+  },
+  {
+    "id": "stats_012",
+    "topic": "Statistics",
+    "subtopic": "Maximum Likelihood",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is logistic regression estimated by maximum likelihood rather than OLS?",
+    "intuition": "The binary outcome likelihood is Bernoulli, not Gaussian with constant variance.",
+    "solution": "Logistic regression assumes Y_i follows a Bernoulli distribution with probability p_i. MLE chooses β to maximize the Bernoulli likelihood. OLS can produce probabilities outside [0,1] and has inappropriate error assumptions.",
+    "formula": "L(β)=Π p_i^{y_i}(1-p_i)^{1-y_i}",
+    "common_mistake": "Do not use accuracy alone to evaluate probabilistic predictions.",
+    "interview_tip": "Mention log loss or cross-entropy for classification probability evaluation.",
+    "tags": [
+      "Logistic Regression",
+      "MLE",
+      "Classification"
+    ]
+  },
+  {
+    "id": "stats_013",
+    "topic": "Statistics",
+    "subtopic": "Sampling",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the difference between population variance and sample variance?",
+    "intuition": "Sample variance uses n-1 to correct finite-sample bias when estimating population variance.",
+    "solution": "Population variance divides by n. The unbiased sample variance divides by n-1 because the sample mean is estimated from the same data.",
+    "formula": "s² = Σ(x_i - x_bar)²/(n-1)",
+    "common_mistake": "Do not mix the MLE variance estimator and the unbiased sample variance estimator.",
+    "interview_tip": "This is a simple but common statistics check.",
+    "tags": [
+      "Sample Variance",
+      "Bias",
+      "Estimation"
+    ]
+  },
+  {
+    "id": "stats_014",
+    "topic": "Statistics",
+    "subtopic": "Correlation",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why does correlation not imply causation?",
+    "intuition": "Two variables can move together because of confounding, reverse causality, or coincidence.",
+    "solution": "Correlation measures statistical association, not causal effect. Causal inference requires stronger assumptions, experiments, instruments, natural experiments, or structural identification.",
+    "formula": "Corr(X,Y) ≠ causal effect",
+    "common_mistake": "Do not interpret a high R² as proof of causality.",
+    "interview_tip": "In quant research, spurious correlation is a serious risk.",
+    "tags": [
+      "Correlation",
+      "Causality",
+      "Research Design"
+    ]
+  },
+  {
+    "id": "stats_015",
+    "topic": "Statistics",
+    "subtopic": "Code",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code to estimate OLS coefficients using NumPy.",
+    "intuition": "Use least squares instead of explicitly computing the matrix inverse.",
+    "solution": "Use np.linalg.lstsq for numerical stability. Add an intercept column if needed.",
+    "formula": "β_hat = (X'X)^(-1)X'y",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef ols_fit(X, y, add_intercept=True):\n    X = np.asarray(X, dtype=float)\n    y = np.asarray(y, dtype=float)\n\n    if add_intercept:\n        X = np.column_stack([np.ones(len(X)), X])\n\n    beta, residuals, rank, s = np.linalg.lstsq(X, y, rcond=None)\n    return beta\n\nX = np.array([[1.0], [2.0], [3.0], [4.0]])\ny = np.array([2.0, 3.9, 6.1, 8.0])\n\nprint(ols_fit(X, y))",
+    "complexity": "Time complexity depends on solver; roughly O(np²) for n observations and p regressors. Space complexity: O(np).",
+    "common_mistake": "Avoid explicitly computing np.linalg.inv(X.T @ X) when solving least squares.",
+    "interview_tip": "Numerical stability matters in quant coding interviews.",
+    "tags": [
+      "Python",
+      "OLS",
+      "NumPy",
+      "Regression"
+    ]
+  },
+  {
+    "id": "ts_002",
+    "topic": "Time Series",
+    "subtopic": "AR(1)",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "When is an AR(1) process stationary?",
+    "intuition": "The autoregressive coefficient must be less than one in absolute value.",
+    "solution": "For X_t = c + φX_{t-1} + ε_t, the process is stationary if |φ|<1. Its unconditional mean is c/(1-φ).",
+    "derivation": "Start with\n\n$$X_t=c+\\phi X_{t-1}+\\epsilon_t.$$\n\nIf the process is stationary, $E[X_t]=E[X_{t-1}]=\\mu$.\n\nTaking expectations:\n\n$$\\mu=c+\\phi\\mu.$$\n\nTherefore,\n\n$$\\mu=\\frac{c}{1-\\phi}.$$\n\nFor shocks to die out over time, we need\n\n$$|\\phi|<1.$$",
+    "formula": "X_t=c+φX_{t-1}+ε_t; stationary if |φ|<1",
+    "common_mistake": "Do not fit AR models to non-stationary price levels without checking unit roots.",
+    "interview_tip": "AR(1) is the simplest model for mean reversion and persistence.",
+    "tags": [
+      "AR(1)",
+      "Stationarity",
+      "Mean Reversion"
+    ]
+  },
+  {
+    "id": "ts_003",
+    "topic": "Time Series",
+    "subtopic": "Random Walk",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why is a random walk non-stationary?",
+    "intuition": "Its variance grows over time and shocks have permanent effects.",
+    "solution": "For X_t=X_{t-1}+ε_t, the variance of X_t grows with t if ε_t has positive variance. Therefore the variance is not constant over time, so the process is not weakly stationary.",
+    "formula": "Var(X_t)=tσ² if X_0=0",
+    "common_mistake": "Do not confuse stationary increments with stationarity of the level.",
+    "interview_tip": "Stock prices are often modeled as close to random walks; returns are modeled instead.",
+    "tags": [
+      "Random Walk",
+      "Nonstationarity",
+      "Unit Root"
+    ]
+  },
+  {
+    "id": "ts_004",
+    "topic": "Time Series",
+    "subtopic": "Unit Root",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a unit root?",
+    "intuition": "A unit root means shocks have permanent effects and the series is non-stationary.",
+    "solution": "In an AR(1) model X_t=φX_{t-1}+ε_t, a unit root occurs when φ=1. The process becomes a random walk-like process.",
+    "formula": "φ=1 in X_t=φX_{t-1}+ε_t",
+    "common_mistake": "Do not use standard regression inference on non-stationary series without care.",
+    "interview_tip": "Mention ADF test if asked about detection.",
+    "tags": [
+      "Unit Root",
+      "ADF Test",
+      "Stationarity"
+    ]
+  },
+  {
+    "id": "ts_005",
+    "topic": "Time Series",
+    "subtopic": "Autocorrelation",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is autocorrelation?",
+    "intuition": "Autocorrelation measures correlation between a time series and its own lag.",
+    "solution": "The lag-k autocorrelation is the correlation between X_t and X_{t-k}. It is used to detect persistence, mean reversion, and model structure.",
+    "formula": "ρ_k = Corr(X_t, X_{t-k})",
+    "common_mistake": "Do not assume autocorrelation is always bad; it depends on the model and objective.",
+    "interview_tip": "ACF and PACF plots are common tools for ARMA model identification.",
+    "tags": [
+      "Autocorrelation",
+      "ACF",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ts_006",
+    "topic": "Time Series",
+    "subtopic": "ARMA",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between AR and MA models?",
+    "intuition": "AR uses past values; MA uses past shocks.",
+    "solution": "An AR model regresses the series on its own past values. An MA model expresses the series as a function of current and past error terms. ARMA combines both.",
+    "formula": "AR: X_t depends on X_{t-k}; MA: X_t depends on ε_{t-k}",
+    "common_mistake": "Do not confuse moving-average models with simple rolling averages.",
+    "interview_tip": "Use ACF/PACF behavior to discuss identification.",
+    "tags": [
+      "ARMA",
+      "AR",
+      "MA",
+      "Forecasting"
+    ]
+  },
+  {
+    "id": "ts_007",
+    "topic": "Time Series",
+    "subtopic": "Cointegration",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is cointegration?",
+    "intuition": "Two non-stationary series can have a stationary long-run relationship.",
+    "solution": "Series are cointegrated if each is non-stationary, but some linear combination of them is stationary. Cointegration is important in pairs trading and long-run equilibrium modeling.",
+    "formula": "X_t and Y_t nonstationary, but Y_t - βX_t stationary",
+    "common_mistake": "High correlation does not imply cointegration.",
+    "interview_tip": "This is very relevant for statistical arbitrage interviews.",
+    "tags": [
+      "Cointegration",
+      "Pairs Trading",
+      "Stationarity"
+    ]
+  },
+  {
+    "id": "ts_008",
+    "topic": "Time Series",
+    "subtopic": "GARCH",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a GARCH model?",
+    "intuition": "GARCH models time-varying volatility and volatility clustering.",
+    "solution": "A GARCH(1,1) model specifies conditional variance as h_t = ω + αε_{t-1}² + βh_{t-1}. It is commonly used to model financial return volatility.",
+    "formula": "h_t = ω + αε_{t-1}² + βh_{t-1}",
+    "common_mistake": "GARCH models conditional variance, not expected return directly.",
+    "interview_tip": "Mention volatility clustering as the key motivation.",
+    "tags": [
+      "GARCH",
+      "Volatility",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ts_009",
+    "topic": "Time Series",
+    "subtopic": "GARCH",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What condition gives covariance stationarity in GARCH(1,1)?",
+    "intuition": "The persistence parameters must sum to less than one.",
+    "solution": "For GARCH(1,1), h_t = ω + αε_{t-1}² + βh_{t-1}. A common covariance-stationarity condition is α+β<1.",
+    "formula": "α + β < 1",
+    "common_mistake": "If α+β is close to one, volatility shocks are highly persistent.",
+    "interview_tip": "This is often asked in volatility modeling interviews.",
+    "tags": [
+      "GARCH",
+      "Stationarity",
+      "Volatility Persistence"
+    ]
+  },
+  {
+    "id": "ts_010",
+    "topic": "Time Series",
+    "subtopic": "Kalman Filter",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the Kalman filter used for?",
+    "intuition": "It estimates hidden states from noisy observations in a state-space model.",
+    "solution": "The Kalman filter recursively updates estimates of latent states using a prediction step and an update step. It is used in state-space models, dynamic factor models, pairs trading, and term-structure models.",
+    "formula": "state equation + observation equation",
+    "common_mistake": "Do not confuse the hidden state with the observed signal.",
+    "interview_tip": "A simple example is estimating a time-varying hedge ratio.",
+    "tags": [
+      "Kalman Filter",
+      "State Space",
+      "Hidden State"
+    ]
+  },
+  {
+    "id": "ts_011",
+    "topic": "Time Series",
+    "subtopic": "Forecast Evaluation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you evaluate time-series forecasts?",
+    "intuition": "Use out-of-sample evaluation and avoid lookahead bias.",
+    "solution": "Common forecast evaluation metrics include MAE, RMSE, log score, hit rate, and directional accuracy depending on the task. For finance, walk-forward validation and out-of-sample testing are essential.",
+    "formula": "RMSE = sqrt(mean((y_t - yhat_t)^2))",
+    "common_mistake": "Do not randomly shuffle time-series observations for ordinary train-test splits.",
+    "interview_tip": "Mention rolling or expanding-window validation.",
+    "tags": [
+      "Forecast Evaluation",
+      "Out-of-Sample",
+      "Walk-Forward"
+    ]
+  },
+  {
+    "id": "ts_012",
+    "topic": "Time Series",
+    "subtopic": "Code",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code to create lagged features for a time-series model.",
+    "intuition": "Lagged features use past information to predict future outcomes.",
+    "solution": "Use pandas shift to create lagged columns. Drop rows with missing values created by shifting.",
+    "formula": "feature_t = X_{t-k}",
+    "code_language": "python",
+    "code": "import pandas as pd\n\ndef make_lagged_features(series, lags=(1, 2, 3)):\n    series = pd.Series(series, dtype=float)\n    df = pd.DataFrame({\"y\": series})\n\n    for lag in lags:\n        df[f\"lag_{lag}\"] = series.shift(lag)\n\n    return df.dropna()\n\nx = [1, 2, 3, 4, 5, 6]\nprint(make_lagged_features(x, lags=(1, 2)))",
+    "complexity": "Time complexity: O(n × number_of_lags). Space complexity: O(n × number_of_lags).",
+    "common_mistake": "Do not use future values as features. That creates lookahead bias.",
+    "interview_tip": "This is useful for forecasting, ML features, and trading signals.",
+    "tags": [
+      "Python",
+      "Lagged Features",
+      "Time Series",
+      "Pandas"
+    ]
+  },
+  {
+    "id": "ml_001",
+    "topic": "Machine Learning",
+    "subtopic": "Supervised Learning",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the difference between supervised and unsupervised learning?",
+    "intuition": "Supervised learning has labels; unsupervised learning finds structure without labels.",
+    "solution": "Supervised learning uses input-output pairs to learn a mapping from features to labels. Unsupervised learning uses unlabeled data to find clusters, latent structure, or lower-dimensional representations.",
+    "formula": "Supervised: (X,y); Unsupervised: X only",
+    "common_mistake": "Do not use supervised evaluation metrics when there are no labels.",
+    "interview_tip": "Give finance examples: return prediction is supervised; clustering assets is unsupervised.",
+    "tags": [
+      "Supervised Learning",
+      "Unsupervised Learning",
+      "ML Basics"
+    ]
+  },
+  {
+    "id": "ml_002",
+    "topic": "Machine Learning",
+    "subtopic": "Train-Test Split",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why is train-test split different for time-series data?",
+    "intuition": "Time order matters, so future observations must not leak into the training set.",
+    "solution": "For time-series data, train-test splitting should respect chronological order. Common approaches include rolling-window or expanding-window validation.",
+    "formula": "Train on past, test on future",
+    "common_mistake": "Do not randomly shuffle financial time-series data before splitting.",
+    "interview_tip": "Mention lookahead bias and data leakage.",
+    "tags": [
+      "Train-Test Split",
+      "Time Series",
+      "Lookahead Bias"
+    ]
+  },
+  {
+    "id": "ml_003",
+    "topic": "Machine Learning",
+    "subtopic": "Overfitting",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is overfitting?",
+    "intuition": "The model learns noise rather than signal.",
+    "solution": "Overfitting occurs when a model performs very well in-sample but poorly out-of-sample because it has captured noise or dataset-specific patterns.",
+    "formula": "Low train error, high test error",
+    "common_mistake": "Do not judge a trading model by in-sample performance only.",
+    "interview_tip": "Mention cross-validation, regularization, and out-of-sample testing.",
+    "tags": [
+      "Overfitting",
+      "Model Validation",
+      "ML Basics"
+    ]
+  },
+  {
+    "id": "ml_004",
+    "topic": "Machine Learning",
+    "subtopic": "Regularization",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between L1 and L2 regularization?",
+    "intuition": "L1 encourages sparsity; L2 shrinks coefficients smoothly.",
+    "solution": "L1 regularization adds a penalty proportional to the sum of absolute coefficients and can set some coefficients to zero. L2 regularization adds a penalty proportional to the sum of squared coefficients and shrinks coefficients toward zero.",
+    "formula": "L1: λΣ|β_j|; L2: λΣβ_j²",
+    "common_mistake": "Do not say L2 performs feature selection in the same way as L1.",
+    "interview_tip": "L1 is useful when you want sparse models; L2 is useful for stability.",
+    "tags": [
+      "Regularization",
+      "Lasso",
+      "Ridge"
+    ]
+  },
+  {
+    "id": "ml_005",
+    "topic": "Machine Learning",
+    "subtopic": "Random Forest",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a random forest?",
+    "intuition": "A random forest averages many decorrelated decision trees to reduce variance.",
+    "solution": "A random forest builds many decision trees using bootstrapped samples and random subsets of features. Predictions are averaged for regression or voted for classification.",
+    "formula": "Prediction = average/vote across trees",
+    "common_mistake": "Random forests are less interpretable than simple linear models, although feature importance can help.",
+    "interview_tip": "Mention bagging and feature randomness.",
+    "tags": [
+      "Random Forest",
+      "Decision Trees",
+      "Ensemble Learning"
+    ]
+  },
+  {
+    "id": "ml_006",
+    "topic": "Machine Learning",
+    "subtopic": "Gradient Boosting",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is gradient boosting?",
+    "intuition": "Boosting builds models sequentially, with each new model correcting previous errors.",
+    "solution": "Gradient boosting fits weak learners sequentially to reduce a loss function. Each new tree focuses on residual errors or gradients from the previous ensemble.",
+    "formula": "F_m(x)=F_{m-1}(x)+ηh_m(x)",
+    "common_mistake": "Do not confuse bagging and boosting. Bagging trains models in parallel; boosting trains sequentially.",
+    "interview_tip": "Mention learning rate, tree depth, and overfitting control.",
+    "tags": [
+      "Gradient Boosting",
+      "Ensemble Learning",
+      "Trees"
+    ]
+  },
+  {
+    "id": "ml_007",
+    "topic": "Machine Learning",
+    "subtopic": "PCA",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is PCA used for?",
+    "intuition": "PCA finds orthogonal directions that explain the most variance.",
+    "solution": "Principal Component Analysis transforms correlated features into orthogonal components ordered by explained variance. It is used for dimensionality reduction, risk factors, and yield-curve analysis.",
+    "formula": "Principal components = eigenvectors of covariance matrix",
+    "common_mistake": "PCA is unsupervised; it does not directly maximize predictive power for y.",
+    "interview_tip": "For finance, mention factor interpretation and dimensionality reduction.",
+    "tags": [
+      "PCA",
+      "Dimensionality Reduction",
+      "Factors"
+    ]
+  },
+  {
+    "id": "ml_008",
+    "topic": "Machine Learning",
+    "subtopic": "Classification Metrics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are precision and recall?",
+    "intuition": "Precision asks: when the model predicts positive, how often is it right? Recall asks: how many actual positives did it find?",
+    "solution": "Precision = TP/(TP+FP). Recall = TP/(TP+FN). They are important when classes are imbalanced.",
+    "formula": "Precision=TP/(TP+FP); Recall=TP/(TP+FN)",
+    "common_mistake": "Accuracy can be misleading for imbalanced datasets.",
+    "interview_tip": "In trading signals, false positives and false negatives may have very different costs.",
+    "tags": [
+      "Classification",
+      "Precision",
+      "Recall",
+      "Confusion Matrix"
+    ]
+  },
+  {
+    "id": "ml_009",
+    "topic": "Machine Learning",
+    "subtopic": "Feature Engineering",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is feature engineering important in quant ML?",
+    "intuition": "Good features can encode financial structure that raw data may not reveal.",
+    "solution": "Feature engineering transforms raw data into informative predictors. In quant finance, examples include returns, volatility, momentum, spreads, lagged variables, order-book features, and option-implied variables.",
+    "formula": "raw data → informative predictors",
+    "common_mistake": "Do not create features using future information.",
+    "interview_tip": "Always discuss feature timing and data availability.",
+    "tags": [
+      "Feature Engineering",
+      "Quant ML",
+      "Lookahead Bias"
+    ]
+  },
+  {
+    "id": "ml_010",
+    "topic": "Machine Learning",
+    "subtopic": "Code",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code for a simple time-series train-test split.",
+    "intuition": "Keep the past in the training set and the future in the test set.",
+    "solution": "Use chronological splitting rather than random shuffling.",
+    "formula": "train = first part; test = later part",
+    "code_language": "python",
+    "code": "import numpy as np\n\ndef time_series_train_test_split(X, y, test_size=0.2):\n    X = np.asarray(X)\n    y = np.asarray(y)\n\n    if len(X) != len(y):\n        raise ValueError(\"X and y must have the same length\")\n    if not 0 < test_size < 1:\n        raise ValueError(\"test_size must be between 0 and 1\")\n\n    split_idx = int(len(X) * (1 - test_size))\n\n    X_train, X_test = X[:split_idx], X[split_idx:]\n    y_train, y_test = y[:split_idx], y[split_idx:]\n\n    return X_train, X_test, y_train, y_test\n\nX = np.arange(10).reshape(-1, 1)\ny = np.arange(10)\nprint(time_series_train_test_split(X, y, test_size=0.3))",
+    "complexity": "Time complexity: O(1) for slicing views in NumPy in many cases. Space complexity depends on whether arrays are copied.",
+    "common_mistake": "Do not use random train-test split for time series unless the problem explicitly allows it.",
+    "interview_tip": "Mention walk-forward validation for more serious evaluation.",
+    "tags": [
+      "Python",
+      "Train-Test Split",
+      "Time Series",
+      "Machine Learning"
     ]
   }
 ]

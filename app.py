@@ -50,6 +50,8 @@ def match_search(item, search_text):
         item.get("derivation", ""),
         item.get("common_mistake", ""),
         item.get("interview_tip", ""),
+        item.get("code", ""),
+        item.get("complexity", ""),
         item.get("topic", ""),
         item.get("subtopic", ""),
         " ".join(item.get("tags", [])),
@@ -118,6 +120,14 @@ def question_card(item, index):
                 st.code(formula, language="text")
 
         render_optional_expander("Math derivation", item.get("derivation", ""))
+
+        code = item.get("code", "")
+        if code:
+            language = item.get("code_language", "python")
+            with st.expander("Code example"):
+                st.code(code, language=language)
+
+        render_optional_expander("Complexity", item.get("complexity", ""), kind="info")
         render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
         render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
 
@@ -172,10 +182,11 @@ def main():
     statuses = unique_values(questions, "status")
     tags = unique_tags(questions)
     n_derivations = sum(bool(q.get("derivation")) for q in questions)
+    n_code = sum(bool(q.get("code")) for q in questions)
 
     st.sidebar.header("Question Filters")
 
-    search_text = st.sidebar.text_input("Search questions, answers, derivations, or tags")
+    search_text = st.sidebar.text_input("Search questions, answers, derivations, code, or tags")
 
     selected_topics = st.sidebar.multiselect(
         "Topic",
@@ -201,6 +212,7 @@ def main():
     )
 
     only_derivations = st.sidebar.checkbox("Only show questions with derivations")
+    only_code = st.sidebar.checkbox("Only show questions with code examples")
 
     filtered = []
     for item in questions:
@@ -212,16 +224,18 @@ def main():
         search_ok = match_search(item, search_text)
         tags_ok = True if not selected_tags else bool(item_tags.intersection(selected_tags))
         derivation_ok = True if not only_derivations else bool(item.get("derivation"))
+        code_ok = True if not only_code else bool(item.get("code"))
 
-        if topic_ok and difficulty_ok and status_ok and search_ok and tags_ok and derivation_ok:
+        if topic_ok and difficulty_ok and status_ok and search_ok and tags_ok and derivation_ok and code_ok:
             filtered.append(item)
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Total questions", len(questions))
     col2.metric("Filtered questions", len(filtered))
     col3.metric("Topics", len(topics))
     col4.metric("Verified", sum(q.get("status") == "Verified" for q in questions))
     col5.metric("With derivations", n_derivations)
+    col6.metric("With code", n_code)
 
     tab_bank, tab_practice, tab_formula, tab_about = st.tabs(
         ["Question Bank", "Practice Mode", "Formula Sheet", "About"]
@@ -298,16 +312,18 @@ def main():
             - Topic, difficulty, status, and tag filters
             - Expandable intuition and solution sections
             - Optional math derivation sections
+            - Optional code example sections
+            - Optional complexity analysis sections
             - Optional common mistake and interview tip sections
             - Random practice mode
             - Formula sheet / quick reference tab
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.4B: Improve formula sheet structure and add copy-friendly formulas
-            - Version 1.5: Python/C++ coding interview section
+            - Version 1.5B: Add more C++ and data-structure questions
             - Version 1.6: Statistics, time series, and machine learning question bank
-            - Version 2.0: Progress tracking and quiz mode
+            - Version 1.7: Better practice mode / quiz mode
+            - Version 2.0: Progress tracking and polished portfolio version
             """
         )
 

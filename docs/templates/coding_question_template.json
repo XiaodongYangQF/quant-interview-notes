@@ -1,0 +1,22 @@
+[
+  {
+    "id": "code_example_001",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "Write your coding question here.",
+    "intuition": "Short intuition.",
+    "solution": "Explain the algorithm or implementation idea.",
+    "formula": "Optional formula.",
+    "code_language": "python",
+    "code": "def example():\n    pass",
+    "complexity": "Time complexity: O(...). Space complexity: O(...).",
+    "common_mistake": "Common implementation mistake.",
+    "interview_tip": "Short interview tip.",
+    "tags": [
+      "Python",
+      "Coding"
+    ]
+  }
+]
