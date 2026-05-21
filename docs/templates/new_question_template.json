@@ -1,0 +1,18 @@
+{
+  "id": "topic_000",
+  "topic": "Probability",
+  "subtopic": "Subtopic name",
+  "difficulty": "Easy",
+  "status": "Draft",
+  "question": "Write the interview question here.",
+  "intuition": "Give a short intuitive explanation.",
+  "solution": "Give the full interview-level answer.",
+  "formula": "Optional key formula.",
+  "derivation": "",
+  "common_mistake": "Common mistake to avoid.",
+  "interview_tip": "Short interview tip.",
+  "tags": [
+    "Tag 1",
+    "Tag 2"
+  ]
+}

@@ -12,6 +12,38 @@ import streamlit as st
 APP_TITLE = "Quant Interview Trainer"
 DATA_PATH = Path(__file__).parent / "data" / "questions.json"
 FORMULA_PATH = Path(__file__).parent / "data" / "formulas.json"
+CONFIG_PATH = Path(__file__).parent / "config" / "app_config.json"
+
+DEFAULT_CONFIG = {
+    "app_title": "Quant Interview Trainer",
+    "page_icon": "📈",
+    "layout": "wide",
+    "app_intro_markdown": (
+        "An interactive question bank for quantitative finance interviews.\n\n"
+        "Use this app to review probability, statistics, derivatives, coding, "
+        "stochastic calculus, brainteasers, and quant finance fundamentals."
+    ),
+    "default_status_filter": ["Verified", "Draft"],
+    "display_defaults": {
+        "compact_mode": False,
+        "show_tags": True,
+        "show_intuition": True,
+        "show_solution": True,
+        "expand_solutions_by_default": False,
+        "show_derivations": True,
+        "show_code_examples": True,
+        "show_complexity": True,
+        "show_common_mistakes": True,
+        "show_interview_tips": True,
+        "questions_per_page": 25
+    },
+    "public_private_policy": {
+        "public_question_file": "data/questions.json",
+        "public_formula_file": "data/formulas.json",
+        "private_folder": "private/",
+        "private_folder_should_be_gitignored": True
+    }
+}
 
 
 @st.cache_data
@@ -30,6 +62,28 @@ def load_formulas(file_mtime):
         return []
     with FORMULA_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+@st.cache_data
+def load_app_config(file_mtime):
+    """Load app configuration. Cache refreshes when the config file changes."""
+    config = json.loads(json.dumps(DEFAULT_CONFIG))
+
+    if not CONFIG_PATH.exists():
+        return config
+
+    with CONFIG_PATH.open("r", encoding="utf-8") as f:
+        user_config = json.load(f)
+
+    def deep_update(base, updates):
+        for key, value in updates.items():
+            if isinstance(value, dict) and isinstance(base.get(key), dict):
+                deep_update(base[key], value)
+            else:
+                base[key] = value
+        return base
+
+    return deep_update(config, user_config)
 
 
 def unique_values(items, key):
@@ -82,12 +136,17 @@ def match_formula_search(item, search_text):
     return search_text.lower() in text
 
 
-def render_optional_expander(title, content, kind="markdown"):
+def get_display_setting(name, default=None):
+    """Read display settings from Streamlit session state."""
+    return st.session_state.get(name, default)
+
+
+def render_optional_expander(title, content, kind="markdown", expanded=False):
     """Render an optional expandable section if content exists."""
     if not content:
         return
 
-    with st.expander(title):
+    with st.expander(title, expanded=expanded):
         if kind == "warning":
             st.warning(content)
         elif kind == "info":
@@ -102,38 +161,57 @@ def question_card(item, index):
     topic = item.get("topic", "Unknown")
     subtopic = item.get("subtopic", "")
 
+    compact_mode = get_display_setting("compact_mode", False)
+    show_tags = get_display_setting("show_tags", True)
+    show_intuition = get_display_setting("show_intuition", True)
+    show_solution = get_display_setting("show_solution", True)
+    expand_solutions = get_display_setting("expand_solutions_by_default", False)
+    show_derivations = get_display_setting("show_derivations", True)
+    show_code_examples = get_display_setting("show_code_examples", True)
+    show_complexity = get_display_setting("show_complexity", True)
+    show_common_mistakes = get_display_setting("show_common_mistakes", True)
+    show_interview_tips = get_display_setting("show_interview_tips", True)
+
     with st.container(border=True):
         st.markdown(f"### {index}. {item.get('question', 'Untitled question')}")
         st.caption(f"{topic} · {subtopic} · {difficulty} · {status}")
 
         tags = item.get("tags", [])
-        if tags:
+        if tags and show_tags:
             st.markdown(" ".join([f"`{tag}`" for tag in tags]))
 
-        render_optional_expander(
-            "Interview intuition",
-            item.get("intuition", "No intuition added yet."),
-        )
+        if show_intuition and not compact_mode:
+            render_optional_expander(
+                "Interview intuition",
+                item.get("intuition", "No intuition added yet."),
+            )
 
-        with st.expander("Full solution"):
-            st.write(item.get("solution", "No solution added yet."))
+        if show_solution:
+            with st.expander("Full solution", expanded=expand_solutions):
+                st.write(item.get("solution", "No solution added yet."))
 
-            formula = item.get("formula", "")
-            if formula:
-                st.markdown("**Key formula**")
-                st.code(formula, language="text")
+                formula = item.get("formula", "")
+                if formula:
+                    st.markdown("**Key formula**")
+                    st.code(formula, language="text")
 
-        render_optional_expander("Math derivation", item.get("derivation", ""))
+        if show_derivations and not compact_mode:
+            render_optional_expander("Math derivation", item.get("derivation", ""))
 
         code = item.get("code", "")
-        if code:
+        if code and show_code_examples and not compact_mode:
             language = item.get("code_language", "python")
             with st.expander("Code example"):
                 st.code(code, language=language)
 
-        render_optional_expander("Complexity", item.get("complexity", ""), kind="info")
-        render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
-        render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
+        if show_complexity and not compact_mode:
+            render_optional_expander("Complexity", item.get("complexity", ""), kind="info")
+
+        if show_common_mistakes and not compact_mode:
+            render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
+
+        if show_interview_tips and not compact_mode:
+            render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
 
 
 def question_prompt_card(item, index, total):
@@ -155,7 +233,16 @@ def question_prompt_card(item, index, total):
 
 def quiz_answer_card(item):
     """Render answer content for quiz mode."""
-    render_optional_expander("Interview intuition", item.get("intuition", "No intuition added yet."))
+    compact_mode = get_display_setting("compact_mode", False)
+    show_intuition = get_display_setting("show_intuition", True)
+    show_derivations = get_display_setting("show_derivations", True)
+    show_code_examples = get_display_setting("show_code_examples", True)
+    show_complexity = get_display_setting("show_complexity", True)
+    show_common_mistakes = get_display_setting("show_common_mistakes", True)
+    show_interview_tips = get_display_setting("show_interview_tips", True)
+
+    if show_intuition and not compact_mode:
+        render_optional_expander("Interview intuition", item.get("intuition", "No intuition added yet."))
 
     with st.expander("Full solution", expanded=True):
         st.write(item.get("solution", "No solution added yet."))
@@ -165,17 +252,23 @@ def quiz_answer_card(item):
             st.markdown("**Key formula**")
             st.code(formula, language="text")
 
-    render_optional_expander("Math derivation", item.get("derivation", ""))
+    if show_derivations and not compact_mode:
+        render_optional_expander("Math derivation", item.get("derivation", ""))
 
     code = item.get("code", "")
-    if code:
+    if code and show_code_examples and not compact_mode:
         language = item.get("code_language", "python")
         with st.expander("Code example"):
             st.code(code, language=language)
 
-    render_optional_expander("Complexity", item.get("complexity", ""), kind="info")
-    render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
-    render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
+    if show_complexity and not compact_mode:
+        render_optional_expander("Complexity", item.get("complexity", ""), kind="info")
+
+    if show_common_mistakes and not compact_mode:
+        render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
+
+    if show_interview_tips and not compact_mode:
+        render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
 
 
 def formula_card(item, index):
@@ -489,75 +582,123 @@ def build_topic_summary(questions):
 
 
 def render_home_tab(questions, formulas):
-    """Render a portfolio-friendly home tab."""
+    """Render a portfolio-friendly landing page."""
     st.subheader("Quant Interview Trainer")
 
     st.markdown(
         """
-        This app is an interactive preparation tool for quantitative finance interviews.
-        It turns structured quant interview notes into a searchable question bank,
-        formula sheet, coding-practice library, and quiz-based review system.
+        Turn static interview notes into an interactive preparation platform for
+        quantitative finance interviews.
+
+        This app combines a searchable question bank, formula sheet, coding examples,
+        quiz mode, review workflow, and content-quality tools in one place.
         """
     )
 
-    home_col1, home_col2, home_col3 = st.columns(3)
-    with home_col1:
+    hero_col1, hero_col2 = st.columns([2, 1])
+
+    with hero_col1:
         st.markdown(
             """
-            **For interview practice**
-            - Hidden-answer quiz mode
-            - Self-assessment workflow
-            - Review list for weak questions
+            ### What this app does
+
+            - helps you review quant interview topics in a structured way
+            - supports active recall through quiz mode
+            - stores formulas, derivations, and coding examples together
+            - highlights weak topics using review mode
+            - helps maintain content quality as the question bank grows
             """
         )
-    with home_col2:
+
         st.markdown(
             """
-            **For technical revision**
-            - Probability and statistics
-            - Derivatives and Greeks
-            - Stochastic calculus and time series
+            ### Best use cases
+
+            - quant researcher interview prep
+            - quant trader / systematic trading prep
+            - quant developer and coding interview prep
+            - probability, statistics, derivatives, and stochastic calculus revision
             """
         )
-    with home_col3:
-        st.markdown(
-            """
-            **For coding preparation**
-            - Python examples
-            - Numerical methods
-            - Risk and option-pricing functions
-            """
+
+    with hero_col2:
+        st.info(
+            "Suggested workflow:\n\n"
+            "1. Start with **Question Bank**\n"
+            "2. Review **Formula Sheet**\n"
+            "3. Practice with **Quiz Mode**\n"
+            "4. Revisit weak areas in **Review Mode**\n"
+            "5. Use **Content Dashboard** to maintain quality"
         )
 
     st.markdown("### Project snapshot")
 
-    metric_cols = st.columns(5)
+    metric_cols = st.columns(6)
     metric_cols[0].metric("Questions", len(questions))
     metric_cols[1].metric("Formulas", len(formulas))
     metric_cols[2].metric("Topics", len({q.get("topic", "Unknown") for q in questions}))
     metric_cols[3].metric("Derivations", sum(bool(q.get("derivation")) for q in questions))
     metric_cols[4].metric("Code examples", sum(bool(q.get("code")) for q in questions))
+    metric_cols[5].metric("Verified", sum(q.get("status") == "Verified" for q in questions))
+
+    st.markdown("### Main features")
+
+    feat1, feat2, feat3 = st.columns(3)
+    with feat1:
+        st.markdown(
+            """
+            **Learning & revision**
+            - searchable question bank
+            - topic and difficulty filters
+            - formula sheet
+            - derivations and interview tips
+            """
+        )
+    with feat2:
+        st.markdown(
+            """
+            **Practice**
+            - random practice mode
+            - quiz mode
+            - self-assessment
+            - weak-question review list
+            """
+        )
+    with feat3:
+        st.markdown(
+            """
+            **Project quality**
+            - content dashboard
+            - curation workspace
+            - JSON-based structure
+            - exportable quiz and curation files
+            """
+        )
 
     st.markdown("### Topic coverage")
     st.dataframe(build_topic_summary(questions), use_container_width=True, hide_index=True)
 
-    st.markdown("### Suggested workflow")
-
+    st.markdown("### Recommended study route")
     st.markdown(
         """
-        1. Use **Question Bank** to search and review topics.
-        2. Use **Formula Sheet** for quick revision before interviews.
-        3. Use **Quiz Mode** to simulate active recall.
-        4. Use **Review Mode** to revisit weak questions.
-        5. Export quiz results for your own study record.
+        1. **Probability & Statistics** – start with foundations.
+        2. **Derivatives & Greeks** – core interview topics.
+        3. **Stochastic Calculus & Time Series** – more advanced quantitative material.
+        4. **Coding & Quant Developer topics** – practical implementation ability.
+        5. **Quiz Mode** – test retention under interview-style conditions.
         """
     )
 
-    st.info(
-        "Tip: For serious interview preparation, start with Probability, "
-        "then Derivatives/Greeks, then Stochastic Calculus, then Coding."
+    st.markdown("### Project positioning")
+    st.success(
+        "This app is suitable as a GitHub portfolio project, a personal website feature, "
+        "and a practical interview-preparation tool."
     )
 
+    st.caption(
+        "Tip: After each major update, refresh screenshots for the Home tab, Question Bank, "
+        "Quiz Mode, Formula Sheet, Content Dashboard, and Curation Workspace."
+    )
 
 def find_duplicate_values(items, key, normalizer=None):
     """Find duplicate values for a selected key."""
@@ -1152,12 +1293,128 @@ def render_curation_workspace(questions):
         "check Content Dashboard → commit and push."
     )
 
+
+def render_content_workflow(app_config):
+    """Render a long-term content-management workflow tab."""
+    st.subheader("Content Workflow")
+
+    st.markdown(
+        """
+        This tab explains how to maintain and extend the app safely.
+        The goal is to make future updates simple: add content, validate it,
+        curate it, then commit it.
+        """
+    )
+
+    st.markdown("### Recommended update workflow")
+
+    st.markdown(
+        """
+        1. Add a new question or formula using the JSON templates.
+        2. Save the update in `data/questions.json` or `data/formulas.json`.
+        3. Run the app locally with `streamlit run app.py`.
+        4. Open **Content Dashboard** to check missing fields, duplicates, and status.
+        5. Open **Curation Workspace** to inspect Draft or incomplete items.
+        6. Mark stable items as `Verified`.
+        7. Commit and push the update to GitHub.
+        """
+    )
+
+    st.markdown("### Public/private content rule")
+
+    policy = app_config.get("public_private_policy", {})
+    public_q = policy.get("public_question_file", "data/questions.json")
+    public_f = policy.get("public_formula_file", "data/formulas.json")
+    private_folder = policy.get("private_folder", "private/")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("**Public-safe files**")
+        st.code(f"{public_q}\n{public_f}", language="text")
+        st.caption("Only put public-safe interview content here.")
+
+    with col2:
+        st.markdown("**Private draft area**")
+        st.code(private_folder, language="text")
+        st.caption("Use this for private or research-sensitive drafts. Keep it out of GitHub.")
+
+    st.warning(
+        "Do not commit private PhD research notes, unpublished research ideas, "
+        "or sensitive materials into the public question bank."
+    )
+
+    st.markdown("### Recommended content statuses")
+
+    st.markdown(
+        """
+        - `Draft`: new or incomplete content.
+        - `Verified`: checked, public-safe, and ready to show.
+        """
+    )
+
+    st.markdown("### Suggested folder structure")
+
+    st.code(
+        """
+data/
+  questions.json
+  formulas.json
+
+config/
+  app_config.json
+
+docs/
+  templates/
+  version-notes/
+  screenshots/
+
+private/          # optional, should be gitignored
+  research_questions_draft.json
+  private_notes.md
+        """.strip(),
+        language="text",
+    )
+
+    st.markdown("### Useful templates")
+
+    st.markdown(
+        """
+        Use the templates in `docs/templates/` when adding new content:
+
+        - `new_question_template.json`
+        - `new_formula_template.json`
+        - `new_coding_question_template.json`
+        - `new_derivation_question_template.json`
+        - `CONTENT_UPDATE_WORKFLOW.md`
+        - `PUBLIC_PRIVATE_CONTENT_GUIDE.md`
+        """
+    )
+
+    st.markdown("### Suggested Git commands")
+
+    st.code(
+        """
+git status
+git add app.py data/questions.json data/formulas.json config/app_config.json docs/
+git commit -m "Update quant interview trainer content"
+git push
+        """.strip(),
+        language="bash",
+    )
+
 def main():
+    # IMPORTANT:
+    # st.set_page_config must be the first Streamlit command in the app.
+    # Therefore, we call it before loading config through st.cache_data.
     st.set_page_config(
         page_title=APP_TITLE,
-        page_icon="📈",
-        layout="wide",
+        page_icon=DEFAULT_CONFIG.get("page_icon", "📈"),
+        layout=DEFAULT_CONFIG.get("layout", "wide"),
     )
+
+    config_mtime = CONFIG_PATH.stat().st_mtime if CONFIG_PATH.exists() else 0
+    app_config = load_app_config(config_mtime)
 
     initialize_quiz_state()
 
@@ -1167,15 +1424,8 @@ def main():
     questions = load_questions(question_mtime)
     formulas = load_formulas(formula_mtime)
 
-    st.title("📈 Quant Interview Trainer")
-    st.markdown(
-        """
-        An interactive question bank for quantitative finance interviews.
-
-        Use this app to review probability, statistics, derivatives, coding,
-        stochastic calculus, brainteasers, and quant finance fundamentals.
-        """
-    )
+    st.title(f"{app_config.get('page_icon', '📈')} {app_config.get('app_title', APP_TITLE)}")
+    st.markdown(app_config.get("app_intro_markdown", DEFAULT_CONFIG["app_intro_markdown"]))
 
     if not questions:
         st.warning("No questions found. Please check data/questions.json.")
@@ -1204,10 +1454,15 @@ def main():
         default=difficulties,
     )
 
+    default_statuses = [
+        status for status in app_config.get("default_status_filter", statuses)
+        if status in statuses
+    ] or statuses
+
     selected_statuses = st.sidebar.multiselect(
         "Status",
         statuses,
-        default=statuses,
+        default=default_statuses,
     )
 
     selected_tags = st.sidebar.multiselect(
@@ -1217,6 +1472,32 @@ def main():
 
     only_derivations = st.sidebar.checkbox("Only show questions with derivations")
     only_code = st.sidebar.checkbox("Only show questions with code examples")
+
+    display_defaults = app_config.get("display_defaults", DEFAULT_CONFIG["display_defaults"])
+
+    with st.sidebar.expander("Display settings", expanded=False):
+        st.checkbox("Compact mode", value=display_defaults.get("compact_mode", False), key="compact_mode")
+        st.checkbox("Show tags", value=display_defaults.get("show_tags", True), key="show_tags")
+        st.checkbox("Show intuition", value=display_defaults.get("show_intuition", True), key="show_intuition")
+        st.checkbox("Show solution section", value=display_defaults.get("show_solution", True), key="show_solution")
+        st.checkbox(
+            "Expand solutions by default",
+            value=display_defaults.get("expand_solutions_by_default", False),
+            key="expand_solutions_by_default",
+        )
+        st.checkbox("Show derivations", value=display_defaults.get("show_derivations", True), key="show_derivations")
+        st.checkbox("Show code examples", value=display_defaults.get("show_code_examples", True), key="show_code_examples")
+        st.checkbox("Show complexity", value=display_defaults.get("show_complexity", True), key="show_complexity")
+        st.checkbox("Show common mistakes", value=display_defaults.get("show_common_mistakes", True), key="show_common_mistakes")
+        st.checkbox("Show interview tips", value=display_defaults.get("show_interview_tips", True), key="show_interview_tips")
+        st.number_input(
+            "Questions per page",
+            min_value=5,
+            max_value=100,
+            value=int(display_defaults.get("questions_per_page", 25)),
+            step=5,
+            key="questions_per_page",
+        )
 
     filtered = []
     for item in questions:
@@ -1241,8 +1522,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_about = st.tabs(
-        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "About"]
+    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
@@ -1256,7 +1537,29 @@ def main():
         if not filtered:
             st.info("No questions match the current filters.")
         else:
-            for i, item in enumerate(filtered, start=1):
+            questions_per_page = int(st.session_state.get("questions_per_page", 25))
+            total_pages = max(1, (len(filtered) + questions_per_page - 1) // questions_per_page)
+
+            if total_pages > 1:
+                page = st.selectbox(
+                    "Page",
+                    options=list(range(1, total_pages + 1)),
+                    format_func=lambda x: f"Page {x} of {total_pages}",
+                    key="question_bank_page",
+                )
+            else:
+                page = 1
+
+            start_idx = (page - 1) * questions_per_page
+            end_idx = start_idx + questions_per_page
+            displayed_questions = filtered[start_idx:end_idx]
+
+            st.caption(
+                f"Showing questions {start_idx + 1}–{min(end_idx, len(filtered))} "
+                f"of {len(filtered)} filtered questions."
+            )
+
+            for i, item in enumerate(displayed_questions, start=start_idx + 1):
                 question_card(item, i)
 
     with tab_practice:
@@ -1478,15 +1781,20 @@ def main():
         render_curation_workspace(questions)
 
 
+    with tab_workflow:
+        render_content_workflow(app_config)
+
+
     with tab_about:
         st.subheader("About this app")
 
         st.markdown(
             """
-            This is the Quant Interview Trainer.
+            This is the Quant Interview Trainer, designed as both an interview-preparation tool and a public portfolio project.
 
             **Current features**
-            - Portfolio-friendly home page
+
+            - Portfolio-friendly landing page
             - Searchable question bank
             - Topic, difficulty, status, and tag filters
             - Expandable intuition and solution sections
@@ -1501,18 +1809,17 @@ def main():
             - Formula sheet / quick reference tab
             - Content Quality Dashboard for JSON validation
             - Content Curation Workspace for manual review
+            - Content Workflow for long-term content management
+            - Config-driven app settings
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.9: More C++ and quant developer questions
-            - Version 1.11A: Advanced derivatives and research-focused questions
-            - Version 2.0: Persistent progress tracking
-            - Version 1.9: More C++ and quant developer questions
-            - Version 1.11A: Advanced derivatives and research-focused questions
-            - Version 2.0: Persistent progress tracking
+
+            - Version 1.12C: Final README and screenshot refresh
+            - Version 1.13A: More public-safe interview questions
+            - Version 2.0: Optional persistent progress tracking
             """
         )
-
 
 if __name__ == "__main__":
     main()

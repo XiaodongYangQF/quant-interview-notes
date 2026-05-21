@@ -1,0 +1,20 @@
+{
+  "id": "code_000",
+  "topic": "Coding",
+  "subtopic": "Python",
+  "difficulty": "Medium",
+  "status": "Draft",
+  "question": "Write the coding interview question here.",
+  "intuition": "Explain the idea before code.",
+  "solution": "Explain the algorithm or implementation.",
+  "formula": "",
+  "code_language": "python",
+  "code": "def solution():\n    pass",
+  "complexity": "Time complexity: O(...). Space complexity: O(...).",
+  "common_mistake": "Common implementation mistake.",
+  "interview_tip": "Short interview tip.",
+  "tags": [
+    "Python",
+    "Coding"
+  ]
+}

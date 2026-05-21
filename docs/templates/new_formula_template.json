@@ -1,0 +1,12 @@
+{
+  "id": "formula_000",
+  "topic": "Probability",
+  "subtopic": "Subtopic name",
+  "name": "Formula name",
+  "formula": "Write LaTeX formula here",
+  "explanation": "Explain when and how to use the formula.",
+  "tags": [
+    "Tag 1",
+    "Tag 2"
+  ]
+}

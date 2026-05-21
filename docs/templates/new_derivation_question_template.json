@@ -1,0 +1,18 @@
+{
+  "id": "deriv_000",
+  "topic": "Derivatives",
+  "subtopic": "Black-Scholes-Merton",
+  "difficulty": "Medium",
+  "status": "Draft",
+  "question": "Write the derivation question here.",
+  "intuition": "Explain the intuition first.",
+  "solution": "Summarize the derivation in words.",
+  "formula": "Key final formula.",
+  "derivation": "Step 1:\n\n$$WRITE_LATEX_HERE$$\n\nStep 2:\n\n$$WRITE_LATEX_HERE$$",
+  "common_mistake": "Common derivation mistake.",
+  "interview_tip": "How to explain this clearly in an interview.",
+  "tags": [
+    "Derivation",
+    "Quant Finance"
+  ]
+}
