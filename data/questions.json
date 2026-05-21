@@ -96,6 +96,629 @@
     ]
   },
   {
+    "id": "prob_007",
+    "topic": "Probability",
+    "subtopic": "Probability Foundations",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are the three basic probability axioms?",
+    "intuition": "Probability is a normalized, non-negative measure that adds over disjoint events.",
+    "solution": "A probability measure satisfies non-negativity P(A) >= 0, normalization P(Ω) = 1, and countable additivity for disjoint events: P(∪ A_i) = Σ P(A_i). In interviews, these axioms mainly help you break complex events into disjoint cases.",
+    "formula": "P(A) >= 0; P(Ω)=1; P(∪A_i)=ΣP(A_i) for disjoint A_i",
+    "tags": [
+      "Probability Axioms",
+      "Foundations",
+      "Disjoint Events"
+    ]
+  },
+  {
+    "id": "prob_008",
+    "topic": "Probability",
+    "subtopic": "Conditional Probability",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the definition of conditional probability?",
+    "intuition": "Conditional probability restricts the sample space to the event that is already known to have happened.",
+    "solution": "The conditional probability of A given B is P(A|B) = P(A ∩ B) / P(B), assuming P(B) > 0. It measures the probability of A after B is known.",
+    "formula": "P(A|B) = P(A ∩ B) / P(B)",
+    "tags": [
+      "Conditional Probability",
+      "Foundations"
+    ]
+  },
+  {
+    "id": "prob_009",
+    "topic": "Probability",
+    "subtopic": "Total Probability",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the law of total probability?",
+    "intuition": "Break the target event into mutually exclusive states, compute within each state, then add them back together.",
+    "solution": "If {A_i} is a partition of the sample space, then P(B) = Σ P(B|A_i)P(A_i). This is useful when the outcome B can occur under several hidden states.",
+    "formula": "P(B) = Σ_i P(B|A_i)P(A_i)",
+    "tags": [
+      "Total Probability",
+      "Conditional Probability",
+      "Partition"
+    ]
+  },
+  {
+    "id": "prob_010",
+    "topic": "Probability",
+    "subtopic": "Random Variables",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are the mean and variance of a Bernoulli(p) random variable?",
+    "intuition": "A Bernoulli variable is the simplest binary success/failure model.",
+    "solution": "If X ~ Bernoulli(p), then X equals 1 with probability p and 0 with probability 1-p. Its expectation is p and its variance is p(1-p).",
+    "formula": "E[X]=p; Var(X)=p(1-p)",
+    "tags": [
+      "Bernoulli",
+      "Mean",
+      "Variance"
+    ]
+  },
+  {
+    "id": "prob_011",
+    "topic": "Probability",
+    "subtopic": "Random Variables",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What are the mean and variance of a Binomial(n,p) random variable?",
+    "intuition": "A binomial variable is the sum of n independent Bernoulli(p) trials.",
+    "solution": "If X ~ Binomial(n,p), then X counts the number of successes in n independent trials. Its expectation is np and its variance is np(1-p).",
+    "formula": "E[X]=np; Var(X)=np(1-p)",
+    "tags": [
+      "Binomial",
+      "Mean",
+      "Variance"
+    ]
+  },
+  {
+    "id": "prob_012",
+    "topic": "Probability",
+    "subtopic": "Poisson Distribution",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "When is the Poisson distribution useful in quant finance?",
+    "intuition": "Poisson models counts of random arrivals over time.",
+    "solution": "The Poisson distribution is useful for modeling arrivals, jumps, trade counts, queue events, or default events. For N_t ~ Poisson(λt), the mean and variance are both λt.",
+    "formula": "P(N_t=k) = (λt)^k e^(-λt) / k!",
+    "tags": [
+      "Poisson",
+      "Arrivals",
+      "Jump Process"
+    ]
+  },
+  {
+    "id": "prob_013",
+    "topic": "Probability",
+    "subtopic": "Expectation",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why is linearity of expectation important in interviews?",
+    "intuition": "Linearity lets you compute expectations without needing independence.",
+    "solution": "Linearity of expectation says E[X+Y] = E[X] + E[Y]. It holds even if X and Y are dependent. This is very useful for indicator-variable tricks, random permutations, balls-and-bins problems, and counting expected events.",
+    "formula": "E[X+Y] = E[X] + E[Y]",
+    "tags": [
+      "Linearity of Expectation",
+      "Indicator Variables",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_014",
+    "topic": "Probability",
+    "subtopic": "Variance and Covariance",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "How are variance, covariance, and correlation related?",
+    "intuition": "Variance measures self-risk, covariance measures co-movement, and correlation normalizes covariance.",
+    "solution": "Variance is Var(X)=E[X^2]-(E[X])^2. Covariance is Cov(X,Y)=E[XY]-E[X]E[Y]. Correlation is covariance divided by the product of standard deviations: ρ = Cov(X,Y)/(σ_X σ_Y).",
+    "formula": "ρ = Cov(X,Y)/(σ_X σ_Y)",
+    "tags": [
+      "Variance",
+      "Covariance",
+      "Correlation"
+    ]
+  },
+  {
+    "id": "prob_015",
+    "topic": "Probability",
+    "subtopic": "Random Walk",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "For an asymmetric gambler's ruin problem, what is the probability of hitting b before 0?",
+    "intuition": "When the random walk has drift, the hitting probability becomes exponential in the starting point.",
+    "solution": "For a random walk that moves up with probability p and down with probability q=1-p, starting from i, the probability of hitting b before 0 is [1-(q/p)^i] / [1-(q/p)^b] when p ≠ q. When p=q=0.5, it reduces to i/b.",
+    "formula": "P(hit b) = [1-(q/p)^i] / [1-(q/p)^b]",
+    "tags": [
+      "Random Walk",
+      "Gambler's Ruin",
+      "Hitting Probability"
+    ]
+  },
+  {
+    "id": "prob_016",
+    "topic": "Probability",
+    "subtopic": "Markov Chains",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the Markov property?",
+    "intuition": "The future depends on the present state, not the full past history.",
+    "solution": "A process has the Markov property if P(X_{n+1}=x | X_n, X_{n-1}, ..., X_0) = P(X_{n+1}=x | X_n). Markov chains are common in queueing, random walks, credit transitions, and discretized stochastic models.",
+    "formula": "P(X_{n+1}|X_n,...,X_0)=P(X_{n+1}|X_n)",
+    "tags": [
+      "Markov Chain",
+      "Random Walk",
+      "State Process"
+    ]
+  },
+  {
+    "id": "prob_017",
+    "topic": "Probability",
+    "subtopic": "Stopping Times",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a stopping time in interview-level intuition?",
+    "intuition": "A stopping time is a time when the decision to stop uses only information available up to that time.",
+    "solution": "A stopping time τ is a random time where the event {τ ≤ t} can be determined from information available by time t. Examples include the first time a random walk hits a boundary or the first time volatility exceeds a threshold.",
+    "formula": "{τ ≤ t} ∈ F_t",
+    "tags": [
+      "Stopping Time",
+      "Filtration",
+      "Brownian Motion"
+    ]
+  },
+  {
+    "id": "prob_018",
+    "topic": "Probability",
+    "subtopic": "Conditional Probability",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "In conditional probability puzzles, how do you distinguish useful information from useless information?",
+    "intuition": "Ask whether the information was generated randomly or by someone who knows the hidden state.",
+    "solution": "Information is useful if the way it was revealed depends on the hidden outcome. For example, in Monty Hall, the host knows where the prize is, so opening a goat door changes the conditional probability. Truly independent information does not change the probability.",
+    "formula": "",
+    "tags": [
+      "Conditional Probability",
+      "Information",
+      "Bayes"
+    ]
+  },
+  {
+    "id": "prob_019",
+    "topic": "Probability",
+    "subtopic": "Classic Puzzle",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "A family has two children. You meet one child randomly and it is a girl. What is the probability the other child is a girl?",
+    "intuition": "The random way the child is selected matters.",
+    "solution": "Possible families are GG, GB, BG, BB. If you meet a random child and observe a girl, the weighted probabilities are GG:1, GB:1/2, BG:1/2, BB:0. Therefore P(GG | observed girl) = 1 / (1 + 1/2 + 1/2) = 1/2.",
+    "formula": "P(GG | random child is girl) = 1/2",
+    "tags": [
+      "Two-Child Problem",
+      "Conditional Probability",
+      "Selection Bias"
+    ]
+  },
+  {
+    "id": "prob_020",
+    "topic": "Probability",
+    "subtopic": "Classic Puzzle",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the drunk passenger problem and why is the answer 1/2?",
+    "intuition": "Only two special seats matter in the end: the first passenger's seat and the last passenger's seat.",
+    "solution": "The first passenger chooses a random seat. If they choose their own seat, everyone sits correctly. If they choose the last passenger's seat, the last passenger loses. Otherwise, the problem resets among the remaining displaced passengers. Eventually, the decisive random choice is between seat 1 and seat n, so the last passenger gets their own seat with probability 1/2.",
+    "formula": "P(last passenger gets own seat)=1/2",
+    "tags": [
+      "Drunk Passenger",
+      "Symmetry",
+      "Classic Puzzle"
+    ]
+  },
+  {
+    "id": "prob_021",
+    "topic": "Probability",
+    "subtopic": "Geometry Probability",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Two friends arrive uniformly between 0 and 1 hour and each waits 15 minutes. What is the probability they meet?",
+    "intuition": "Represent arrival times as a point in the unit square and compute the diagonal band area.",
+    "solution": "Let X and Y be arrival times. They meet if |X-Y| < 0.25. The no-meeting region consists of two triangles with side length 0.75, so the meeting probability is 1 - 2*(1/2)*(0.75)^2 = 0.4375.",
+    "formula": "P(meet)=1-(1-a)^2 when both wait a=0.25, so P=0.4375",
+    "tags": [
+      "Geometry Probability",
+      "Uniform Distribution",
+      "Random Meeting"
+    ]
+  },
+  {
+    "id": "prob_022",
+    "topic": "Probability",
+    "subtopic": "Geometry Probability",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "If friend A waits a hours and friend B waits b hours, both arriving uniformly on [0,1], what is the probability they meet?",
+    "intuition": "The meeting region is an asymmetric diagonal band in the unit square.",
+    "solution": "They meet when -b ≤ Y-X ≤ a. The two no-meeting triangles have areas 0.5(1-a)^2 and 0.5(1-b)^2. Therefore P(meet) = 1 - [(1-a)^2 + (1-b)^2]/2.",
+    "formula": "P(meet)=1-[(1-a)^2+(1-b)^2]/2",
+    "tags": [
+      "Geometry Probability",
+      "Random Meeting",
+      "Uniform Distribution"
+    ]
+  },
+  {
+    "id": "prob_023",
+    "topic": "Probability",
+    "subtopic": "Birthday Problem",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you compute the probability of at least one shared birthday among n people?",
+    "intuition": "It is easier to compute the complement: no shared birthday.",
+    "solution": "Assuming 365 equally likely birthdays and ignoring leap years, P(no match) = 365/365 * 364/365 * ... * (365-n+1)/365. Therefore P(at least one match) = 1 - P(no match). The 50% threshold occurs around 23 people.",
+    "formula": "P(match)=1-∏_{k=0}^{n-1}(365-k)/365",
+    "tags": [
+      "Birthday Paradox",
+      "Complement Rule",
+      "Classic Puzzle"
+    ]
+  },
+  {
+    "id": "prob_024",
+    "topic": "Probability",
+    "subtopic": "Balls and Bins",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Throw n balls into n bins independently and uniformly. What is the expected number of empty bins?",
+    "intuition": "Use indicator variables for whether each bin is empty.",
+    "solution": "For a given bin, the probability it receives no balls is (1-1/n)^n. By linearity of expectation, the expected number of empty bins is n(1-1/n)^n, which is approximately n/e for large n.",
+    "formula": "E[empty bins] = n(1-1/n)^n ≈ n/e",
+    "tags": [
+      "Balls and Bins",
+      "Indicator Variables",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_025",
+    "topic": "Probability",
+    "subtopic": "Gamma Distribution",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Where does the Gamma distribution appear in probability and quant finance?",
+    "intuition": "A Gamma variable often represents a sum of exponential waiting times.",
+    "solution": "If X ~ Gamma(k, θ), then E[X]=kθ and Var(X)=kθ². It appears in waiting-time problems, Poisson processes, Bayesian models, and variance-gamma models.",
+    "formula": "E[X]=kθ; Var(X)=kθ²",
+    "tags": [
+      "Gamma Distribution",
+      "Waiting Time",
+      "Variance Gamma"
+    ]
+  },
+  {
+    "id": "prob_026",
+    "topic": "Probability",
+    "subtopic": "Pattern Waiting Time",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "Roll a fair die repeatedly. What is the expected number of rolls until the sequence 1-1 appears?",
+    "intuition": "Use states: no previous 1, and last roll was 1.",
+    "solution": "Let E0 be the expected rolls from the state with no previous 1, and E1 from the state where the last roll was 1. Then E0 = 1 + (1/6)E1 + (5/6)E0, so E0 = 6 + E1. Also E1 = 1 + (5/6)E0, because rolling a 1 ends the game and rolling non-1 returns to E0. Solving gives E0 = 42.",
+    "formula": "E0 = 6 + E1; E1 = 1 + (5/6)E0; E0=42",
+    "tags": [
+      "Pattern Waiting Time",
+      "Markov Chain",
+      "Recursion"
+    ]
+  },
+  {
+    "id": "prob_027",
+    "topic": "Probability",
+    "subtopic": "Uniform Distribution",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the probability that the maximum of two independent Uniform(0,1) variables exceeds 0.8?",
+    "intuition": "Use the complement: both variables are at most 0.8.",
+    "solution": "Let M=max(U1,U2). P(M ≤ 0.8)=0.8²=0.64. Therefore P(M>0.8)=1-0.64=0.36.",
+    "formula": "P(max(U1,U2)>0.8)=1-0.8²=0.36",
+    "tags": [
+      "Uniform Distribution",
+      "Order Statistics",
+      "Complement Rule"
+    ]
+  },
+  {
+    "id": "prob_028",
+    "topic": "Probability",
+    "subtopic": "Sampling Without Replacement",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "A box has 3 white and 2 black balls. Two balls are drawn without replacement. What is the probability both are white?",
+    "intuition": "After drawing one white ball, the composition of the box changes.",
+    "solution": "The probability is (3/5)*(2/4)=6/20=0.3.",
+    "formula": "P(WW)=(3/5)(2/4)=0.3",
+    "tags": [
+      "Without Replacement",
+      "Conditional Probability",
+      "Balls"
+    ]
+  },
+  {
+    "id": "prob_029",
+    "topic": "Probability",
+    "subtopic": "Exponential Distribution",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "If X ~ Exponential(1), what is E[X | X > 1]?",
+    "intuition": "Use the memoryless property of the exponential distribution.",
+    "solution": "For an exponential variable with rate 1, the residual life after time 1 has the same distribution as the original variable. Therefore E[X | X > 1] = 1 + E[X] = 2.",
+    "formula": "E[X | X>1] = 1 + 1 = 2",
+    "tags": [
+      "Exponential Distribution",
+      "Memoryless Property",
+      "Conditional Expectation"
+    ]
+  },
+  {
+    "id": "prob_030",
+    "topic": "Probability",
+    "subtopic": "Law of Total Expectation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the law of total expectation?",
+    "intuition": "Average the conditional expectation over all possible states.",
+    "solution": "The law of total expectation states that E[X] = E[E[X|Y]]. It is useful when a problem becomes easier after conditioning on a state, signal, or event.",
+    "formula": "E[X] = E[E[X|Y]]",
+    "tags": [
+      "Total Expectation",
+      "Conditioning",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_031",
+    "topic": "Probability",
+    "subtopic": "Bayesian Signal Extraction",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why do Bayesian signal-extraction questions appear in quant interviews?",
+    "intuition": "They test whether you can update beliefs after observing a noisy signal.",
+    "solution": "A typical setup has hidden states and observed signals. You use Bayes' rule to infer the probability of the hidden state after seeing the signal. This structure appears in trading signals, credit risk, model uncertainty, and Bayesian volatility estimation.",
+    "formula": "P(State|Signal)=P(Signal|State)P(State)/P(Signal)",
+    "tags": [
+      "Bayes",
+      "Signal Extraction",
+      "Trading Signal"
+    ]
+  },
+  {
+    "id": "prob_032",
+    "topic": "Probability",
+    "subtopic": "Order Statistics",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "What is the general density of the k-th order statistic?",
+    "intuition": "Exactly k-1 observations must be below x, one near x, and n-k above x.",
+    "solution": "For iid variables with CDF F and PDF f, the density of the k-th order statistic is n! / [(k-1)!(n-k)!] * [F(x)]^(k-1) * [1-F(x)]^(n-k) * f(x).",
+    "formula": "f_{X(k)}(x)= n!/[(k-1)!(n-k)!] [F(x)]^(k-1)[1-F(x)]^(n-k)f(x)",
+    "tags": [
+      "Order Statistics",
+      "Density",
+      "IID"
+    ]
+  },
+  {
+    "id": "prob_033",
+    "topic": "Probability",
+    "subtopic": "Order Statistics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "For n iid Uniform(0,1) variables, what are the expected minimum, maximum, and range?",
+    "intuition": "Uniform order statistics divide the unit interval into n+1 average spacings.",
+    "solution": "For n iid Uniform(0,1) variables, E[min]=1/(n+1), E[max]=n/(n+1), and E[range]=E[max-min]=(n-1)/(n+1).",
+    "formula": "E[min]=1/(n+1); E[max]=n/(n+1); E[range]=(n-1)/(n+1)",
+    "tags": [
+      "Order Statistics",
+      "Uniform Distribution",
+      "Range"
+    ]
+  },
+  {
+    "id": "prob_034",
+    "topic": "Probability",
+    "subtopic": "Exponential Distribution",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "Let X and Y be independent Exponential(1) variables. What is P(X - Y > 1)?",
+    "intuition": "Integrate over the region x > y + 1, or use memoryless-style reasoning.",
+    "solution": "Compute ∫_1^∞ ∫_0^{x-1} e^{-x}e^{-y} dy dx. This equals ∫_1^∞ e^{-x}(1-e^{-(x-1)}) dx = e^{-1} - 0.5e^{-1} = 1/(2e).",
+    "formula": "P(X-Y>1)=1/(2e)",
+    "tags": [
+      "Exponential Distribution",
+      "Integration",
+      "Joint Density"
+    ]
+  },
+  {
+    "id": "prob_035",
+    "topic": "Probability",
+    "subtopic": "Random Permutation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the expected number of fixed points in a random permutation of n elements?",
+    "intuition": "Use indicator variables instead of trying to count all permutations directly.",
+    "solution": "Let I_i=1 if element i is fixed. Then P(I_i=1)=1/n. The number of fixed points is X=ΣI_i, so E[X]=ΣE[I_i]=n*(1/n)=1.",
+    "formula": "E[# fixed points]=1",
+    "tags": [
+      "Random Permutation",
+      "Indicator Variables",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_036",
+    "topic": "Probability",
+    "subtopic": "Simulation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you simulate correlated normal random variables?",
+    "intuition": "Transform independent standard normals using a matrix square root of the covariance matrix.",
+    "solution": "Let Σ be the desired covariance matrix and compute its Cholesky decomposition Σ=LLᵀ. If Z is a vector of independent standard normals, then X=LZ has covariance Σ.",
+    "formula": "Σ=LLᵀ; X=LZ",
+    "tags": [
+      "Correlated Normals",
+      "Cholesky",
+      "Simulation"
+    ]
+  },
+  {
+    "id": "prob_037",
+    "topic": "Probability",
+    "subtopic": "Poisson Process",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "For Poisson arrivals with rate λ, what is the expected time until the third arrival?",
+    "intuition": "The time until the third arrival is a sum of three independent exponential waiting times.",
+    "solution": "Interarrival times in a Poisson process are iid Exponential(λ). The waiting time until the third arrival follows a Gamma distribution with shape 3 and rate λ, so its expectation is 3/λ.",
+    "formula": "E[T_3]=3/λ",
+    "tags": [
+      "Poisson Process",
+      "Gamma Distribution",
+      "Waiting Time"
+    ]
+  },
+  {
+    "id": "prob_038",
+    "topic": "Probability",
+    "subtopic": "Negative Binomial",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the expected number of flips until two heads occur for a coin with head probability p?",
+    "intuition": "The waiting time until r successes has expectation r/p.",
+    "solution": "This is a negative binomial waiting-time problem. The expected number of flips until two heads occur is 2/p. For a fair coin, this is 4.",
+    "formula": "E[N]=2/p",
+    "tags": [
+      "Negative Binomial",
+      "Coin Toss",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_039",
+    "topic": "Probability",
+    "subtopic": "Geometric Distribution",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the variance of a geometric(p) variable counting trials until the first success?",
+    "intuition": "Lower success probability creates both a higher mean and higher uncertainty.",
+    "solution": "For the geometric distribution that counts the number of trials until the first success, the variance is (1-p)/p².",
+    "formula": "Var(N)=(1-p)/p²",
+    "tags": [
+      "Geometric Distribution",
+      "Variance",
+      "Waiting Time"
+    ]
+  },
+  {
+    "id": "prob_040",
+    "topic": "Probability",
+    "subtopic": "Exponential Distribution",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "If X ~ Exponential(λ), what is the distribution of min(X,c)?",
+    "intuition": "The random variable behaves like X before c, but has a point mass at c.",
+    "solution": "For t<c, P(min(X,c)>t)=P(X>t)=e^{-λt}. There is also a point mass at c with probability P(X≥c)=e^{-λc}.",
+    "formula": "P(min(X,c)>t)=e^{-λt} for t<c; mass at c = e^{-λc}",
+    "tags": [
+      "Exponential Distribution",
+      "Censoring",
+      "Mixed Distribution"
+    ]
+  },
+  {
+    "id": "prob_041",
+    "topic": "Probability",
+    "subtopic": "Exponential Distribution",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "For two iid Exponential(1) variables X and Y, what is E[min(X,Y)]?",
+    "intuition": "The minimum of independent exponential variables is also exponential, with rate equal to the sum of the rates.",
+    "solution": "If X and Y are iid Exponential(1), then min(X,Y) ~ Exponential(2). Therefore E[min(X,Y)] = 1/2.",
+    "formula": "min(X,Y) ~ Exp(2); E[min(X,Y)] = 1/2",
+    "tags": [
+      "Exponential Distribution",
+      "Minimum",
+      "Waiting Time"
+    ]
+  },
+  {
+    "id": "prob_042",
+    "topic": "Probability",
+    "subtopic": "Surprising Results",
+    "difficulty": "Hard",
+    "status": "Verified",
+    "question": "What is the expected number of Uniform(0,1) draws needed until their sum exceeds 1?",
+    "intuition": "This is a famous result where the answer is Euler's number.",
+    "solution": "Let N be the first number of iid Uniform(0,1) draws such that their sum exceeds 1. A classic result gives E[N]=e≈2.718. One way to show this is that P(N>n)=1/n!, then E[N]=Σ_{n≥0}P(N>n)=Σ_{n≥0}1/n!=e.",
+    "formula": "E[N]=e",
+    "tags": [
+      "Uniform Distribution",
+      "Surprising Result",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_043",
+    "topic": "Probability",
+    "subtopic": "Random Chord",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is the random chord problem tricky?",
+    "intuition": "The phrase 'random chord' is ambiguous unless the sampling rule is specified.",
+    "solution": "Different ways of choosing a random chord lead to different probabilities. The interviewer often wants to see whether you question the assumptions before calculating. This is a test of modeling clarity, not only formula memory.",
+    "formula": "",
+    "tags": [
+      "Random Chord",
+      "Modeling Assumptions",
+      "Ambiguity"
+    ]
+  },
+  {
+    "id": "prob_044",
+    "topic": "Probability",
+    "subtopic": "Geometry Probability",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "A point is drawn uniformly in the unit square. What is the probability that x+y<1?",
+    "intuition": "The inequality describes a right triangle inside the unit square.",
+    "solution": "The region x+y<1 is a right triangle with legs of length 1, so its area is 1/2. Because the point is uniformly distributed, the probability is 1/2.",
+    "formula": "P(x+y<1)=1/2",
+    "tags": [
+      "Geometry Probability",
+      "Uniform Distribution",
+      "Area"
+    ]
+  },
+  {
+    "id": "prob_045",
+    "topic": "Probability",
+    "subtopic": "Binomial Distribution",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Flip a fair coin 10 times. What is the probability of exactly 5 heads?",
+    "intuition": "Choose which 5 of the 10 positions are heads.",
+    "solution": "The probability is C(10,5)(1/2)^10 = C(10,5)/2^10.",
+    "formula": "P(5 heads)=C(10,5)/2^10",
+    "tags": [
+      "Binomial Distribution",
+      "Coin Toss",
+      "Combinations"
+    ]
+  },
+  {
     "id": "stats_001",
     "topic": "Statistics",
     "subtopic": "Estimation",
