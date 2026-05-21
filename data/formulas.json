@@ -762,5 +762,102 @@
       "Generator",
       "Diffusion"
     ]
+  },
+  {
+    "id": "prob_formula_019",
+    "topic": "Probability",
+    "subtopic": "Coupon Collector",
+    "name": "Coupon collector expectation",
+    "formula": "\\mathbb{E}[T]=nH_n\\approx n\\log n",
+    "explanation": "Expected draws needed to collect all n coupon types.",
+    "tags": [
+      "Coupon Collector",
+      "Expected Value"
+    ]
+  },
+  {
+    "id": "prob_formula_020",
+    "topic": "Probability",
+    "subtopic": "Poisson Thinning",
+    "name": "Poisson thinning",
+    "formula": "\\lambda_{thinned}=p\\lambda",
+    "explanation": "Keeping each event independently with probability p gives a Poisson process with rate p lambda.",
+    "tags": [
+      "Poisson Process",
+      "Thinning"
+    ]
+  },
+  {
+    "id": "stats_formula_007",
+    "topic": "Statistics",
+    "subtopic": "Model Selection",
+    "name": "AIC and BIC",
+    "formula": "AIC=2k-2\\log L,\\qquad BIC=k\\log(n)-2\\log L",
+    "explanation": "Model-selection criteria balancing fit and complexity.",
+    "tags": [
+      "AIC",
+      "BIC",
+      "Model Selection"
+    ]
+  },
+  {
+    "id": "stats_formula_008",
+    "topic": "Statistics",
+    "subtopic": "Likelihood Ratio Test",
+    "name": "Likelihood ratio test statistic",
+    "formula": "LR=-2(\\log L_{restricted}-\\log L_{unrestricted})",
+    "explanation": "Compares restricted and unrestricted nested models.",
+    "tags": [
+      "Likelihood Ratio Test",
+      "MLE"
+    ]
+  },
+  {
+    "id": "ts_formula_006",
+    "topic": "Time Series",
+    "subtopic": "Forecasting",
+    "name": "h-step forecast",
+    "formula": "\\mathbb{E}[y_{t+h}\\mid \\mathcal{F}_t]",
+    "explanation": "Expected future value h periods ahead given current information.",
+    "tags": [
+      "Forecasting",
+      "Horizon"
+    ]
+  },
+  {
+    "id": "ml_formula_004",
+    "topic": "Machine Learning",
+    "subtopic": "Cross Entropy",
+    "name": "Binary cross-entropy",
+    "formula": "L=-\\left[y\\log(p)+(1-y)\\log(1-p)\\right]",
+    "explanation": "Common loss for binary probabilistic classification.",
+    "tags": [
+      "Cross Entropy",
+      "Classification"
+    ]
+  },
+  {
+    "id": "deriv_formula_011",
+    "topic": "Derivatives",
+    "subtopic": "Forward Contract",
+    "name": "Forward contract value",
+    "formula": "V_t=S_t-Ke^{-r(T-t)}",
+    "explanation": "Value of a long forward on a non-dividend-paying asset.",
+    "tags": [
+      "Forward Contract",
+      "No-Arbitrage"
+    ]
+  },
+  {
+    "id": "deriv_formula_012",
+    "topic": "Derivatives",
+    "subtopic": "Straddle",
+    "name": "Long straddle",
+    "formula": "\\text{Long straddle}=\\text{long call}+\\text{long put}",
+    "explanation": "Option strategy that benefits from large moves in either direction.",
+    "tags": [
+      "Straddle",
+      "Option Strategy"
+    ]
   }
 ]

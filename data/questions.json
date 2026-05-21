@@ -4498,5 +4498,614 @@
       "Modeling Assumptions",
       "Conditional Probability"
     ]
+  },
+  {
+    "id": "prob_056",
+    "topic": "Probability",
+    "subtopic": "Coupon Collector",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the expected number of draws needed to collect all n coupon types?",
+    "intuition": "After collecting many types, finding a new type becomes harder.",
+    "solution": "The expected time is n times the nth harmonic number: nH_n. This is approximately n log n for large n.",
+    "formula": "E[T]=nH_n ≈ n log n",
+    "derivation": "After collecting k coupon types, the probability that the next draw gives a new type is $(n-k)/n$. The expected waiting time for a new type is therefore $n/(n-k)$. Summing from $k=0$ to $n-1$ gives $$E[T]=\\sum_{k=0}^{n-1}\\frac{n}{n-k}=n\\sum_{j=1}^{n}\\frac{1}{j}=nH_n.$$",
+    "common_mistake": "Do not multiply n by n. The waiting time changes as more coupon types are collected.",
+    "interview_tip": "Break the problem into stages and use geometric waiting times.",
+    "tags": [
+      "Coupon Collector",
+      "Expected Value",
+      "Geometric Distribution"
+    ]
+  },
+  {
+    "id": "prob_057",
+    "topic": "Probability",
+    "subtopic": "Poisson Process",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is Poisson thinning?",
+    "intuition": "Randomly keeping events from a Poisson process creates another Poisson process.",
+    "solution": "If events arrive according to a Poisson process with rate λ and each event is independently kept with probability p, the kept events form a Poisson process with rate pλ.",
+    "formula": "λ_thinned = pλ",
+    "common_mistake": "The thinning decisions must be independent for the standard result.",
+    "interview_tip": "This is useful for arrival processes, credit events, and queueing intuition.",
+    "tags": [
+      "Poisson Process",
+      "Thinning",
+      "Arrival Process"
+    ]
+  },
+  {
+    "id": "prob_058",
+    "topic": "Probability",
+    "subtopic": "Indicator Variables",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why are indicator variables useful in expectation problems?",
+    "intuition": "They turn complicated counting problems into sums of simple 0/1 variables.",
+    "solution": "If a count X can be written as X = I_1 + ... + I_n, then E[X] = E[I_1] + ... + E[I_n]. Since E[I_i] = P(I_i=1), the problem often becomes much easier.",
+    "formula": "E[ΣI_i]=ΣP(I_i=1)",
+    "common_mistake": "Linearity of expectation does not require independence.",
+    "interview_tip": "When asked for an expected count, think of indicators first.",
+    "tags": [
+      "Indicator Variables",
+      "Expectation",
+      "Counting"
+    ]
+  },
+  {
+    "id": "prob_059",
+    "topic": "Probability",
+    "subtopic": "Covariance",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "When does zero covariance imply independence?",
+    "intuition": "Zero covariance usually means no linear relationship, not full independence.",
+    "solution": "In general, zero covariance does not imply independence. However, for jointly normal random variables, zero covariance does imply independence.",
+    "formula": "Cov(X,Y)=0 does not generally imply independence",
+    "common_mistake": "Do not treat uncorrelated and independent as the same except under special assumptions.",
+    "interview_tip": "Mention the jointly normal exception.",
+    "tags": [
+      "Covariance",
+      "Independence",
+      "Joint Normal"
+    ]
+  },
+  {
+    "id": "prob_060",
+    "topic": "Probability",
+    "subtopic": "Stopping Times",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a stopping time?",
+    "intuition": "A stopping time is a decision time based only on information available so far.",
+    "solution": "A random time τ is a stopping time with respect to a filtration if the event {τ≤t} is known by time t. In simple words, you can tell whether you have stopped by looking only at current and past information.",
+    "formula": "{τ≤t} ∈ F_t",
+    "common_mistake": "A time depending on future information is not a stopping time.",
+    "interview_tip": "Connect this to trading rules and optional stopping.",
+    "tags": [
+      "Stopping Time",
+      "Filtration",
+      "Martingale"
+    ]
+  },
+  {
+    "id": "prob_061",
+    "topic": "Probability",
+    "subtopic": "Bayes Rule",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why can base rates dominate diagnostic-test probability questions?",
+    "intuition": "A rare event remains rare even after a positive signal unless the signal is extremely accurate.",
+    "solution": "Bayes' rule combines the test accuracy with the prior probability. If the prior probability is very small, false positives can dominate the posterior probability.",
+    "formula": "P(Disease|Positive)=P(Positive|Disease)P(Disease)/P(Positive)",
+    "common_mistake": "Do not ignore the prior/base rate.",
+    "interview_tip": "Always write Bayes' rule and expand the denominator with total probability.",
+    "tags": [
+      "Bayes Rule",
+      "Base Rate",
+      "Conditional Probability"
+    ]
+  },
+  {
+    "id": "stats_023",
+    "topic": "Statistics",
+    "subtopic": "Model Selection",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between AIC and BIC?",
+    "intuition": "Both penalize model complexity, but BIC usually penalizes complexity more strongly as sample size grows.",
+    "solution": "AIC is based on predictive information criteria and uses a 2k penalty. BIC uses a k log(n) penalty and is more conservative for large samples.",
+    "formula": "AIC=2k-2logL; BIC=klog(n)-2logL",
+    "common_mistake": "Lower AIC or BIC is preferred; the absolute value is less important than comparisons across models.",
+    "interview_tip": "Mention that model-selection criteria are not a substitute for out-of-sample validation.",
+    "tags": [
+      "AIC",
+      "BIC",
+      "Model Selection"
+    ]
+  },
+  {
+    "id": "stats_024",
+    "topic": "Statistics",
+    "subtopic": "Hypothesis Testing",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a likelihood ratio test?",
+    "intuition": "It compares how well a restricted model fits relative to an unrestricted model.",
+    "solution": "A likelihood ratio test compares the maximum likelihood under the null model with the maximum likelihood under the alternative model. The test statistic is often -2 times the log likelihood ratio.",
+    "formula": "LR=-2(logL_restricted-logL_unrestricted)",
+    "common_mistake": "The models usually need to be nested for the standard likelihood ratio test.",
+    "interview_tip": "This is common in econometrics, time-series, and statistical model comparison.",
+    "tags": [
+      "Likelihood Ratio Test",
+      "MLE",
+      "Hypothesis Testing"
+    ]
+  },
+  {
+    "id": "stats_025",
+    "topic": "Statistics",
+    "subtopic": "Regression",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is omitted variable bias?",
+    "intuition": "Leaving out an important correlated variable can bias coefficient estimates.",
+    "solution": "Omitted variable bias occurs when a relevant variable is excluded from a regression and that omitted variable is correlated with included regressors. The estimated coefficients then absorb part of the omitted variable's effect.",
+    "formula": "Bias occurs when omitted variable affects y and is correlated with X",
+    "common_mistake": "Adding more variables does not always solve the problem; measurement and causal structure matter.",
+    "interview_tip": "State the two conditions clearly.",
+    "tags": [
+      "Omitted Variable Bias",
+      "Regression",
+      "Econometrics"
+    ]
+  },
+  {
+    "id": "stats_026",
+    "topic": "Statistics",
+    "subtopic": "Endogeneity",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is endogeneity?",
+    "intuition": "Endogeneity means the regressor is correlated with the error term.",
+    "solution": "Endogeneity occurs when E[ε|X] is not zero. It can arise from omitted variables, reverse causality, measurement error, or simultaneity. It generally makes OLS estimates biased and inconsistent.",
+    "formula": "E[ε|X]≠0",
+    "common_mistake": "Do not treat endogeneity as just another word for correlation among regressors.",
+    "interview_tip": "Mention instruments or research design if asked about solutions.",
+    "tags": [
+      "Endogeneity",
+      "OLS",
+      "Causal Inference"
+    ]
+  },
+  {
+    "id": "stats_027",
+    "topic": "Statistics",
+    "subtopic": "Regression Diagnostics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is adjusted R-squared?",
+    "intuition": "It adjusts R-squared for the number of predictors.",
+    "solution": "Adjusted R-squared penalizes adding regressors that do not sufficiently improve model fit. Unlike R-squared, it can decrease when an unhelpful variable is added.",
+    "formula": "Adjusted R² = 1 - (1-R²)(n-1)/(n-k-1)",
+    "common_mistake": "High R-squared does not prove causality or out-of-sample predictability.",
+    "interview_tip": "Mention that prediction should still be checked out-of-sample.",
+    "tags": [
+      "Adjusted R-squared",
+      "Regression",
+      "Model Fit"
+    ]
+  },
+  {
+    "id": "stats_028",
+    "topic": "Statistics",
+    "subtopic": "Robust Standard Errors",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why are Newey-West standard errors used in finance?",
+    "intuition": "Financial time-series residuals can have heteroskedasticity and autocorrelation.",
+    "solution": "Newey-West standard errors are heteroskedasticity and autocorrelation consistent. They are often used in time-series regressions where residuals may be serially correlated.",
+    "formula": "HAC standard errors adjust for heteroskedasticity and autocorrelation",
+    "common_mistake": "Newey-West changes standard errors, not the OLS coefficient estimates.",
+    "interview_tip": "Mention lag-length choice if the discussion becomes technical.",
+    "tags": [
+      "Newey-West",
+      "HAC",
+      "Standard Errors",
+      "Finance Regression"
+    ]
+  },
+  {
+    "id": "ts_016",
+    "topic": "Time Series",
+    "subtopic": "Volatility Clustering",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is volatility clustering?",
+    "intuition": "Large moves tend to be followed by large moves, and calm periods tend to persist.",
+    "solution": "Volatility clustering is the empirical fact that high-volatility periods and low-volatility periods tend to cluster over time. It motivates ARCH and GARCH models.",
+    "formula": "Large |r_t| often followed by large |r_{t+1}|",
+    "common_mistake": "Volatility clustering does not necessarily mean returns themselves are predictable.",
+    "interview_tip": "This is a basic stylized fact of financial returns.",
+    "tags": [
+      "Volatility Clustering",
+      "GARCH",
+      "Financial Returns"
+    ]
+  },
+  {
+    "id": "ts_017",
+    "topic": "Time Series",
+    "subtopic": "ARCH",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between ARCH and GARCH?",
+    "intuition": "GARCH adds lagged conditional variance to ARCH.",
+    "solution": "ARCH models conditional variance using lagged squared shocks. GARCH extends this by also including lagged conditional variances, making volatility persistence easier to model with fewer parameters.",
+    "formula": "ARCH: h_t=ω+αε²_{t-1}; GARCH: h_t=ω+αε²_{t-1}+βh_{t-1}",
+    "common_mistake": "Do not use GARCH to predict the conditional mean unless the model includes a mean equation.",
+    "interview_tip": "Emphasize volatility persistence.",
+    "tags": [
+      "ARCH",
+      "GARCH",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "ts_018",
+    "topic": "Time Series",
+    "subtopic": "ARIMA",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What does the I in ARIMA mean?",
+    "intuition": "The I stands for integration, meaning differencing is used to handle non-stationarity.",
+    "solution": "ARIMA(p,d,q) has autoregressive order p, differencing order d, and moving-average order q. The differencing step is used to make a non-stationary series closer to stationary.",
+    "formula": "ARIMA(p,d,q)",
+    "common_mistake": "Do not over-difference; it can create unnecessary noise and distort dynamics.",
+    "interview_tip": "Explain that prices may need differencing, while returns are often closer to stationary.",
+    "tags": [
+      "ARIMA",
+      "Differencing",
+      "Stationarity"
+    ]
+  },
+  {
+    "id": "ts_019",
+    "topic": "Time Series",
+    "subtopic": "Forecasting",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between one-step-ahead and multi-step-ahead forecasting?",
+    "intuition": "Multi-step forecasts must account for the fact that future intermediate values are unknown.",
+    "solution": "One-step-ahead forecasts predict the next period. Multi-step-ahead forecasts predict several periods ahead and often require iterating the model or directly modeling the horizon.",
+    "formula": "one-step: E[y_{t+1}|F_t]; h-step: E[y_{t+h}|F_t]",
+    "common_mistake": "Do not evaluate a one-step model as if it were designed for a longer horizon.",
+    "interview_tip": "Always specify the forecast horizon.",
+    "tags": [
+      "Forecasting",
+      "Horizon",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ts_020",
+    "topic": "Time Series",
+    "subtopic": "Lookahead Bias",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "How can lookahead bias appear in time-series feature engineering?",
+    "intuition": "Features may accidentally use future information.",
+    "solution": "Lookahead bias can occur when rolling statistics are not shifted, labels overlap with features, normalizations use the full sample, or future revisions are included in past data.",
+    "formula": "feature_t must use information available at or before t",
+    "common_mistake": "Do not use same-period close-to-close returns as both feature and tradable outcome.",
+    "interview_tip": "Mention shifting features and using walk-forward validation.",
+    "tags": [
+      "Lookahead Bias",
+      "Feature Engineering",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ml_015",
+    "topic": "Machine Learning",
+    "subtopic": "Classification Metrics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is ROC-AUC?",
+    "intuition": "ROC-AUC measures how well the model ranks positives above negatives.",
+    "solution": "ROC-AUC is the area under the receiver operating characteristic curve. It summarizes the tradeoff between true positive rate and false positive rate over thresholds.",
+    "formula": "ROC curve: TPR vs FPR",
+    "common_mistake": "ROC-AUC can look good under class imbalance even when precision is poor.",
+    "interview_tip": "For rare-event prediction, also discuss precision-recall curves.",
+    "tags": [
+      "ROC-AUC",
+      "Classification",
+      "Model Evaluation"
+    ]
+  },
+  {
+    "id": "ml_016",
+    "topic": "Machine Learning",
+    "subtopic": "Loss Functions",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is cross-entropy loss?",
+    "intuition": "It penalizes confident wrong probability predictions strongly.",
+    "solution": "For binary classification, cross-entropy loss is -[y log(p)+(1-y)log(1-p)]. It is commonly used when the model outputs probabilities.",
+    "formula": "L=-[ylog(p)+(1-y)log(1-p)]",
+    "common_mistake": "Do not use accuracy alone when calibrated probabilities matter.",
+    "interview_tip": "Connect cross-entropy to maximum likelihood for Bernoulli outcomes.",
+    "tags": [
+      "Cross Entropy",
+      "Classification",
+      "Log Loss"
+    ]
+  },
+  {
+    "id": "ml_017",
+    "topic": "Machine Learning",
+    "subtopic": "Imbalanced Data",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is accuracy misleading for imbalanced classification problems?",
+    "intuition": "A model can predict the majority class almost always and still look accurate.",
+    "solution": "If positive events are rare, a model that predicts only the majority class can have high accuracy but no practical value. Precision, recall, F1 score, ROC-AUC, PR-AUC, and calibration may be more informative.",
+    "formula": "Accuracy=(TP+TN)/(TP+TN+FP+FN)",
+    "common_mistake": "Do not rely only on accuracy for rare-event prediction.",
+    "interview_tip": "Mention the business or trading cost of false positives and false negatives.",
+    "tags": [
+      "Imbalanced Data",
+      "Accuracy",
+      "Classification"
+    ]
+  },
+  {
+    "id": "ml_018",
+    "topic": "Machine Learning",
+    "subtopic": "Regularization",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is early stopping?",
+    "intuition": "Stop training before the model starts overfitting.",
+    "solution": "Early stopping monitors validation performance during training and stops when validation performance no longer improves. It acts as a form of regularization.",
+    "formula": "Stop when validation loss stops improving",
+    "common_mistake": "Do not choose the stopping point based on the test set.",
+    "interview_tip": "This is common in boosting and neural-network training.",
+    "tags": [
+      "Early Stopping",
+      "Regularization",
+      "Validation"
+    ]
+  },
+  {
+    "id": "deriv_037",
+    "topic": "Derivatives",
+    "subtopic": "Forward Contracts",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the value of a forward contract after initiation?",
+    "intuition": "The forward price is fixed at initiation, but the contract value changes as spot and rates change.",
+    "solution": "For a long forward with delivery price K, the value before maturity is approximately S_t - K e^{-r(T-t)} for a non-dividend-paying asset.",
+    "formula": "V_t=S_t-Ke^{-r(T-t)}",
+    "common_mistake": "Do not confuse forward price with forward contract value.",
+    "interview_tip": "State clearly whether you are discussing price or value.",
+    "tags": [
+      "Forward Contract",
+      "No-Arbitrage",
+      "Derivatives"
+    ]
+  },
+  {
+    "id": "deriv_038",
+    "topic": "Derivatives",
+    "subtopic": "American Options",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is an American call on a non-dividend-paying stock usually not exercised early?",
+    "intuition": "Keeping the option preserves time value and delays paying the strike.",
+    "solution": "For a non-dividend-paying stock, early exercise of an American call is generally suboptimal because the holder gives up time value and pays the strike earlier than necessary.",
+    "formula": "American call without dividends: early exercise usually suboptimal",
+    "common_mistake": "This result changes when dividends are present.",
+    "interview_tip": "Explain using time value and interest on the strike.",
+    "tags": [
+      "American Options",
+      "Early Exercise",
+      "Calls"
+    ]
+  },
+  {
+    "id": "deriv_039",
+    "topic": "Derivatives",
+    "subtopic": "Greeks",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is gamma highest near at-the-money options close to expiry?",
+    "intuition": "Near expiry, a small move around the strike can strongly change exercise probability.",
+    "solution": "Gamma measures the sensitivity of delta to the underlying price. For near-expiry at-the-money options, delta changes quickly from out-of-the-money-like to in-the-money-like as the underlying crosses the strike.",
+    "formula": "Gamma = ∂²V/∂S²",
+    "common_mistake": "High gamma usually comes with high hedging sensitivity and rebalancing risk.",
+    "interview_tip": "Connect gamma to delta-hedging difficulty.",
+    "tags": [
+      "Gamma",
+      "Greeks",
+      "Options"
+    ]
+  },
+  {
+    "id": "deriv_040",
+    "topic": "Derivatives",
+    "subtopic": "Option Strategies",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a straddle?",
+    "intuition": "A straddle is a volatility trade using a call and a put at the same strike.",
+    "solution": "A long straddle buys a call and a put with the same strike and maturity. It benefits from large moves in either direction but loses if the underlying stays near the strike.",
+    "formula": "Long straddle = long call + long put",
+    "common_mistake": "A long straddle is not a directional bet; it is mainly a volatility/large-move bet.",
+    "interview_tip": "Mention theta decay and implied volatility.",
+    "tags": [
+      "Straddle",
+      "Option Strategy",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "stoch_034",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Brownian Motion",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is Brownian scaling?",
+    "intuition": "Brownian motion scales with the square root of time.",
+    "solution": "For Brownian motion W_t, W_t has distribution N(0,t). Therefore W_t is equal in distribution to sqrt(t) times a standard normal variable.",
+    "formula": "W_t ~ √t Z, Z~N(0,1)",
+    "common_mistake": "Variance scales linearly with time; volatility scales with square-root time.",
+    "interview_tip": "Connect this to volatility annualization.",
+    "tags": [
+      "Brownian Motion",
+      "Scaling",
+      "Volatility"
+    ]
+  },
+  {
+    "id": "stoch_035",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Lemma",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why does Ito's lemma have a second derivative term?",
+    "intuition": "Brownian motion has nonzero quadratic variation.",
+    "solution": "In ordinary calculus, higher-order terms vanish faster. In Ito calculus, (dW)^2 is of order dt, so the second derivative term contributes to the drift.",
+    "formula": "(dW_t)^2=dt",
+    "common_mistake": "Do not apply ordinary chain rule to Ito processes.",
+    "interview_tip": "This is one of the most important conceptual points in stochastic calculus.",
+    "tags": [
+      "Ito Lemma",
+      "Quadratic Variation",
+      "Stochastic Calculus"
+    ]
+  },
+  {
+    "id": "code_055",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code to compute rolling z-scores for a time series.",
+    "intuition": "A rolling z-score measures how far the current value is from its recent mean in standard-deviation units.",
+    "solution": "Use rolling mean and rolling standard deviation, then compute (x-mean)/std. Shift the rolling statistics if the z-score is used as a trading signal.",
+    "formula": "z_t=(x_t-rolling_mean_t)/rolling_std_t",
+    "code_language": "python",
+    "code": "import pandas as pd\n\n\ndef rolling_zscore(x, window=20, shift_stats=True):\n    x = pd.Series(x, dtype=float)\n    mean = x.rolling(window).mean()\n    std = x.rolling(window).std(ddof=1)\n\n    if shift_stats:\n        mean = mean.shift(1)\n        std = std.shift(1)\n\n    return (x - mean) / std\n\nvalues = [1, 2, 3, 4, 5, 6, 7] * 10\nprint(rolling_zscore(values, window=5).tail())",
+    "complexity": "Time complexity: O(n) using pandas rolling operations. Space complexity: O(n).",
+    "common_mistake": "If used for forecasting, do not compute the rolling mean using the current or future observation unless that timing is allowed.",
+    "interview_tip": "Mention shifting to avoid lookahead bias.",
+    "tags": [
+      "Python",
+      "Pandas",
+      "Rolling Window",
+      "Z-score"
+    ]
+  },
+  {
+    "id": "code_056",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code to compute a confusion matrix from binary predictions.",
+    "intuition": "A confusion matrix counts true positives, false positives, true negatives, and false negatives.",
+    "solution": "Compare predicted and true labels elementwise, then count each case.",
+    "formula": "TP, FP, TN, FN",
+    "code_language": "python",
+    "code": "import numpy as np\n\n\ndef confusion_matrix_binary(y_true, y_pred):\n    y_true = np.asarray(y_true).astype(int)\n    y_pred = np.asarray(y_pred).astype(int)\n\n    if y_true.shape != y_pred.shape:\n        raise ValueError('y_true and y_pred must have the same shape')\n\n    tp = int(((y_true == 1) & (y_pred == 1)).sum())\n    fp = int(((y_true == 0) & (y_pred == 1)).sum())\n    tn = int(((y_true == 0) & (y_pred == 0)).sum())\n    fn = int(((y_true == 1) & (y_pred == 0)).sum())\n\n    return {'TP': tp, 'FP': fp, 'TN': tn, 'FN': fn}\n\nprint(confusion_matrix_binary([1, 0, 1, 0], [1, 1, 0, 0]))",
+    "complexity": "Time complexity: O(n). Space complexity: O(1) beyond the input arrays.",
+    "common_mistake": "Be clear which label is the positive class.",
+    "interview_tip": "This is a useful foundation for precision, recall, and classification evaluation.",
+    "tags": [
+      "Python",
+      "Classification",
+      "Confusion Matrix"
+    ]
+  },
+  {
+    "id": "code_057",
+    "topic": "Coding",
+    "subtopic": "Algorithms",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you remove duplicates from a list while preserving order?",
+    "intuition": "Use a set for membership and a list for ordered output.",
+    "solution": "Iterate through the list, keep a set of seen elements, and append only elements not seen before.",
+    "formula": "seen set + output list",
+    "code_language": "python",
+    "code": "def unique_preserve_order(values):\n    seen = set()\n    output = []\n\n    for x in values:\n        if x not in seen:\n            seen.add(x)\n            output.append(x)\n\n    return output\n\nprint(unique_preserve_order(['A', 'B', 'A', 'C', 'B']))",
+    "complexity": "Time complexity: O(n) on average. Space complexity: O(n).",
+    "common_mistake": "Converting directly to a set removes duplicates but does not preserve order in a controlled way.",
+    "interview_tip": "This tests basic hash-set reasoning.",
+    "tags": [
+      "Algorithms",
+      "Hash Set",
+      "Python"
+    ]
+  },
+  {
+    "id": "code_058",
+    "topic": "Coding",
+    "subtopic": "C++",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is const correctness in C++?",
+    "intuition": "Const correctness makes it clear what code is allowed to modify.",
+    "solution": "Const correctness means using const to mark objects, references, pointers, and member functions that should not modify state. It improves safety, readability, and compiler checking.",
+    "formula": "const means this should not be modified",
+    "code_language": "cpp",
+    "code": "#include <vector>\n#include <iostream>\n\ndouble sum_prices(const std::vector<double>& prices) {\n    double total = 0.0;\n    for (double p : prices) {\n        total += p;\n    }\n    return total;\n}\n\nint main() {\n    const std::vector<double> prices = {100.0, 101.0};\n    std::cout << sum_prices(prices) << std::endl;\n    return 0;\n}",
+    "complexity": "Not primarily a complexity topic; it is about correctness and interface design.",
+    "common_mistake": "Do not pass large objects by value when a const reference is sufficient.",
+    "interview_tip": "Const correctness is a common C++ interview signal.",
+    "tags": [
+      "C++",
+      "Const Correctness",
+      "References"
+    ]
+  },
+  {
+    "id": "brain_004",
+    "topic": "Brainteasers",
+    "subtopic": "Expected Value Puzzle",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "You flip a fair coin until the first head. What is the expected number of flips?",
+    "intuition": "This is a geometric waiting-time problem with success probability 1/2.",
+    "solution": "The expected waiting time until the first head is 1/p = 2.",
+    "formula": "E[N]=1/p=2",
+    "common_mistake": "Do not add probabilities directly without using the waiting-time structure.",
+    "interview_tip": "Identify the success probability first.",
+    "tags": [
+      "Brainteaser",
+      "Geometric Distribution",
+      "Expected Value"
+    ]
+  },
+  {
+    "id": "brain_005",
+    "topic": "Brainteasers",
+    "subtopic": "Counting",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How many ways are there to arrange n distinct objects?",
+    "intuition": "Choose one object for each position without replacement.",
+    "solution": "There are n! permutations of n distinct objects.",
+    "formula": "n!",
+    "common_mistake": "Do not use combinations when order matters.",
+    "interview_tip": "Clarify whether order matters before solving counting problems.",
+    "tags": [
+      "Brainteaser",
+      "Counting",
+      "Permutations"
+    ]
   }
 ]
