@@ -1815,8 +1815,9 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.12C: Final README and screenshot refresh
             - Version 1.13A: More public-safe interview questions
+            - Version 1.13B: Better search, sorting, and topic navigation
+            - Version 1.14A: Mock interview tracks
             - Version 2.0: Optional persistent progress tracking
             """
         )
