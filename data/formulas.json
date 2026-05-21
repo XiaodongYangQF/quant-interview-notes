@@ -654,5 +654,113 @@
       "PCA",
       "Dimensionality Reduction"
     ]
+  },
+  {
+    "id": "prob_formula_016",
+    "topic": "Probability",
+    "subtopic": "Total Variance",
+    "name": "Law of total variance",
+    "formula": "\\operatorname{Var}(X)=\\mathbb{E}[\\operatorname{Var}(X\\mid Y)]+\\operatorname{Var}(\\mathbb{E}[X\\mid Y])",
+    "explanation": "Decomposes uncertainty into within-state and between-state components.",
+    "tags": [
+      "Total Variance",
+      "Conditional Expectation"
+    ]
+  },
+  {
+    "id": "prob_formula_017",
+    "topic": "Probability",
+    "subtopic": "Jensen",
+    "name": "Jensen's inequality",
+    "formula": "\\phi(\\mathbb{E}[X])\\le \\mathbb{E}[\\phi(X)]",
+    "explanation": "For convex phi.",
+    "tags": [
+      "Jensen",
+      "Convexity"
+    ]
+  },
+  {
+    "id": "prob_formula_018",
+    "topic": "Probability",
+    "subtopic": "Exponential Race",
+    "name": "Exponential race probability",
+    "formula": "P(X<Y)=\\frac{\\lambda}{\\lambda+\\mu}",
+    "explanation": "For independent exponential variables with rates lambda and mu.",
+    "tags": [
+      "Exponential",
+      "Poisson Process"
+    ]
+  },
+  {
+    "id": "stats_formula_005",
+    "topic": "Statistics",
+    "subtopic": "Fisher Information",
+    "name": "Fisher information",
+    "formula": "I(\\theta)=\\mathbb{E}\\left[\\left(\\frac{\\partial \\ell}{\\partial \\theta}\\right)^2\\right]",
+    "explanation": "Measures information about a parameter in the likelihood.",
+    "tags": [
+      "Fisher Information",
+      "MLE"
+    ]
+  },
+  {
+    "id": "stats_formula_006",
+    "topic": "Statistics",
+    "subtopic": "Delta Method",
+    "name": "Delta method",
+    "formula": "\\operatorname{Var}(g(\\hat{\\theta}))\\approx [g'(\\theta)]^2\\operatorname{Var}(\\hat{\\theta})",
+    "explanation": "Approximates uncertainty for transformed estimators.",
+    "tags": [
+      "Delta Method",
+      "Asymptotics"
+    ]
+  },
+  {
+    "id": "deriv_formula_009",
+    "topic": "Derivatives",
+    "subtopic": "Put-Call Parity",
+    "name": "Put-call parity with dividend yield",
+    "formula": "C-P=S_0e^{-qT}-Ke^{-rT}",
+    "explanation": "European options with continuous dividend yield q.",
+    "tags": [
+      "Put-Call Parity",
+      "Dividends"
+    ]
+  },
+  {
+    "id": "deriv_formula_010",
+    "topic": "Greeks",
+    "subtopic": "Vega Hedging",
+    "name": "Portfolio vega",
+    "formula": "\\nu_{portfolio}=\\sum_i w_i\\nu_i",
+    "explanation": "Vega exposure of a portfolio is the weighted sum of individual vegas.",
+    "tags": [
+      "Vega",
+      "Hedging"
+    ]
+  },
+  {
+    "id": "stoch_formula_011",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Product Rule",
+    "name": "Ito product rule",
+    "formula": "d(XY)=X\\,dY+Y\\,dX+dX\\,dY",
+    "explanation": "Product rule with quadratic covariation term.",
+    "tags": [
+      "Ito Calculus",
+      "Product Rule"
+    ]
+  },
+  {
+    "id": "stoch_formula_012",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Generator",
+    "name": "Diffusion generator",
+    "formula": "\\mathcal{A}f=\\mu f_x+\\frac{1}{2}\\sigma^2 f_{xx}",
+    "explanation": "Infinitesimal generator for a one-dimensional diffusion.",
+    "tags": [
+      "Generator",
+      "Diffusion"
+    ]
   }
 ]

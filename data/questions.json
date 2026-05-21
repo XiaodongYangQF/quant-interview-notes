@@ -3820,5 +3820,683 @@
       "Performance",
       "Modern C++"
     ]
+  },
+  {
+    "id": "prob_046",
+    "topic": "Probability",
+    "subtopic": "Inclusion-Exclusion",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is the inclusion-exclusion formula for two and three events?",
+    "intuition": "When adding event probabilities, intersections are counted more than once and must be corrected.",
+    "solution": "For two events, P(A∪B)=P(A)+P(B)-P(A∩B). For three events, add single probabilities, subtract pairwise intersections, and add back the triple intersection.",
+    "formula": "P(A∪B)=P(A)+P(B)-P(A∩B)",
+    "common_mistake": "Do not forget to add back the triple intersection for three events.",
+    "interview_tip": "This is often the fastest way to solve counting probability questions.",
+    "tags": [
+      "Inclusion-Exclusion",
+      "Probability",
+      "Counting"
+    ]
+  },
+  {
+    "id": "prob_047",
+    "topic": "Probability",
+    "subtopic": "Conditional Expectation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the law of total variance?",
+    "intuition": "Total variance equals average conditional variance plus variance of conditional means.",
+    "solution": "The law of total variance decomposes uncertainty into within-group uncertainty and between-group uncertainty.",
+    "derivation": "Start from\n\n$$\\operatorname{Var}(X)=\\mathbb{E}[X^2]-(\\mathbb{E}[X])^2.$$\n\nUsing conditional expectation,\n\n$$\\mathbb{E}[X^2]=\\mathbb{E}[\\mathbb{E}[X^2\\mid Y]].$$\n\nFor each value of $Y$,\n\n$$\\operatorname{Var}(X\\mid Y)=\\mathbb{E}[X^2\\mid Y]-(\\mathbb{E}[X\\mid Y])^2.$$\n\nSo\n\n$$\\mathbb{E}[X^2\\mid Y]=\\operatorname{Var}(X\\mid Y)+(\\mathbb{E}[X\\mid Y])^2.$$\n\nTaking expectations gives\n\n$$\\operatorname{Var}(X)=\\mathbb{E}[\\operatorname{Var}(X\\mid Y)]+\\operatorname{Var}(\\mathbb{E}[X\\mid Y]).$$",
+    "formula": "Var(X)=E[Var(X|Y)]+Var(E[X|Y])",
+    "common_mistake": "Do not confuse this with the law of total expectation.",
+    "interview_tip": "Useful when a problem becomes easier after conditioning on a hidden state.",
+    "tags": [
+      "Conditional Expectation",
+      "Variance",
+      "Total Variance"
+    ]
+  },
+  {
+    "id": "prob_048",
+    "topic": "Probability",
+    "subtopic": "Jensen's Inequality",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is Jensen's inequality?",
+    "intuition": "For a convex function, the function of the average is below the average of the function.",
+    "solution": "If φ is convex, then φ(E[X]) ≤ E[φ(X)]. If φ is concave, the inequality reverses. In finance, Jensen's inequality explains why nonlinear payoffs have value from uncertainty.",
+    "formula": "φ(E[X]) ≤ E[φ(X)] for convex φ",
+    "common_mistake": "Do not use the wrong inequality direction. Check convex vs concave.",
+    "interview_tip": "Connect it to option convexity: optionality benefits from dispersion.",
+    "tags": [
+      "Jensen",
+      "Convexity",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "prob_049",
+    "topic": "Probability",
+    "subtopic": "Exponential Race",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "If X~Exp(λ) and Y~Exp(μ) are independent, what is P(X<Y)?",
+    "intuition": "In an exponential race, the probability of winning is proportional to the event rate.",
+    "solution": "The probability that X occurs before Y is λ/(λ+μ).",
+    "derivation": "Condition on $X=x$:\n\n$$P(X<Y)=\\int_0^\\infty P(Y>x)f_X(x)dx.$$\n\nSince $P(Y>x)=e^{-\\mu x}$ and $f_X(x)=\\lambda e^{-\\lambda x}$,\n\n$$P(X<Y)=\\int_0^\\infty \\lambda e^{-(\\lambda+\\mu)x}dx=\\frac{\\lambda}{\\lambda+\\mu}.$$",
+    "formula": "P(X<Y)=λ/(λ+μ)",
+    "common_mistake": "Do not say the probability is 1/2 unless the rates are equal.",
+    "interview_tip": "This appears in queueing, credit events, and competing-arrival problems.",
+    "tags": [
+      "Exponential Distribution",
+      "Race",
+      "Poisson Process"
+    ]
+  },
+  {
+    "id": "prob_050",
+    "topic": "Probability",
+    "subtopic": "Moment Generating Functions",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a moment generating function and why is it useful?",
+    "intuition": "It packages all moments of a distribution into one function when it exists.",
+    "solution": "The moment generating function is M_X(t)=E[e^{tX}]. Derivatives at zero give moments. MGFs are also useful for identifying distributions and sums of independent random variables.",
+    "formula": "M_X(t)=E[e^{tX}],  M_X^{(n)}(0)=E[X^n]",
+    "common_mistake": "MGFs do not always exist for all distributions or all t.",
+    "interview_tip": "Mention that independence turns sums into products of MGFs.",
+    "tags": [
+      "MGF",
+      "Moments",
+      "Distributions"
+    ]
+  },
+  {
+    "id": "prob_051",
+    "topic": "Probability",
+    "subtopic": "Normal Distribution",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "If X and Y are independent normal random variables, what is the distribution of aX+bY?",
+    "intuition": "A linear combination of independent normal variables is normal.",
+    "solution": "If X~N(μ_X,σ_X²) and Y~N(μ_Y,σ_Y²), then aX+bY is normal with mean aμ_X+bμ_Y and variance a²σ_X²+b²σ_Y².",
+    "formula": "aX+bY ~ N(aμ_X+bμ_Y, a²σ_X²+b²σ_Y²)",
+    "common_mistake": "If X and Y are correlated, include the covariance term 2abCov(X,Y).",
+    "interview_tip": "This is essential for portfolio return calculations.",
+    "tags": [
+      "Normal Distribution",
+      "Linear Combination",
+      "Portfolio"
+    ]
+  },
+  {
+    "id": "prob_052",
+    "topic": "Probability",
+    "subtopic": "Change of Variables",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How do you transform a random variable using change of variables?",
+    "intuition": "Probability mass must be preserved under transformation.",
+    "solution": "If Y=g(X) is monotonic and differentiable, then f_Y(y)=f_X(g^{-1}(y)) |d/dy g^{-1}(y)|.",
+    "formula": "f_Y(y)=f_X(g^{-1}(y)) |(g^{-1})'(y)|",
+    "common_mistake": "Do not forget the absolute Jacobian term.",
+    "interview_tip": "This is useful for deriving lognormal density from a normal variable.",
+    "tags": [
+      "Change of Variables",
+      "PDF",
+      "Transformation"
+    ]
+  },
+  {
+    "id": "prob_053",
+    "topic": "Probability",
+    "subtopic": "Bivariate Normal",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the conditional distribution of one variable in a bivariate normal distribution?",
+    "intuition": "Conditioning in a joint normal model gives another normal distribution with a linear conditional mean.",
+    "solution": "If X and Y are jointly normal, then X|Y=y is normal. Its conditional mean is μ_X + ρσ_X/σ_Y (y-μ_Y), and its conditional variance is σ_X²(1-ρ²).",
+    "formula": "X|Y=y ~ N(μ_X + ρσ_X/σ_Y(y-μ_Y), σ_X²(1-ρ²))",
+    "common_mistake": "Do not assume zero correlation unless stated.",
+    "interview_tip": "This is useful for Gaussian factor models and Kalman-filter intuition.",
+    "tags": [
+      "Bivariate Normal",
+      "Conditional Distribution",
+      "Gaussian"
+    ]
+  },
+  {
+    "id": "prob_054",
+    "topic": "Probability",
+    "subtopic": "Markov Chains",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a stationary distribution of a Markov chain?",
+    "intuition": "It is a distribution that remains unchanged after applying the transition matrix.",
+    "solution": "For transition matrix P, a stationary distribution π satisfies πP=π and the components of π sum to one.",
+    "formula": "πP=π,  Σπ_i=1",
+    "common_mistake": "A stationary distribution is not necessarily the same as the initial distribution unless the chain starts in stationarity.",
+    "interview_tip": "Mention long-run proportions when the chain is irreducible and aperiodic.",
+    "tags": [
+      "Markov Chain",
+      "Stationary Distribution",
+      "Transition Matrix"
+    ]
+  },
+  {
+    "id": "prob_055",
+    "topic": "Probability",
+    "subtopic": "Martingales",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Give a simple example of a martingale.",
+    "intuition": "A fair random walk is the simplest martingale.",
+    "solution": "Let S_n be a symmetric random walk with increments +1 or -1 with equal probability. Then E[S_{n+1}|F_n]=S_n, so S_n is a martingale.",
+    "derivation": "Let\n\n$$S_{n+1}=S_n+X_{n+1},$$\n\nwhere $X_{n+1}=1$ or $-1$ with equal probability. Then\n\n$$\\mathbb{E}[S_{n+1}\\mid \\mathcal{F}_n]=S_n+\\mathbb{E}[X_{n+1}\\mid \\mathcal{F}_n].$$\n\nSince the increment is fair and independent of past information,\n\n$$\\mathbb{E}[X_{n+1}\\mid \\mathcal{F}_n]=0.$$\n\nTherefore,\n\n$$\\mathbb{E}[S_{n+1}\\mid \\mathcal{F}_n]=S_n.$$",
+    "formula": "E[S_{n+1}|F_n]=S_n",
+    "common_mistake": "A martingale can still move randomly; it is not constant.",
+    "interview_tip": "Use this example before discussing discounted asset prices.",
+    "tags": [
+      "Martingale",
+      "Random Walk",
+      "Conditional Expectation"
+    ]
+  },
+  {
+    "id": "stats_016",
+    "topic": "Statistics",
+    "subtopic": "Maximum Likelihood",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the score function in maximum likelihood estimation?",
+    "intuition": "The score is the gradient of the log-likelihood.",
+    "solution": "The score function is the derivative of the log-likelihood with respect to the parameter. At an interior MLE, the score is usually zero.",
+    "formula": "Score(θ)=∂ℓ(θ)/∂θ",
+    "common_mistake": "Do not confuse the score function with a model evaluation score such as accuracy or log score.",
+    "interview_tip": "Mention that the Hessian or information matrix gives uncertainty estimates.",
+    "tags": [
+      "MLE",
+      "Score Function",
+      "Likelihood"
+    ]
+  },
+  {
+    "id": "stats_017",
+    "topic": "Statistics",
+    "subtopic": "Fisher Information",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is Fisher information?",
+    "intuition": "It measures how much information the data carry about a parameter.",
+    "solution": "Fisher information can be written as the variance of the score or the negative expected second derivative of the log-likelihood under regularity conditions.",
+    "formula": "I(θ)=E[(∂ℓ/∂θ)^2]=-E[∂²ℓ/∂θ²]",
+    "common_mistake": "Do not confuse observed information and expected Fisher information.",
+    "interview_tip": "Fisher information is linked to asymptotic variance of the MLE.",
+    "tags": [
+      "Fisher Information",
+      "MLE",
+      "Asymptotics"
+    ]
+  },
+  {
+    "id": "stats_018",
+    "topic": "Statistics",
+    "subtopic": "Delta Method",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the delta method?",
+    "intuition": "It approximates the distribution of a smooth function of an estimator.",
+    "solution": "If sqrt(n)(θ_hat-θ) converges to N(0,σ²), then for differentiable g, sqrt(n)(g(θ_hat)-g(θ)) converges to N(0, [g'(θ)]²σ²).",
+    "formula": "Var(g(θ_hat)) ≈ [g'(θ)]² Var(θ_hat)",
+    "common_mistake": "The function g must be sufficiently smooth around the true parameter.",
+    "interview_tip": "Useful when deriving standard errors for transformed parameters.",
+    "tags": [
+      "Delta Method",
+      "Asymptotics",
+      "Inference"
+    ]
+  },
+  {
+    "id": "stats_019",
+    "topic": "Statistics",
+    "subtopic": "Bootstrap",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is bootstrapping in statistics?",
+    "intuition": "Bootstrapping estimates sampling uncertainty by resampling from the observed data.",
+    "solution": "The bootstrap repeatedly samples with replacement from the observed dataset and recomputes the statistic of interest. The empirical distribution of bootstrap statistics approximates the sampling distribution.",
+    "formula": "Sample with replacement → recompute statistic",
+    "common_mistake": "Bootstrap is not magic; dependence, small samples, and heavy tails require care.",
+    "interview_tip": "For time series, mention block bootstrap rather than iid bootstrap.",
+    "tags": [
+      "Bootstrap",
+      "Resampling",
+      "Standard Error"
+    ]
+  },
+  {
+    "id": "stats_020",
+    "topic": "Statistics",
+    "subtopic": "Bayesian Statistics",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the difference between prior, likelihood, and posterior?",
+    "intuition": "Bayesian inference updates prior beliefs using data through the likelihood.",
+    "solution": "The prior represents beliefs before seeing the data. The likelihood measures how plausible the observed data are under each parameter value. The posterior combines both using Bayes' rule.",
+    "formula": "posterior ∝ likelihood × prior",
+    "common_mistake": "Do not treat the likelihood as a probability distribution over the data after the data are fixed.",
+    "interview_tip": "This is useful for Bayesian signal extraction and model uncertainty.",
+    "tags": [
+      "Bayesian Statistics",
+      "Posterior",
+      "Likelihood"
+    ]
+  },
+  {
+    "id": "stats_021",
+    "topic": "Statistics",
+    "subtopic": "Regularization",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How is ridge regression related to regularized least squares?",
+    "intuition": "Ridge adds an L2 penalty to shrink coefficients and improve stability.",
+    "solution": "Ridge regression minimizes squared error plus λ times the sum of squared coefficients. It is useful when predictors are highly correlated or X'X is ill-conditioned.",
+    "formula": "minβ ||y-Xβ||² + λ||β||²",
+    "common_mistake": "Do not penalize the intercept unless you intentionally choose to do so.",
+    "interview_tip": "Mention bias-variance tradeoff and multicollinearity.",
+    "tags": [
+      "Ridge Regression",
+      "Regularization",
+      "OLS"
+    ]
+  },
+  {
+    "id": "stats_022",
+    "topic": "Statistics",
+    "subtopic": "Multiple Testing",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why is multiple testing a problem in quant research?",
+    "intuition": "If many strategies or signals are tested, some will appear significant by luck.",
+    "solution": "Multiple testing increases the probability of false discoveries. In quant research, repeatedly testing many signals can create data-mined results that fail out-of-sample.",
+    "formula": "More tests → higher false discovery risk",
+    "common_mistake": "Do not report only the best backtest without accounting for the search process.",
+    "interview_tip": "Mention out-of-sample testing, cross-validation, and false discovery control.",
+    "tags": [
+      "Multiple Testing",
+      "Data Mining",
+      "Quant Research"
+    ]
+  },
+  {
+    "id": "ts_013",
+    "topic": "Time Series",
+    "subtopic": "ARMA Identification",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How can ACF and PACF help identify AR and MA models?",
+    "intuition": "ACF and PACF show different cutoff and decay patterns for AR and MA processes.",
+    "solution": "For an AR(p), the PACF often cuts off after lag p while the ACF decays. For an MA(q), the ACF often cuts off after lag q while the PACF decays.",
+    "formula": "AR(p): PACF cutoff; MA(q): ACF cutoff",
+    "common_mistake": "Real data rarely follow textbook patterns exactly.",
+    "interview_tip": "Use ACF/PACF as diagnostics, not automatic truth.",
+    "tags": [
+      "ACF",
+      "PACF",
+      "ARMA",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ts_014",
+    "topic": "Time Series",
+    "subtopic": "Seasonality",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is seasonality in a time series?",
+    "intuition": "Seasonality is a repeated pattern at fixed calendar or time intervals.",
+    "solution": "Seasonality occurs when a time series has regular periodic patterns, such as intraday volume seasonality, day-of-week effects, or monthly patterns.",
+    "formula": "X_t = trend + seasonal + noise",
+    "common_mistake": "Do not confuse seasonality with a one-time structural break.",
+    "interview_tip": "Finance examples include intraday volatility and volume patterns.",
+    "tags": [
+      "Seasonality",
+      "Time Series",
+      "Forecasting"
+    ]
+  },
+  {
+    "id": "ts_015",
+    "topic": "Time Series",
+    "subtopic": "Structural Breaks",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a structural break?",
+    "intuition": "A structural break is a change in the underlying data-generating process.",
+    "solution": "A structural break occurs when model parameters or statistical properties change over time. It can make models trained on old data unreliable.",
+    "formula": "Parameter before break ≠ parameter after break",
+    "common_mistake": "Do not assume stationarity over long samples without checking regime changes.",
+    "interview_tip": "Mention financial crises, policy changes, and market microstructure changes as examples.",
+    "tags": [
+      "Structural Break",
+      "Regime Change",
+      "Time Series"
+    ]
+  },
+  {
+    "id": "ml_011",
+    "topic": "Machine Learning",
+    "subtopic": "Cross-Validation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is walk-forward validation?",
+    "intuition": "Train on the past and test on the next future window, then roll forward.",
+    "solution": "Walk-forward validation repeatedly trains a model on past data and evaluates on a future validation window. It respects time ordering and is useful for financial forecasting.",
+    "formula": "train past → test future → roll forward",
+    "common_mistake": "Do not randomly shuffle time-series data for ordinary cross-validation.",
+    "interview_tip": "This is one of the most important validation ideas in quant ML.",
+    "tags": [
+      "Walk-Forward Validation",
+      "Time Series",
+      "Machine Learning"
+    ]
+  },
+  {
+    "id": "ml_012",
+    "topic": "Machine Learning",
+    "subtopic": "Calibration",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What does probability calibration mean in classification?",
+    "intuition": "Predicted probabilities should match observed frequencies.",
+    "solution": "A model is calibrated if events predicted with probability p occur about p fraction of the time. Calibration matters when using model outputs for decision-making and risk control.",
+    "formula": "P(Y=1 | predicted probability = p) ≈ p",
+    "common_mistake": "A classifier can have high accuracy but poorly calibrated probabilities.",
+    "interview_tip": "Mention reliability diagrams, Brier score, and Platt/isotonic calibration.",
+    "tags": [
+      "Calibration",
+      "Classification",
+      "Probability Forecasting"
+    ]
+  },
+  {
+    "id": "ml_013",
+    "topic": "Machine Learning",
+    "subtopic": "Feature Importance",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are common limitations of feature importance in tree models?",
+    "intuition": "Feature importance can be biased by correlation, scale, cardinality, and model structure.",
+    "solution": "Impurity-based feature importance can favor high-cardinality variables and split correlated importance across related features. Permutation importance can also be affected by correlated predictors.",
+    "formula": "Importance is model-dependent",
+    "common_mistake": "Do not treat feature importance as causal importance.",
+    "interview_tip": "Mention permutation importance and SHAP carefully, but note their limitations.",
+    "tags": [
+      "Feature Importance",
+      "Random Forest",
+      "Model Interpretation"
+    ]
+  },
+  {
+    "id": "ml_014",
+    "topic": "Machine Learning",
+    "subtopic": "Data Leakage",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is data leakage in machine learning?",
+    "intuition": "Data leakage occurs when information unavailable at prediction time enters the training or feature set.",
+    "solution": "Data leakage makes model performance look better than it will be in production. In finance, leakage can come from using future returns, revised data, future normalization, or random splits of time series.",
+    "formula": "Feature set must use only information available at prediction time",
+    "common_mistake": "Normalizing using the full dataset before train-test split can leak information.",
+    "interview_tip": "This is a critical concept for quant research and ML interviews.",
+    "tags": [
+      "Data Leakage",
+      "Machine Learning",
+      "Lookahead Bias"
+    ]
+  },
+  {
+    "id": "deriv_031",
+    "topic": "Derivatives",
+    "subtopic": "Put-Call Parity",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How does put-call parity change with continuous dividend yield?",
+    "intuition": "Dividends reduce the present value of holding the stock through maturity.",
+    "solution": "For European options with continuous dividend yield q, put-call parity becomes C-P=S_0e^{-qT}-Ke^{-rT}.",
+    "formula": "C-P=S0e^(-qT)-Ke^(-rT)",
+    "common_mistake": "Do not use the no-dividend version when dividend yield is material.",
+    "interview_tip": "This is commonly relevant for index options.",
+    "tags": [
+      "Put-Call Parity",
+      "Dividends",
+      "European Options"
+    ]
+  },
+  {
+    "id": "deriv_032",
+    "topic": "Derivatives",
+    "subtopic": "Static Replication",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is static replication?",
+    "intuition": "Static replication matches a payoff using a portfolio that does not need continuous rebalancing.",
+    "solution": "Static replication constructs a portfolio of instruments whose terminal payoff matches the target payoff without dynamic trading after initiation. Put-call parity is a simple example of static replication.",
+    "formula": "Target payoff = portfolio payoff at maturity",
+    "common_mistake": "Do not confuse static replication with delta hedging, which is dynamic.",
+    "interview_tip": "Static replication is useful for understanding payoff diagrams and no-arbitrage.",
+    "tags": [
+      "Static Replication",
+      "No-Arbitrage",
+      "Payoff"
+    ]
+  },
+  {
+    "id": "deriv_033",
+    "topic": "Derivatives",
+    "subtopic": "Vega Hedging",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is vega hedging?",
+    "intuition": "Vega hedging reduces sensitivity to changes in implied volatility.",
+    "solution": "A trader can hedge vega exposure by taking positions in other options. Since the underlying has no direct vega, vega hedging usually requires options rather than stock alone.",
+    "formula": "Portfolio vega = Σ position_i × vega_i",
+    "common_mistake": "Do not think delta hedging removes volatility risk.",
+    "interview_tip": "Mention that hedging one Greek can change exposure to other Greeks.",
+    "tags": [
+      "Vega",
+      "Hedging",
+      "Greeks"
+    ]
+  },
+  {
+    "id": "deriv_034",
+    "topic": "Derivatives",
+    "subtopic": "Volatility Smile",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why does the Black-Scholes model fail to explain the volatility smile?",
+    "intuition": "BSM assumes constant volatility, but market prices imply volatility varies by strike and maturity.",
+    "solution": "In Black-Scholes, all options on the same underlying and maturity should imply the same volatility. In real markets, implied volatility varies across strikes and maturities because of skewness, jumps, stochastic volatility, demand for protection, and market frictions.",
+    "formula": "BSM: σ constant; Market: σ_imp(K,T)",
+    "common_mistake": "Do not call implied volatility a direct observable; it is backed out through a model.",
+    "interview_tip": "Mention equity downside skew as a common empirical pattern.",
+    "tags": [
+      "Volatility Smile",
+      "BSM",
+      "Implied Volatility"
+    ]
+  },
+  {
+    "id": "deriv_035",
+    "topic": "Derivatives",
+    "subtopic": "Local Volatility",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the intuition behind local volatility?",
+    "intuition": "Local volatility lets volatility depend on current price and time while keeping a one-factor diffusion model.",
+    "solution": "A local volatility model writes dS/S = μdt + σ_loc(S,t)dW. It can be calibrated to match an implied volatility surface under idealized assumptions, but it may have unrealistic smile dynamics.",
+    "formula": "dS/S = μdt + σ_loc(S,t)dW",
+    "common_mistake": "Do not confuse local volatility with stochastic volatility; local volatility is deterministic as a function of S and t.",
+    "interview_tip": "A concise comparison between local vol and stochastic vol is a strong answer.",
+    "tags": [
+      "Local Volatility",
+      "Volatility Surface",
+      "Option Pricing"
+    ]
+  },
+  {
+    "id": "deriv_036",
+    "topic": "Derivatives",
+    "subtopic": "Barrier Options",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What makes barrier options path-dependent?",
+    "intuition": "The payoff depends on whether the underlying hit a barrier before maturity, not only on terminal price.",
+    "solution": "Barrier options are activated or knocked out depending on whether the underlying reaches a specified barrier during the option's life. Therefore, two paths with the same terminal price can have different payoffs.",
+    "formula": "Payoff depends on {S_t hits barrier}",
+    "common_mistake": "Do not price a barrier option using only terminal S_T.",
+    "interview_tip": "Connect this to hitting times and monitoring frequency.",
+    "tags": [
+      "Barrier Options",
+      "Path Dependency",
+      "Hitting Time"
+    ]
+  },
+  {
+    "id": "stoch_031",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Product Rule",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the Ito product rule?",
+    "intuition": "It is the stochastic version of the product rule with an extra quadratic covariation term.",
+    "solution": "For Ito processes X and Y, d(XY)=X dY + Y dX + dX dY. The extra dX dY term matters when both processes have Brownian components.",
+    "formula": "d(XY)=X dY + Y dX + dX dY",
+    "common_mistake": "Do not forget the cross-variation term.",
+    "interview_tip": "This is often useful when deriving discounted asset dynamics.",
+    "tags": [
+      "Ito Calculus",
+      "Product Rule",
+      "Quadratic Variation"
+    ]
+  },
+  {
+    "id": "stoch_032",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Integral",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why does the Ito integral have zero expectation under suitable conditions?",
+    "intuition": "Ito integrals with adapted square-integrable integrands are martingales.",
+    "solution": "If H_t is adapted and square-integrable, then the Ito integral ∫H_t dW_t has mean zero. This is because Brownian increments have zero conditional mean and are independent of past information.",
+    "formula": "E[∫_0^T H_t dW_t]=0",
+    "common_mistake": "The integrand must be non-anticipating and satisfy integrability conditions.",
+    "interview_tip": "This helps explain why stochastic integral terms disappear in expectations.",
+    "tags": [
+      "Ito Integral",
+      "Martingale",
+      "Expectation"
+    ]
+  },
+  {
+    "id": "stoch_033",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Generator",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the infinitesimal generator of a diffusion?",
+    "intuition": "The generator describes the local expected change of functions of the process.",
+    "solution": "For dX=μ(X)dt+σ(X)dW, the generator applied to a smooth function f is Af=μf_x+0.5σ²f_xx. It appears in PDEs and Feynman-Kac representations.",
+    "formula": "Af=μf_x + 0.5σ²f_xx",
+    "common_mistake": "Do not confuse the generator with the transition density.",
+    "interview_tip": "This is useful for advanced stochastic calculus or PDE pricing interviews.",
+    "tags": [
+      "Generator",
+      "Diffusion",
+      "Feynman-Kac"
+    ]
+  },
+  {
+    "id": "code_053",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code for walk-forward validation splits.",
+    "intuition": "Each split trains on past data and tests on a future block.",
+    "solution": "Generate train and test index ranges that respect time order.",
+    "formula": "train past → test future",
+    "code_language": "python",
+    "code": "def walk_forward_splits(n, train_size, test_size, step=None):\n    if step is None:\n        step = test_size\n\n    start = 0\n    while start + train_size + test_size <= n:\n        train_idx = list(range(start, start + train_size))\n        test_idx = list(range(start + train_size, start + train_size + test_size))\n        yield train_idx, test_idx\n        start += step\n\nfor train, test in walk_forward_splits(n=20, train_size=8, test_size=3):\n    print(\"train:\", train, \"test:\", test)",
+    "complexity": "Time complexity: O(number_of_splits). Space complexity depends on whether indices are materialized.",
+    "common_mistake": "Do not let test observations enter the training window.",
+    "interview_tip": "This is a clean coding example for time-series ML interviews.",
+    "tags": [
+      "Python",
+      "Walk-Forward Validation",
+      "Time Series",
+      "ML"
+    ]
+  },
+  {
+    "id": "code_054",
+    "topic": "Coding",
+    "subtopic": "Python",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Write Python code to winsorize a return series.",
+    "intuition": "Winsorization caps extreme values rather than deleting them.",
+    "solution": "Use lower and upper quantiles as caps, then clip the series.",
+    "formula": "x_clipped = min(max(x, lower), upper)",
+    "code_language": "python",
+    "code": "import numpy as np\nimport pandas as pd\n\ndef winsorize_series(x, lower_q=0.01, upper_q=0.99):\n    x = pd.Series(x, dtype=float)\n\n    lower = x.quantile(lower_q)\n    upper = x.quantile(upper_q)\n\n    return x.clip(lower=lower, upper=upper)\n\nreturns = pd.Series([0.01, 0.02, -0.03, 0.50, -0.40, 0.005])\nprint(winsorize_series(returns))",
+    "complexity": "Time complexity depends on quantile computation, typically O(n log n) or better. Space complexity: O(n).",
+    "common_mistake": "Do not winsorize blindly; understand whether extremes are errors or real events.",
+    "interview_tip": "This is useful for data cleaning, but should be justified.",
+    "tags": [
+      "Python",
+      "Data Cleaning",
+      "Winsorization",
+      "Returns"
+    ]
+  },
+  {
+    "id": "brain_002",
+    "topic": "Brainteasers",
+    "subtopic": "Expected Value Puzzle",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "You roll a fair die until you see a 6. What is the expected number of rolls?",
+    "intuition": "This is a geometric waiting-time problem.",
+    "solution": "Each roll has success probability 1/6. The expected waiting time until the first success is 1/p=6.",
+    "formula": "E[N]=1/p=6",
+    "common_mistake": "Do not confuse expected waiting time with probability of success on one roll.",
+    "interview_tip": "Always identify the success probability first.",
+    "tags": [
+      "Brainteaser",
+      "Geometric Distribution",
+      "Expected Value"
+    ]
+  },
+  {
+    "id": "brain_003",
+    "topic": "Brainteasers",
+    "subtopic": "Logic Puzzle",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why are assumptions important in ambiguous probability puzzles?",
+    "intuition": "Different sampling mechanisms can lead to different correct answers.",
+    "solution": "Many probability puzzles are ambiguous because the method of selecting or revealing information is not specified. The correct approach is to state assumptions clearly before calculating.",
+    "formula": "Different sampling rules → different conditional probabilities",
+    "common_mistake": "Do not rush into calculation before defining the experiment.",
+    "interview_tip": "Interviewers often value clarification more than memorized answers.",
+    "tags": [
+      "Brainteaser",
+      "Modeling Assumptions",
+      "Conditional Probability"
+    ]
   }
 ]
