@@ -98,25 +98,175 @@ def unique_tags(items):
 
 
 def match_search(item, search_text):
+    return match_search_scoped(item, search_text, scope="All fields")
+
+
+def match_search_scoped(item, search_text, scope="All fields"):
+    """Search questions using a selected search scope."""
     if not search_text:
         return True
 
-    searchable_fields = [
-        item.get("question", ""),
-        item.get("solution", ""),
-        item.get("intuition", ""),
-        item.get("derivation", ""),
-        item.get("common_mistake", ""),
-        item.get("interview_tip", ""),
-        item.get("code", ""),
-        item.get("complexity", ""),
-        item.get("topic", ""),
-        item.get("subtopic", ""),
-        " ".join(item.get("tags", [])),
-    ]
+    scope_fields = {
+        "All fields": [
+            "question",
+            "solution",
+            "intuition",
+            "derivation",
+            "common_mistake",
+            "interview_tip",
+            "code",
+            "complexity",
+            "topic",
+            "subtopic",
+            "tags",
+            "formula",
+        ],
+        "Question only": ["question"],
+        "Answer / solution": ["solution", "intuition", "derivation", "common_mistake", "interview_tip"],
+        "Tags only": ["tags"],
+        "Code only": ["code", "complexity", "code_language"],
+        "Formula only": ["formula"],
+        "Topic / subtopic": ["topic", "subtopic"],
+    }
+
+    fields = scope_fields.get(scope, scope_fields["All fields"])
+    searchable_fields = []
+
+    for field in fields:
+        value = item.get(field, "")
+        if isinstance(value, list):
+            searchable_fields.append(" ".join(str(v) for v in value))
+        else:
+            searchable_fields.append(str(value))
 
     text = " ".join(searchable_fields).lower()
     return search_text.lower() in text
+
+
+def sort_questions(items, sort_by="Topic", ascending=True):
+    """Sort questions for display."""
+    difficulty_rank = {"Easy": 1, "Medium": 2, "Hard": 3}
+
+    def key_func(item):
+        if sort_by == "Topic":
+            return (item.get("topic", ""), item.get("subtopic", ""), item.get("id", ""))
+        if sort_by == "Difficulty":
+            return (difficulty_rank.get(item.get("difficulty", ""), 99), item.get("topic", ""), item.get("id", ""))
+        if sort_by == "Status":
+            return (item.get("status", ""), item.get("topic", ""), item.get("id", ""))
+        if sort_by == "Question ID":
+            return item.get("id", "")
+        if sort_by == "Subtopic":
+            return (item.get("subtopic", ""), item.get("topic", ""), item.get("id", ""))
+        if sort_by == "Has derivation":
+            return (not bool(item.get("derivation")), item.get("topic", ""), item.get("id", ""))
+        if sort_by == "Has code":
+            return (not bool(item.get("code")), item.get("topic", ""), item.get("id", ""))
+        return (item.get("topic", ""), item.get("id", ""))
+
+    return sorted(items, key=key_func, reverse=not ascending)
+
+
+def build_topic_navigator_rows(questions):
+    """Build topic-level navigation summary."""
+    rows = []
+    for topic in sorted({q.get("topic", "Unknown") for q in questions}):
+        topic_questions = [q for q in questions if q.get("topic", "Unknown") == topic]
+        subtopics = sorted({q.get("subtopic", "") for q in topic_questions if q.get("subtopic", "")})
+        rows.append(
+            {
+                "Topic": topic,
+                "Questions": len(topic_questions),
+                "Verified": sum(q.get("status") == "Verified" for q in topic_questions),
+                "Draft": sum(q.get("status") == "Draft" for q in topic_questions),
+                "Subtopics": len(subtopics),
+                "With derivations": sum(bool(q.get("derivation")) for q in topic_questions),
+                "With code": sum(bool(q.get("code")) for q in topic_questions),
+            }
+        )
+    return rows
+
+
+def render_topic_navigator(questions):
+    """Render a topic navigation tab."""
+    st.subheader("Topic Navigator")
+
+    st.markdown(
+        """
+        Use this tab to understand the structure of the question bank and quickly explore
+        topics, subtopics, and representative questions.
+        """
+    )
+
+    topic_rows = build_topic_navigator_rows(questions)
+
+    st.markdown("### Topic overview")
+    st.dataframe(topic_rows, use_container_width=True, hide_index=True)
+
+    topics = sorted({q.get("topic", "Unknown") for q in questions})
+    selected_topic = st.selectbox("Select a topic to inspect", topics, key="navigator_topic")
+
+    topic_questions = [q for q in questions if q.get("topic", "Unknown") == selected_topic]
+    subtopics = sorted({q.get("subtopic", "") for q in topic_questions if q.get("subtopic", "")})
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Questions", len(topic_questions))
+    c2.metric("Subtopics", len(subtopics))
+    c3.metric("Verified", sum(q.get("status") == "Verified" for q in topic_questions))
+    c4.metric("Draft", sum(q.get("status") == "Draft" for q in topic_questions))
+
+    st.markdown("### Subtopic breakdown")
+    subtopic_rows = []
+    for subtopic in subtopics:
+        subset = [q for q in topic_questions if q.get("subtopic", "") == subtopic]
+        subtopic_rows.append(
+            {
+                "Subtopic": subtopic,
+                "Questions": len(subset),
+                "Verified": sum(q.get("status") == "Verified" for q in subset),
+                "Draft": sum(q.get("status") == "Draft" for q in subset),
+                "With derivations": sum(bool(q.get("derivation")) for q in subset),
+                "With code": sum(bool(q.get("code")) for q in subset),
+            }
+        )
+
+    if subtopic_rows:
+        st.dataframe(subtopic_rows, use_container_width=True, hide_index=True)
+    else:
+        st.info("No subtopics found for this topic.")
+
+    st.markdown("### Questions in this topic")
+    selected_subtopics = st.multiselect(
+        "Filter subtopics",
+        subtopics,
+        default=subtopics,
+        key="navigator_subtopics",
+    )
+
+    topic_search = st.text_input("Search within selected topic", key="navigator_search")
+
+    filtered_topic_questions = []
+    for q in topic_questions:
+        subtopic_ok = True if not selected_subtopics else q.get("subtopic", "") in selected_subtopics
+        search_ok = match_search_scoped(q, topic_search, scope="All fields")
+        if subtopic_ok and search_ok:
+            filtered_topic_questions.append(q)
+
+    filtered_topic_questions = sort_questions(filtered_topic_questions, sort_by="Subtopic", ascending=True)
+
+    st.caption(f"Showing {len(filtered_topic_questions)} questions from {selected_topic}.")
+
+    max_preview = st.slider(
+        "Number of preview questions",
+        min_value=3,
+        max_value=min(30, max(3, len(filtered_topic_questions))) if filtered_topic_questions else 3,
+        value=min(10, max(3, len(filtered_topic_questions))) if filtered_topic_questions else 3,
+        step=1,
+        key="navigator_preview_count",
+    )
+
+    for i, item in enumerate(filtered_topic_questions[:max_preview], start=1):
+        question_card(item, i)
 
 
 def match_formula_search(item, search_text):
@@ -1440,7 +1590,42 @@ def main():
 
     st.sidebar.header("Question Filters")
 
-    search_text = st.sidebar.text_input("Search questions, answers, derivations, code, or tags")
+    with st.sidebar.expander("Search settings", expanded=True):
+        search_text = st.text_input("Search text")
+        search_scope = st.selectbox(
+            "Search scope",
+            [
+                "All fields",
+                "Question only",
+                "Answer / solution",
+                "Tags only",
+                "Code only",
+                "Formula only",
+                "Topic / subtopic",
+            ],
+            index=0,
+        )
+
+    with st.sidebar.expander("Sorting settings", expanded=False):
+        sort_by = st.selectbox(
+            "Sort questions by",
+            [
+                "Topic",
+                "Subtopic",
+                "Difficulty",
+                "Status",
+                "Question ID",
+                "Has derivation",
+                "Has code",
+            ],
+            index=0,
+        )
+        sort_direction = st.radio(
+            "Sort direction",
+            ["Ascending", "Descending"],
+            index=0,
+            horizontal=True,
+        )
 
     selected_topics = st.sidebar.multiselect(
         "Topic",
@@ -1506,13 +1691,19 @@ def main():
         topic_ok = item.get("topic") in selected_topics
         difficulty_ok = item.get("difficulty") in selected_difficulties
         status_ok = item.get("status") in selected_statuses
-        search_ok = match_search(item, search_text)
+        search_ok = match_search_scoped(item, search_text, scope=search_scope)
         tags_ok = True if not selected_tags else bool(item_tags.intersection(selected_tags))
         derivation_ok = True if not only_derivations else bool(item.get("derivation"))
         code_ok = True if not only_code else bool(item.get("code"))
 
         if topic_ok and difficulty_ok and status_ok and search_ok and tags_ok and derivation_ok and code_ok:
             filtered.append(item)
+
+    filtered = sort_questions(
+        filtered,
+        sort_by=sort_by,
+        ascending=(sort_direction == "Ascending"),
+    )
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Total questions", len(questions))
@@ -1522,13 +1713,17 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
     with tab_home:
         render_home_tab(questions, formulas)
+
+
+    with tab_navigator:
+        render_topic_navigator(questions)
 
 
     with tab_bank:
@@ -1796,6 +1991,8 @@ def main():
 
             - Portfolio-friendly landing page
             - Searchable question bank
+            - Topic Navigator for topic/subtopic exploration
+            - Scoped search and sorting controls
             - Topic, difficulty, status, and tag filters
             - Expandable intuition and solution sections
             - Optional math derivation sections
@@ -1815,9 +2012,9 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.13B: Better search, sorting, and topic navigation
             - Version 1.14A: Mock interview tracks
             - Version 1.15A: Coding exercise mode
+            - Version 1.16A: Formula revision mode
             - Version 2.0: Optional persistent progress tracking
             """
         )
