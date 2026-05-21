@@ -9,8 +9,8 @@ DATA_PATH = Path(__file__).parent / "data" / "questions.json"
 
 
 @st.cache_data
-def load_questions():
-    """Load question data from JSON."""
+def load_questions(file_mtime):
+    """Load question data from JSON. Cache refreshes when the JSON file changes."""
     if not DATA_PATH.exists():
         return []
     with DATA_PATH.open("r", encoding="utf-8") as f:
@@ -79,7 +79,10 @@ def main():
         layout="wide",
     )
 
-    questions = load_questions()
+
+    file_mtime = DATA_PATH.stat().st_mtime if DATA_PATH.exists() else 0
+    questions = load_questions(file_mtime)
+
 
     st.title("📈 Quant Interview Trainer")
     st.markdown(
