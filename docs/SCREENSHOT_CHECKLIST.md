@@ -18,6 +18,7 @@ mock_interview.png
 coding_exercise.png
 formula_revision.png
 performance_analytics.png
+app_status.png
 review_mode.png
 formula_sheet.png
 content_dashboard.png
@@ -74,30 +75,37 @@ Show:
 - difficulty performance table
 - suggested next study action
 
-### 8. review_mode.png
+### 8. app_status.png
+Show:
+- current framework status table
+- content snapshot metrics
+- recommended next actions
+- final public roadmap
+
+### 9. review_mode.png
 Show:
 - weak-topic count
 - review-list questions
 
-### 9. formula_sheet.png
+### 10. formula_sheet.png
 Show:
 - formula search
 - formula topic filter
 - several formula cards
 
-### 10. content_dashboard.png
+### 11. content_dashboard.png
 Show:
 - quality metrics
 - topic coverage
 - validation checks
 
-### 11. curation_workspace.png
+### 12. curation_workspace.png
 Show:
 - curation filters
 - curation table
 - selected question preview or raw JSON
 
-### 12. content_workflow.png
+### 13. content_workflow.png
 Show:
 - recommended update workflow
 - public/private content rule

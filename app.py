@@ -744,11 +744,12 @@ def render_home_tab(questions, formulas):
 
     st.markdown(
         """
-        Turn static interview notes into an interactive preparation platform for
+        Turn static interview notes into an interactive active-recall platform for
         quantitative finance interviews.
 
-        This app combines a searchable question bank, formula sheet, coding examples,
-        quiz mode, review workflow, and content-quality tools in one place.
+        This app combines a searchable question bank, topic navigation, quiz mode,
+        mock interview tracks, coding exercises, formula revision, review workflow,
+        analytics, and content-quality tools in one place.
         """
     )
 
@@ -781,11 +782,11 @@ def render_home_tab(questions, formulas):
     with hero_col2:
         st.info(
             "Suggested workflow:\n\n"
-            "1. Start with **Question Bank**\n"
-            "2. Review **Formula Sheet**\n"
-            "3. Practice with **Quiz Mode**\n"
-            "4. Revisit weak areas in **Review Mode**\n"
-            "5. Use **Content Dashboard** to maintain quality"
+            "1. Explore **Topic Navigator**\n"
+            "2. Study with **Question Bank**\n"
+            "3. Practise with **Quiz Mode** or **Mock Interview**\n"
+            "4. Use **Coding Exercise** and **Formula Revision**\n"
+            "5. Check **Performance Analytics** and **Review Mode**"
         )
 
     st.markdown("### Project snapshot")
@@ -848,8 +849,8 @@ def render_home_tab(questions, formulas):
 
     st.markdown("### Project positioning")
     st.success(
-        "This app is suitable as a GitHub portfolio project, a personal website feature, "
-        "and a practical interview-preparation tool."
+        "The core app framework is now close to complete. Future work can mainly focus on "
+        "adding more public-safe content, screenshots, deployment polish, and optional persistent progress tracking."
     )
 
     st.caption(
@@ -2632,6 +2633,97 @@ def render_performance_analytics(questions, formulas):
         st.info("Start a quiz or mock interview to generate study suggestions.")
 
 
+
+def render_app_status(questions, formulas):
+    """Render a near-final app status / roadmap tab."""
+    st.subheader("App Status & Roadmap")
+
+    st.markdown(
+        """
+        This page summarizes the current app framework and what remains before the project
+        can be treated as a stable public portfolio project.
+        """
+    )
+
+    st.markdown("### Current framework status")
+
+    status_rows = [
+        {"Area": "Question Bank", "Status": "Complete", "Notes": "Searchable and filterable"},
+        {"Area": "Topic Navigator", "Status": "Complete", "Notes": "Topic/subtopic exploration"},
+        {"Area": "Practice Mode", "Status": "Complete", "Notes": "Random practice questions"},
+        {"Area": "Quiz Mode", "Status": "Complete", "Notes": "Hidden answers and self-assessment"},
+        {"Area": "Mock Interview", "Status": "Complete", "Notes": "Preset interview tracks"},
+        {"Area": "Coding Exercise", "Status": "Complete", "Notes": "Dedicated coding practice"},
+        {"Area": "Formula Revision", "Status": "Complete", "Notes": "Active formula recall"},
+        {"Area": "Performance Analytics", "Status": "Complete", "Notes": "Session-level analytics"},
+        {"Area": "Review Mode", "Status": "Complete", "Notes": "Weak-question review"},
+        {"Area": "Formula Sheet", "Status": "Complete", "Notes": "Quick reference"},
+        {"Area": "Content Dashboard", "Status": "Complete", "Notes": "JSON validation"},
+        {"Area": "Curation Workspace", "Status": "Complete", "Notes": "Manual review workflow"},
+        {"Area": "Content Workflow", "Status": "Complete", "Notes": "Long-term update process"},
+        {"Area": "Persistent progress", "Status": "Later", "Notes": "Optional v2.0 feature"},
+    ]
+
+    st.dataframe(status_rows, use_container_width=True, hide_index=True)
+
+    st.markdown("### Current content snapshot")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Questions", len(questions))
+    c2.metric("Formulas", len(formulas))
+    c3.metric("Code examples", sum(bool(q.get("code")) for q in questions))
+    c4.metric("Derivations", sum(bool(q.get("derivation")) for q in questions))
+    c5.metric("Verified", sum(q.get("status") == "Verified" for q in questions))
+
+    st.markdown("### Recommended next actions")
+
+    next_rows = [
+        {
+            "Priority": 1,
+            "Action": "Take final screenshots",
+            "Why": "Needed for README, GitHub, website, and LinkedIn presentation",
+        },
+        {
+            "Priority": 2,
+            "Action": "Deploy / redeploy Streamlit app",
+            "Why": "Make the app accessible from GitHub and personal website",
+        },
+        {
+            "Priority": 3,
+            "Action": "Check Content Dashboard",
+            "Why": "Confirm no duplicate IDs or missing required fields",
+        },
+        {
+            "Priority": 4,
+            "Action": "Add more public-safe content gradually",
+            "Why": "The framework is ready; content can now grow safely",
+        },
+        {
+            "Priority": 5,
+            "Action": "Consider v2.0 persistent progress later",
+            "Why": "Useful but not required for portfolio readiness",
+        },
+    ]
+
+    st.dataframe(next_rows, use_container_width=True, hide_index=True)
+
+    st.markdown("### Final public roadmap")
+
+    st.code(
+        """
+v1.19A  UI cleanup and final portfolio polish
+v1.20A  Screenshot refresh and deployment check
+v1.21A  Optional small bug-fix / stabilization release
+v2.0    Optional persistent progress tracking
+        """.strip(),
+        language="text",
+    )
+
+    st.info(
+        "Recommendation: after this version, stop adding major app features for a while. "
+        "Focus on testing, screenshots, deployment, and gradually adding public-safe content."
+    )
+
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -2792,8 +2884,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_analytics, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Performance Analytics", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_analytics, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_status, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Performance Analytics", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "App Status", "About"]
     )
 
 
@@ -3075,6 +3167,10 @@ def main():
         render_content_workflow(app_config)
 
 
+    with tab_status:
+        render_app_status(questions, formulas)
+
+
     with tab_about:
         st.subheader("About this app")
 
@@ -3100,6 +3196,7 @@ def main():
             - Dedicated Coding Exercise Mode
             - Formula Revision Mode
             - Performance Analytics dashboard
+            - App Status and final roadmap tab
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
@@ -3111,7 +3208,8 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.19A: UI cleanup and final portfolio polish
+            - Version 1.20A: Screenshot refresh and deployment check
+            - Version 1.21A: Optional small bug-fix / stabilization release
             - Version 2.0: Optional persistent progress tracking
             """
         )
