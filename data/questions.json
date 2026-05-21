@@ -1524,5 +1524,556 @@
       "Breeden-Litzenberger",
       "Option-Implied Distribution"
     ]
+  },
+  {
+    "id": "stoch_001",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Brownian Motion",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is standard Brownian motion?",
+    "intuition": "Brownian motion is the continuous-time limit of a random walk.",
+    "solution": "A standard Brownian motion W_t starts at zero, has continuous paths, independent increments, stationary increments, and W_t-W_s is normally distributed with mean 0 and variance t-s for 0≤s<t.",
+    "formula": "W_t - W_s ~ N(0, t-s)",
+    "common_mistake": "Do not think Brownian motion has ordinary differentiable paths. Its paths are continuous but almost surely nowhere differentiable.",
+    "interview_tip": "In interviews, emphasize independent increments, Gaussian increments, and continuous paths.",
+    "tags": [
+      "Brownian Motion",
+      "Gaussian Process",
+      "Random Walk Limit"
+    ]
+  },
+  {
+    "id": "stoch_002",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Brownian Motion",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are the mean and variance of Brownian motion W_t?",
+    "intuition": "Brownian motion has zero drift and variance growing linearly with time.",
+    "solution": "For standard Brownian motion, E[W_t]=0 and Var(W_t)=t. More generally, W_t-W_s ~ N(0,t-s).",
+    "derivation": "Since $W_t-W_0\\sim N(0,t)$ and $W_0=0$,\n\n$$W_t\\sim N(0,t).$$\n\nTherefore,\n\n$$\\mathbb{E}[W_t]=0,\\qquad \\operatorname{Var}(W_t)=t.$$",
+    "formula": "E[W_t]=0; Var(W_t)=t",
+    "common_mistake": "Do not say Brownian motion has constant variance. The variance grows with time.",
+    "interview_tip": "This is the simplest way to connect Brownian motion with the normal distribution.",
+    "tags": [
+      "Brownian Motion",
+      "Mean",
+      "Variance"
+    ]
+  },
+  {
+    "id": "stoch_003",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Quadratic Variation",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the quadratic variation of Brownian motion?",
+    "intuition": "Although Brownian paths are very rough, the sum of squared increments converges to time.",
+    "solution": "The quadratic variation of standard Brownian motion over [0,T] is T. In differential notation, this is written as (dW_t)^2 = dt.",
+    "derivation": "For a partition $0=t_0<t_1<\\cdots<t_n=T$, define\n\n$$\\sum_{i=0}^{n-1}(W_{t_{i+1}}-W_{t_i})^2.$$\n\nAs the mesh of the partition goes to zero, this sum converges in probability to\n\n$$T.$$\n\nThis is why stochastic calculus uses the rule\n\n$$(dW_t)^2=dt.$$",
+    "formula": "[W]_T = T; (dW_t)^2 = dt",
+    "common_mistake": "Do not treat (dW)^2 as negligible. In Ito calculus, (dW)^2 is of order dt.",
+    "interview_tip": "Quadratic variation is the key reason Ito's lemma has the second-derivative term.",
+    "tags": [
+      "Quadratic Variation",
+      "Brownian Motion",
+      "Ito Calculus"
+    ]
+  },
+  {
+    "id": "stoch_004",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Rules",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What are the basic Ito multiplication rules?",
+    "intuition": "Brownian increments are of order square-root of dt, so their square contributes at order dt.",
+    "solution": "The key Ito rules are (dt)^2=0, dt dW_t=0, and (dW_t)^2=dt. These rules are used when applying Ito's lemma.",
+    "formula": "(dt)^2=0; dt dW=0; (dW)^2=dt",
+    "common_mistake": "Do not use ordinary calculus rules for stochastic differentials.",
+    "interview_tip": "Memorize these rules before deriving Ito's lemma or the BSM PDE.",
+    "tags": [
+      "Ito Calculus",
+      "Ito Rules",
+      "Quadratic Variation"
+    ]
+  },
+  {
+    "id": "stoch_005",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito's Lemma",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "State Ito's lemma for a one-dimensional Ito process.",
+    "intuition": "Ito's lemma is the stochastic-chain rule, with an extra second-derivative term.",
+    "solution": "If dX_t = μ_t dt + σ_t dW_t and f=f(t,X_t), then df = [f_t + μ_t f_x + 0.5 σ_t² f_xx]dt + σ_t f_x dW_t.",
+    "derivation": "Start from the Taylor expansion:\n\n$$df=f_tdt+f_xdX+\\frac{1}{2}f_{xx}(dX)^2.$$\n\nIf\n\n$$dX=\\mu dt+\\sigma dW,$$\n\nthen using Ito rules,\n\n$$(dX)^2=(\\mu dt+\\sigma dW)^2=\\sigma^2(dW)^2=\\sigma^2dt.$$\n\nSubstitute into the Taylor expansion:\n\n$$df=\\left(f_t+\\mu f_x+\\frac{1}{2}\\sigma^2f_{xx}\\right)dt+\\sigma f_xdW.$$",
+    "formula": "df=(f_t+μf_x+0.5σ²f_xx)dt+σf_xdW",
+    "common_mistake": "Do not forget the 0.5σ²f_xx term.",
+    "interview_tip": "Explain that Ito's lemma is just Taylor expansion plus quadratic variation.",
+    "tags": [
+      "Ito's Lemma",
+      "Stochastic Calculus",
+      "Taylor Expansion"
+    ]
+  },
+  {
+    "id": "stoch_006",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Geometric Brownian Motion",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Solve the geometric Brownian motion SDE dS_t = μS_tdt + σS_tdW_t.",
+    "intuition": "Take logs and apply Ito's lemma. The log process has drift μ - 0.5σ².",
+    "solution": "The solution is S_t = S_0 exp[(μ - 0.5σ²)t + σW_t]. Therefore S_t is lognormally distributed.",
+    "derivation": "Let\n\n$$X_t=\\ln S_t.$$\n\nApply Ito's lemma to $f(S)=\\ln S$:\n\n$$f_S=\\frac{1}{S},\\qquad f_{SS}=-\\frac{1}{S^2}.$$\n\nSince\n\n$$dS=\\mu Sdt+\\sigma SdW,$$\n\nIto's lemma gives\n\n$$d\\ln S=\\frac{1}{S}dS-\\frac{1}{2}\\frac{1}{S^2}(dS)^2.$$\n\nUsing $(dS)^2=\\sigma^2S^2dt$,\n\n$$d\\ln S=\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)dt+\\sigma dW.$$\n\nIntegrate from 0 to t:\n\n$$\\ln S_t=\\ln S_0+\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)t+\\sigma W_t.$$\n\nTherefore,\n\n$$S_t=S_0\\exp\\left[\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)t+\\sigma W_t\\right].$$",
+    "formula": "S_t=S_0 exp[(μ-0.5σ²)t+σW_t]",
+    "common_mistake": "Do not forget the -0.5σ² term in the log process.",
+    "interview_tip": "This derivation is very common in option-pricing interviews.",
+    "tags": [
+      "GBM",
+      "Ito's Lemma",
+      "Lognormal Distribution"
+    ]
+  },
+  {
+    "id": "stoch_007",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Geometric Brownian Motion",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why is geometric Brownian motion used in Black-Scholes?",
+    "intuition": "GBM keeps stock prices positive and gives lognormal returns.",
+    "solution": "GBM is used because proportional returns follow a simple diffusion, prices remain positive, log returns are normally distributed, and the model is analytically tractable for option pricing.",
+    "formula": "dS/S = μdt + σdW",
+    "common_mistake": "GBM is useful but not fully realistic; it cannot explain jumps, stochastic volatility, or volatility smiles.",
+    "interview_tip": "Mention both the advantage and limitation of GBM.",
+    "tags": [
+      "GBM",
+      "BSM",
+      "Lognormal Model"
+    ]
+  },
+  {
+    "id": "stoch_008",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Martingales",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is a martingale?",
+    "intuition": "A martingale is a fair game: the best forecast of the future value is the current value.",
+    "solution": "A process M_t is a martingale with respect to a filtration F_t if E[|M_t|]<∞ and E[M_t | F_s] = M_s for s≤t.",
+    "formula": "E[M_t | F_s] = M_s",
+    "common_mistake": "A martingale does not mean the path is constant. It means the conditional expected future value equals the current value.",
+    "interview_tip": "Connect martingales to discounted asset prices under the risk-neutral measure.",
+    "tags": [
+      "Martingale",
+      "Conditional Expectation",
+      "Risk-Neutral Pricing"
+    ]
+  },
+  {
+    "id": "stoch_009",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Risk-Neutral Measure",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why are discounted asset prices martingales under the risk-neutral measure?",
+    "intuition": "If discounted prices had predictable drift, arbitrage opportunities could exist.",
+    "solution": "Under an equivalent risk-neutral measure Q, discounted tradable asset prices are martingales. This means the current price equals the discounted Q-expectation of the future payoff.",
+    "derivation": "For a non-dividend-paying stock under $\\mathbb{Q}$,\n\n$$dS_t=rS_tdt+\\sigma S_tdW_t^{\\mathbb{Q}}.$$\n\nDefine the discounted stock price:\n\n$$\\tilde{S}_t=e^{-rt}S_t.$$\n\nApply the product rule:\n\n$$d\\tilde{S}_t=e^{-rt}dS_t-r e^{-rt}S_tdt.$$\n\nSubstitute $dS_t$:\n\n$$d\\tilde{S}_t=e^{-rt}(rS_tdt+\\sigma S_tdW_t^{\\mathbb{Q}})-re^{-rt}S_tdt.$$\n\nThe drift terms cancel:\n\n$$d\\tilde{S}_t=\\sigma \\tilde{S}_tdW_t^{\\mathbb{Q}}.$$\n\nSo the discounted price has zero drift and is a martingale under suitable conditions.",
+    "formula": "e^(-rt)S_t is a Q-martingale",
+    "common_mistake": "Do not say real-world discounted prices must be martingales. This is under the risk-neutral measure.",
+    "interview_tip": "This is the mathematical core of risk-neutral pricing.",
+    "tags": [
+      "Risk-Neutral Measure",
+      "Martingale",
+      "Discounted Price"
+    ]
+  },
+  {
+    "id": "stoch_010",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Girsanov Theorem",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the intuition of Girsanov's theorem?",
+    "intuition": "Girsanov's theorem changes the drift of a Brownian-driven process by changing the probability measure.",
+    "solution": "Girsanov's theorem explains how to move from the real-world measure P to the risk-neutral measure Q. It changes the drift term while preserving the diffusion structure. In Black-Scholes, this changes the stock drift from μ to r.",
+    "formula": "dW_t^Q = dW_t^P + λdt",
+    "common_mistake": "Do not say Girsanov changes volatility. In the standard setup, it changes drift through the measure change.",
+    "interview_tip": "For most interviews, a clear intuition is enough unless the role is very mathematical.",
+    "tags": [
+      "Girsanov",
+      "Measure Change",
+      "Risk-Neutral Pricing"
+    ]
+  },
+  {
+    "id": "stoch_011",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Market Price of Risk",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the market price of risk in the Black-Scholes model?",
+    "intuition": "It measures the excess return per unit of volatility risk.",
+    "solution": "In the Black-Scholes model, the market price of risk is λ=(μ-r)/σ. It appears when changing from the physical measure to the risk-neutral measure.",
+    "derivation": "Under the physical measure $\\mathbb{P}$,\n\n$$dS=\\mu Sdt+\\sigma SdW^{\\mathbb{P}}.$$\n\nUnder the risk-neutral measure $\\mathbb{Q}$,\n\n$$dS=rSdt+\\sigma SdW^{\\mathbb{Q}}.$$\n\nSet the two expressions equal:\n\n$$\\mu dt+\\sigma dW^{\\mathbb{P}}=r dt+\\sigma dW^{\\mathbb{Q}}.$$\n\nRearrange:\n\n$$dW^{\\mathbb{Q}}=dW^{\\mathbb{P}}+\\frac{\\mu-r}{\\sigma}dt.$$\n\nTherefore the market price of risk is\n\n$$\\lambda=\\frac{\\mu-r}{\\sigma}.$$",
+    "formula": "λ=(μ-r)/σ",
+    "common_mistake": "Do not confuse market price of risk with volatility itself.",
+    "interview_tip": "This links measure change to economic compensation for risk.",
+    "tags": [
+      "Market Price of Risk",
+      "Measure Change",
+      "Girsanov"
+    ]
+  },
+  {
+    "id": "stoch_012",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Integral",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the key intuition behind the Ito integral?",
+    "intuition": "The integrand is evaluated using information available before the Brownian increment.",
+    "solution": "The Ito integral uses non-anticipating integrands. For simple processes, the integrand is evaluated at the left endpoint of each interval. This makes the integral suitable for finance because trading strategies cannot depend on future information.",
+    "formula": "∫ H_t dW_t uses non-anticipating H_t",
+    "common_mistake": "Do not treat the Ito integral exactly like a Riemann integral.",
+    "interview_tip": "Mention non-anticipation because it has a clear financial interpretation.",
+    "tags": [
+      "Ito Integral",
+      "Non-Anticipating",
+      "Trading Strategy"
+    ]
+  },
+  {
+    "id": "stoch_013",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ito Isometry",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is Ito isometry?",
+    "intuition": "Ito isometry gives the variance of an Ito integral.",
+    "solution": "For a suitable adapted process H_t, Ito isometry states that E[(∫_0^T H_t dW_t)^2] = E[∫_0^T H_t^2 dt]. It is a key tool for defining and analyzing stochastic integrals.",
+    "formula": "E[(∫H dW)^2] = E[∫H²dt]",
+    "common_mistake": "Do not forget the square on H_t inside the time integral.",
+    "interview_tip": "This is more likely in mathematical quant interviews than general finance interviews.",
+    "tags": [
+      "Ito Isometry",
+      "Ito Integral",
+      "Variance"
+    ]
+  },
+  {
+    "id": "stoch_014",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Feynman-Kac",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the Feynman-Kac theorem in option pricing?",
+    "intuition": "It connects PDE solutions with discounted expectations.",
+    "solution": "Feynman-Kac says that the solution to a certain parabolic PDE can be represented as a discounted expectation of future payoffs. In option pricing, it connects the Black-Scholes PDE with risk-neutral valuation.",
+    "formula": "PDE solution = discounted expected payoff",
+    "common_mistake": "Do not think the PDE and expectation methods are unrelated. Feynman-Kac connects them.",
+    "interview_tip": "This is a strong bridge between stochastic calculus and numerical PDE pricing.",
+    "tags": [
+      "Feynman-Kac",
+      "PDE",
+      "Risk-Neutral Pricing"
+    ]
+  },
+  {
+    "id": "stoch_015",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Stopping Times",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a stopping time in financial intuition?",
+    "intuition": "A stopping time is a decision time based only on information available so far.",
+    "solution": "A stopping time τ is a random time such that whether τ has occurred by time t is known using information up to time t. Examples include the first time a stock hits a barrier or the optimal exercise time of an American option.",
+    "formula": "{τ≤t} ∈ F_t",
+    "common_mistake": "Do not define a stopping time using future information.",
+    "interview_tip": "Barrier options and American options are natural finance examples.",
+    "tags": [
+      "Stopping Time",
+      "Filtration",
+      "Barrier Option",
+      "American Option"
+    ]
+  },
+  {
+    "id": "stoch_016",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Optional Stopping",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the intuition behind the optional stopping theorem?",
+    "intuition": "Under suitable conditions, stopping a fair game does not create expected profit.",
+    "solution": "The optional stopping theorem states that for a martingale and a suitable stopping time, the expected value at the stopping time equals the initial value. Conditions matter; without them, the result can fail.",
+    "formula": "E[M_τ] = E[M_0] under suitable conditions",
+    "common_mistake": "Do not apply optional stopping blindly. Boundedness/integrability conditions matter.",
+    "interview_tip": "Use gambling or random-walk examples to explain the intuition.",
+    "tags": [
+      "Optional Stopping",
+      "Martingale",
+      "Stopping Time"
+    ]
+  },
+  {
+    "id": "stoch_017",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Filtration",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What is a filtration?",
+    "intuition": "A filtration represents the information available over time.",
+    "solution": "A filtration F_t is an increasing family of sigma-algebras that represents information available up to time t. In finance, it models what traders know at each time.",
+    "formula": "F_s ⊆ F_t for s≤t",
+    "common_mistake": "Do not think of filtration as a filter in the data-cleaning sense. It is a mathematical model of information.",
+    "interview_tip": "This helps explain adapted processes, stopping times, and no-lookahead trading strategies.",
+    "tags": [
+      "Filtration",
+      "Information",
+      "Adapted Process"
+    ]
+  },
+  {
+    "id": "stoch_018",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Adapted Process",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "What does it mean for a process to be adapted?",
+    "intuition": "An adapted process does not use future information.",
+    "solution": "A process X_t is adapted to a filtration F_t if X_t is measurable with respect to F_t for each t. In finance, a trading strategy should be adapted because it can only use information available at the time of trading.",
+    "formula": "X_t is F_t-measurable",
+    "common_mistake": "Do not build strategies using future prices; that would violate adaptedness and create lookahead bias.",
+    "interview_tip": "This concept connects mathematical finance with backtesting discipline.",
+    "tags": [
+      "Adapted Process",
+      "Filtration",
+      "No Lookahead Bias"
+    ]
+  },
+  {
+    "id": "stoch_019",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Stratonovich vs Ito",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the difference between Ito and Stratonovich calculus?",
+    "intuition": "Ito uses left-endpoint evaluation and is non-anticipating; Stratonovich behaves more like ordinary calculus.",
+    "solution": "Ito calculus is standard in finance because it respects non-anticipation. Stratonovich calculus uses midpoint-style evaluation and preserves the ordinary chain rule, but it is less directly aligned with self-financing trading strategies.",
+    "formula": "Ito integral uses left endpoint; Stratonovich uses midpoint-style limit",
+    "common_mistake": "Do not use ordinary chain rule in Ito calculus without the correction term.",
+    "interview_tip": "For quant finance interviews, focus mainly on Ito calculus.",
+    "tags": [
+      "Ito Calculus",
+      "Stratonovich",
+      "Chain Rule"
+    ]
+  },
+  {
+    "id": "stoch_020",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Ornstein-Uhlenbeck Process",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is the Ornstein-Uhlenbeck process and why is it useful?",
+    "intuition": "The OU process is a mean-reverting Gaussian process.",
+    "solution": "The OU process is often written as dX_t = κ(θ-X_t)dt + σdW_t. It pulls X_t back toward long-run mean θ at speed κ. It is used in interest-rate models, statistical arbitrage, and spread modeling.",
+    "formula": "dX_t = κ(θ-X_t)dt + σdW_t",
+    "common_mistake": "Do not confuse mean reversion in levels with stationarity of returns.",
+    "interview_tip": "OU is a useful process to mention for pairs trading and short-rate modeling.",
+    "tags": [
+      "Ornstein-Uhlenbeck",
+      "Mean Reversion",
+      "Statistical Arbitrage"
+    ]
+  },
+  {
+    "id": "stoch_021",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Hitting Times",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is a hitting time?",
+    "intuition": "A hitting time is the first time a stochastic process reaches a specified level or set.",
+    "solution": "For a process X_t and level a, the hitting time can be written as τ_a = inf{t≥0: X_t=a}. In finance, hitting times appear in barrier options, stop-loss rules, default models, and optimal stopping.",
+    "formula": "τ_a = inf{t≥0 : X_t = a}",
+    "common_mistake": "Do not assume hitting times are deterministic. They are random variables.",
+    "interview_tip": "Connect hitting times to barrier options or risk limits.",
+    "tags": [
+      "Hitting Time",
+      "Barrier Option",
+      "Stopping Time"
+    ]
+  },
+  {
+    "id": "stoch_022",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Barrier Options",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Why are barrier options related to stopping times?",
+    "intuition": "A barrier option is activated or knocked out when the underlying first hits a barrier.",
+    "solution": "The first time the underlying crosses the barrier is a hitting time, which is a stopping time if it depends only on current and past information. Therefore barrier-option valuation naturally involves stopping-time ideas.",
+    "formula": "τ_B = inf{t≥0 : S_t hits barrier B}",
+    "common_mistake": "Do not price barrier options using only terminal S_T; the path matters.",
+    "interview_tip": "This is a good example of path dependency.",
+    "tags": [
+      "Barrier Options",
+      "Hitting Time",
+      "Path Dependency"
+    ]
+  },
+  {
+    "id": "stoch_023",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Local Martingale",
+    "difficulty": "Hard",
+    "status": "Draft",
+    "question": "What is the difference between a martingale and a local martingale?",
+    "intuition": "A local martingale behaves like a martingale up to a sequence of stopping times.",
+    "solution": "A local martingale becomes a martingale when stopped at suitable increasing stopping times. Every martingale is a local martingale, but not every local martingale is a true martingale. This distinction matters in advanced asset-pricing theory.",
+    "formula": "M_{t∧τ_n} is a martingale for increasing τ_n",
+    "common_mistake": "Do not assume every stochastic integral is automatically a true martingale without checking conditions.",
+    "interview_tip": "Only go deep here if the interview is mathematically advanced.",
+    "tags": [
+      "Local Martingale",
+      "Martingale",
+      "Stopping Time"
+    ]
+  },
+  {
+    "id": "stoch_024",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Stochastic Volatility",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "Why do stochastic volatility models go beyond Black-Scholes?",
+    "intuition": "They allow volatility itself to move randomly over time.",
+    "solution": "Black-Scholes assumes constant volatility, which cannot explain the full implied volatility surface. Stochastic volatility models allow volatility to evolve as a random process, helping capture smile, skew, volatility clustering, and term-structure effects.",
+    "formula": "Example: dS_t = μS_tdt + √v_t S_tdW_t",
+    "common_mistake": "Do not think stochastic volatility automatically solves every pricing issue; calibration and numerical methods are still needed.",
+    "interview_tip": "Mention Heston as a common example if asked.",
+    "tags": [
+      "Stochastic Volatility",
+      "Heston",
+      "Volatility Smile"
+    ]
+  },
+  {
+    "id": "stoch_025",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Jump Processes",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "Why add jumps to diffusion models?",
+    "intuition": "Jumps capture sudden large moves that continuous Brownian paths cannot generate.",
+    "solution": "Pure diffusion models have continuous paths, so they cannot directly model sudden discontinuous price moves. Jump-diffusion models add a jump component, often driven by a Poisson process, to capture crashes, earnings surprises, and discontinuous market moves.",
+    "formula": "dS/S = μdt + σdW + JdN",
+    "common_mistake": "Do not use Brownian motion alone to explain discontinuous jumps.",
+    "interview_tip": "This connects naturally to Merton jump-diffusion and Bates models.",
+    "tags": [
+      "Jump Process",
+      "Poisson Process",
+      "Jump Diffusion",
+      "Bates Model"
+    ]
+  },
+  {
+    "id": "stoch_026",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Self-Financing Strategy",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is a self-financing trading strategy?",
+    "intuition": "All portfolio changes are funded internally by rebalancing, with no outside cash added or withdrawn.",
+    "solution": "A self-financing strategy changes holdings by buying and selling assets using only the portfolio's own wealth. In option replication, the delta-hedging portfolio is assumed to be self-financing.",
+    "formula": "dV_t = Δ_t dS_t + cash-account gains",
+    "common_mistake": "Do not ignore the financing account when discussing dynamic hedging.",
+    "interview_tip": "Self-financing is essential for no-arbitrage replication arguments.",
+    "tags": [
+      "Self-Financing",
+      "Replication",
+      "Delta Hedging"
+    ]
+  },
+  {
+    "id": "stoch_027",
+    "topic": "Stochastic Calculus",
+    "subtopic": "PDE Connection",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "How does Ito's lemma lead to the Black-Scholes PDE?",
+    "intuition": "Apply Ito to the option value, then delta hedge to remove the Brownian risk.",
+    "solution": "Ito's lemma gives the dynamics of V(S,t). By holding -V_S shares against the option, the dW term is eliminated. The remaining riskless portfolio must earn the risk-free rate, leading to the BSM PDE.",
+    "derivation": "Start with\n\n$$dS=\\mu Sdt+\\sigma SdW.$$\n\nFor $V(S,t)$, Ito's lemma gives\n\n$$dV=\\left(V_t+\\mu SV_S+\\frac{1}{2}\\sigma^2S^2V_{SS}\\right)dt+\\sigma SV_SdW.$$\n\nChoose a hedge with $\\Delta=V_S$ shares of stock. The Brownian term is eliminated.\n\nThe resulting locally riskless portfolio must earn $r$.\n\nAfter simplification, the PDE is\n\n$$V_t+\\frac{1}{2}\\sigma^2S^2V_{SS}+rSV_S-rV=0.$$",
+    "formula": "V_t + 0.5σ²S²V_SS + rSV_S - rV = 0",
+    "common_mistake": "Do not keep μ in the final BSM PDE. The stock drift disappears after hedging.",
+    "interview_tip": "This is one of the most important derivations for derivatives interviews.",
+    "tags": [
+      "Ito's Lemma",
+      "BSM PDE",
+      "Delta Hedging"
+    ]
+  },
+  {
+    "id": "stoch_028",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Log Returns",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "Under GBM, what is the distribution of log returns?",
+    "intuition": "The log return is normally distributed because it is a linear function of Brownian motion.",
+    "solution": "If dS/S = μdt + σdW, then log(S_T/S_0) is normally distributed with mean (μ-0.5σ²)T and variance σ²T.",
+    "derivation": "From the GBM solution,\n\n$$S_T=S_0\\exp\\left[\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)T+\\sigma W_T\\right].$$\n\nTaking logs,\n\n$$\\ln\\frac{S_T}{S_0}=\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)T+\\sigma W_T.$$\n\nSince $W_T\\sim N(0,T)$,\n\n$$\\ln\\frac{S_T}{S_0}\\sim N\\left(\\left(\\mu-\\frac{1}{2}\\sigma^2\\right)T,\\sigma^2T\\right).$$",
+    "formula": "ln(S_T/S_0) ~ N((μ-0.5σ²)T, σ²T)",
+    "common_mistake": "Do not forget that the mean of log returns is μ-0.5σ², not μ.",
+    "interview_tip": "This is useful for connecting GBM to BSM d1 and d2.",
+    "tags": [
+      "GBM",
+      "Log Returns",
+      "Normal Distribution"
+    ]
+  },
+  {
+    "id": "stoch_029",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Brownian Scaling",
+    "difficulty": "Medium",
+    "status": "Verified",
+    "question": "What is Brownian scaling?",
+    "intuition": "Brownian motion scales with the square root of time.",
+    "solution": "For c>0, W_{ct} has the same distribution as sqrt(c) W_t. This reflects that Brownian variance grows linearly with time, so standard deviation grows with square-root time.",
+    "formula": "W_{ct} d= √c W_t",
+    "common_mistake": "Do not scale Brownian motion linearly with time. The standard deviation scales with square-root time.",
+    "interview_tip": "This helps explain volatility annualization by square-root-of-time scaling.",
+    "tags": [
+      "Brownian Scaling",
+      "Volatility Scaling",
+      "Brownian Motion"
+    ]
+  },
+  {
+    "id": "stoch_030",
+    "topic": "Stochastic Calculus",
+    "subtopic": "Volatility Scaling",
+    "difficulty": "Easy",
+    "status": "Verified",
+    "question": "Why does volatility scale with the square root of time?",
+    "intuition": "Variance adds over independent increments, so standard deviation scales with the square root of time.",
+    "solution": "If returns have independent increments, variance over T periods is proportional to T. Since volatility is standard deviation, volatility scales with sqrt(T).",
+    "derivation": "Suppose daily returns have variance $\\sigma_d^2$ and are independent.\n\nOver $T$ days, the variance is\n\n$$T\\sigma_d^2.$$\n\nThe standard deviation is therefore\n\n$$\\sqrt{T\\sigma_d^2}=\\sigma_d\\sqrt{T}.$$\n\nSo annualized volatility is often approximated by\n\n$$\\sigma_{ann}=\\sigma_{daily}\\sqrt{252}.$$",
+    "formula": "σ_T = σ_1 √T",
+    "common_mistake": "Square-root-time scaling can fail when returns are autocorrelated or volatility is time-varying.",
+    "interview_tip": "Mention the assumptions behind the scaling rule.",
+    "tags": [
+      "Volatility Scaling",
+      "Square Root Time",
+      "Variance"
+    ]
   }
 ]
