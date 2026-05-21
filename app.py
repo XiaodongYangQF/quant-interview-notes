@@ -447,6 +447,9 @@ def initialize_quiz_state():
         "quiz_started": False,
         "quiz_finished": False,
         "quiz_show_answer": False,
+        "coding_current": None,
+        "coding_show_solution": False,
+        "coding_result": None,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -1892,6 +1895,277 @@ def render_mock_interview(questions, topics, difficulties, statuses):
                         record_quiz_result("Need review")
                         st.rerun()
 
+
+def get_coding_exercise_questions(questions):
+    """Return questions suitable for Coding Exercise Mode."""
+    return [
+        q for q in questions
+        if q.get("topic") == "Coding" or bool(q.get("code"))
+    ]
+
+
+def unique_code_languages(coding_questions):
+    """Return available code languages."""
+    languages = sorted(
+        {
+            q.get("code_language", "text")
+            for q in coding_questions
+            if q.get("code") or q.get("code_language")
+        }
+    )
+    return languages if languages else ["text"]
+
+
+def get_coding_categories(coding_questions):
+    """Return coding exercise categories based on subtopics."""
+    categories = sorted({q.get("subtopic", "General") for q in coding_questions})
+    return categories
+
+
+def render_coding_prompt(item):
+    """Render a coding exercise prompt without immediately showing the solution."""
+    with st.container(border=True):
+        st.markdown(f"### {item.get('question', 'Untitled coding question')}")
+        st.caption(
+            f"{item.get('topic', 'Unknown')} · "
+            f"{item.get('subtopic', '')} · "
+            f"{item.get('difficulty', 'Unknown')} · "
+            f"{item.get('status', 'Draft')}"
+        )
+
+        tags = item.get("tags", [])
+        if tags:
+            st.markdown(" ".join([f"`{tag}`" for tag in tags]))
+
+        intuition = item.get("intuition", "")
+        if intuition:
+            with st.expander("Hint / intuition", expanded=False):
+                st.markdown(intuition)
+
+        formula = item.get("formula", "")
+        if formula:
+            with st.expander("Key formula / idea", expanded=False):
+                st.code(formula, language="text")
+
+        starter_code = item.get("starter_code", "")
+        if starter_code:
+            st.markdown("#### Starter code")
+            st.code(starter_code, language=item.get("code_language", "text"))
+        else:
+            st.info(
+                "No starter code is stored for this question yet. "
+                "Try writing your own solution first, then reveal the reference solution."
+            )
+
+
+def render_coding_solution(item):
+    """Render the coding exercise solution."""
+    st.markdown("### Reference solution")
+
+    solution = item.get("solution", "")
+    if solution:
+        st.markdown(solution)
+
+    code = item.get("code", "")
+    if code:
+        st.code(code, language=item.get("code_language", "text"))
+    else:
+        st.warning("No code solution has been added for this question yet.")
+
+    complexity = item.get("complexity", "")
+    if complexity:
+        with st.expander("Complexity", expanded=True):
+            st.info(complexity)
+
+    common_mistake = item.get("common_mistake", "")
+    if common_mistake:
+        with st.expander("Common mistake", expanded=False):
+            st.warning(common_mistake)
+
+    interview_tip = item.get("interview_tip", "")
+    if interview_tip:
+        with st.expander("Interview tip", expanded=False):
+            st.info(interview_tip)
+
+
+def render_coding_exercise_mode(questions, difficulties, statuses):
+    """Render dedicated coding exercise mode."""
+    st.subheader("Coding Exercise Mode")
+
+    st.markdown(
+        """
+        Practise coding questions separately from the main question bank.
+        This mode is designed for Python, C++, algorithms, numerical methods,
+        market-data, and quant developer interview preparation.
+        """
+    )
+
+    coding_questions = get_coding_exercise_questions(questions)
+
+    if not coding_questions:
+        st.info("No coding questions are available yet.")
+        return
+
+    categories = get_coding_categories(coding_questions)
+    languages = unique_code_languages(coding_questions)
+
+    left_col, right_col = st.columns([1, 2])
+
+    with left_col:
+        st.markdown("### Exercise filters")
+
+        selected_categories = st.multiselect(
+            "Category / subtopic",
+            categories,
+            default=categories,
+            key="coding_categories",
+        )
+
+        selected_languages = st.multiselect(
+            "Code language",
+            languages,
+            default=languages,
+            key="coding_languages",
+        )
+
+        selected_difficulties = st.multiselect(
+            "Difficulty",
+            difficulties,
+            default=difficulties,
+            key="coding_difficulties",
+        )
+
+        selected_statuses = st.multiselect(
+            "Status",
+            statuses,
+            default=["Verified"] if "Verified" in statuses else statuses,
+            key="coding_statuses",
+        )
+
+        search_text = st.text_input(
+            "Search coding exercises",
+            key="coding_search_text",
+        )
+
+        filtered_coding = []
+        for q in coding_questions:
+            category_ok = q.get("subtopic", "General") in selected_categories
+            language_ok = q.get("code_language", "text") in selected_languages or not q.get("code")
+            difficulty_ok = q.get("difficulty") in selected_difficulties
+            status_ok = q.get("status") in selected_statuses
+            search_ok = match_search_scoped(q, search_text, scope="All fields")
+
+            if category_ok and language_ok and difficulty_ok and status_ok and search_ok:
+                filtered_coding.append(q)
+
+        filtered_coding = sort_questions(filtered_coding, sort_by="Subtopic", ascending=True)
+
+        c1, c2 = st.columns(2)
+        c1.metric("Available", len(filtered_coding))
+        c2.metric("With code", sum(bool(q.get("code")) for q in filtered_coding))
+
+        st.markdown("### Exercise actions")
+
+        if st.button("Generate random exercise"):
+            if not filtered_coding:
+                st.warning("No coding exercises match the current filters.")
+            else:
+                st.session_state.coding_current = random.choice(filtered_coding)
+                st.session_state.coding_show_solution = False
+                st.session_state.coding_result = None
+                st.rerun()
+
+        if filtered_coding:
+            id_to_question = {
+                f"{q.get('id', '')} — {q.get('question', '')[:70]}": q
+                for q in filtered_coding
+            }
+
+            selected_label = st.selectbox(
+                "Or choose an exercise",
+                list(id_to_question.keys()),
+                key="coding_selected_question",
+            )
+
+            if st.button("Load selected exercise"):
+                st.session_state.coding_current = id_to_question[selected_label]
+                st.session_state.coding_show_solution = False
+                st.session_state.coding_result = None
+                st.rerun()
+
+        if st.button("Reset coding exercise"):
+            st.session_state.coding_current = None
+            st.session_state.coding_show_solution = False
+            st.session_state.coding_result = None
+            st.rerun()
+
+        st.markdown("### Category overview")
+        category_rows = []
+        for category in categories:
+            subset = [q for q in coding_questions if q.get("subtopic", "General") == category]
+            category_rows.append(
+                {
+                    "Category": category,
+                    "Questions": len(subset),
+                    "With code": sum(bool(q.get("code")) for q in subset),
+                    "Verified": sum(q.get("status") == "Verified" for q in subset),
+                }
+            )
+        st.dataframe(category_rows, use_container_width=True, hide_index=True)
+
+    with right_col:
+        current = st.session_state.get("coding_current", None)
+
+        if current is None:
+            st.info("Generate or load a coding exercise to start.")
+            return
+
+        render_coding_prompt(current)
+
+        if not st.session_state.get("coding_show_solution", False):
+            if st.button("Reveal reference solution"):
+                st.session_state.coding_show_solution = True
+                st.rerun()
+        else:
+            render_coding_solution(current)
+
+            st.markdown("### Self-assessment")
+            c1, c2, c3, c4 = st.columns(4)
+
+            with c1:
+                if st.button("Solved"):
+                    st.session_state.coding_result = "Solved"
+            with c2:
+                if st.button("Partially solved"):
+                    st.session_state.coding_result = "Partially solved"
+            with c3:
+                if st.button("Could not solve"):
+                    st.session_state.coding_result = "Could not solve"
+            with c4:
+                if st.button("Need review"):
+                    st.session_state.coding_result = "Need review"
+
+            if st.session_state.get("coding_result"):
+                st.success(f"Marked as: {st.session_state.coding_result}")
+
+                current_id = current.get("id", "")
+                current_record = {
+                    "id": current_id,
+                    "question": current.get("question", ""),
+                    "topic": current.get("topic", ""),
+                    "subtopic": current.get("subtopic", ""),
+                    "difficulty": current.get("difficulty", ""),
+                    "result": st.session_state.coding_result,
+                }
+
+                st.download_button(
+                    label="Download this exercise result JSON",
+                    data=json.dumps(current_record, indent=2, ensure_ascii=False),
+                    file_name=f"{current_id}_coding_result.json",
+                    mime="application/json",
+                )
+
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -2052,8 +2326,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
+    tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_formula, tab_quality, tab_curation, tab_workflow, tab_about = st.tabs(
+        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "About"]
     )
 
 
@@ -2247,6 +2521,10 @@ def main():
         render_mock_interview(questions, topics, difficulties, statuses)
 
 
+    with tab_coding:
+        render_coding_exercise_mode(questions, difficulties, statuses)
+
+
     with tab_review:
         st.subheader("Review Mode")
 
@@ -2345,6 +2623,7 @@ def main():
             - Random practice mode
             - Session-based quiz mode with self-assessment
             - Preset Mock Interview tracks
+            - Dedicated Coding Exercise Mode
             - Quiz result export to CSV and JSON
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
@@ -2356,9 +2635,9 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.15A: Coding exercise mode
             - Version 1.16A: Formula revision mode
             - Version 1.17A: Better analytics for quiz performance
+            - Version 1.18A: More public-safe coding exercises
             - Version 2.0: Optional persistent progress tracking
             """
         )

@@ -15,6 +15,7 @@ home.png
 question_bank.png
 quiz_mode.png
 mock_interview.png
+coding_exercise.png
 review_mode.png
 formula_sheet.png
 content_dashboard.png
@@ -50,30 +51,37 @@ Show:
 - track composition table
 - active mock question or summary
 
-### 5. review_mode.png
+### 5. coding_exercise.png
+Show:
+- exercise filters
+- prompt area
+- reference solution if possible
+- self-assessment buttons
+
+### 6. review_mode.png
 Show:
 - weak-topic count
 - review-list questions
 
-### 6. formula_sheet.png
+### 7. formula_sheet.png
 Show:
 - formula search
 - formula topic filter
 - several formula cards
 
-### 7. content_dashboard.png
+### 8. content_dashboard.png
 Show:
 - quality metrics
 - topic coverage
 - validation checks
 
-### 8. curation_workspace.png
+### 9. curation_workspace.png
 Show:
 - curation filters
 - curation table
 - selected question preview or raw JSON
 
-### 9. content_workflow.png
+### 10. content_workflow.png
 Show:
 - recommended update workflow
 - public/private content rule
