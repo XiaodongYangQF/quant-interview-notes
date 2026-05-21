@@ -937,6 +937,221 @@ def render_content_dashboard(questions, formulas):
         mime="application/json",
     )
 
+
+def get_curation_bucket(q):
+    """Assign a question to one or more curation buckets."""
+    buckets = []
+
+    if q.get("status") == "Draft":
+        buckets.append("Draft")
+
+    required_fields = ["id", "topic", "subtopic", "difficulty", "status", "question", "intuition", "solution", "tags"]
+    if any(q.get(field) in [None, "", []] for field in required_fields):
+        buckets.append("Missing required field")
+
+    if not q.get("formula"):
+        buckets.append("Missing formula")
+
+    if not q.get("derivation"):
+        buckets.append("Missing derivation")
+
+    if not q.get("common_mistake"):
+        buckets.append("Missing common mistake")
+
+    if not q.get("interview_tip"):
+        buckets.append("Missing interview tip")
+
+    if q.get("code") and not q.get("code_language"):
+        buckets.append("Code missing language")
+
+    if q.get("topic") in {"Derivatives", "Greeks", "Stochastic Calculus"} and not q.get("derivation"):
+        buckets.append("Technical topic without derivation")
+
+    if q.get("topic") == "Coding" and not q.get("code"):
+        buckets.append("Coding topic without code")
+
+    return buckets
+
+
+def build_curation_rows(questions):
+    """Build rows for the content curation workspace."""
+    rows = []
+    for q in questions:
+        buckets = get_curation_bucket(q)
+        rows.append(
+            {
+                "id": q.get("id", ""),
+                "topic": q.get("topic", ""),
+                "subtopic": q.get("subtopic", ""),
+                "difficulty": q.get("difficulty", ""),
+                "status": q.get("status", ""),
+                "buckets": ", ".join(buckets) if buckets else "No major issue",
+                "has_formula": bool(q.get("formula")),
+                "has_derivation": bool(q.get("derivation")),
+                "has_code": bool(q.get("code")),
+                "has_common_mistake": bool(q.get("common_mistake")),
+                "has_interview_tip": bool(q.get("interview_tip")),
+                "question": q.get("question", ""),
+            }
+        )
+    return rows
+
+
+def make_question_patch_template(q):
+    """Create a JSON patch-style template for manually improving one question."""
+    return {
+        "id": q.get("id", ""),
+        "current_status": q.get("status", ""),
+        "suggested_updates": {
+            "status": "Verified",
+            "intuition": q.get("intuition", ""),
+            "solution": q.get("solution", ""),
+            "derivation": q.get("derivation", "ADD_DERIVATION_IF_NEEDED"),
+            "formula": q.get("formula", "ADD_FORMULA_IF_NEEDED"),
+            "common_mistake": q.get("common_mistake", "ADD_COMMON_MISTAKE"),
+            "interview_tip": q.get("interview_tip", "ADD_INTERVIEW_TIP"),
+            "tags": q.get("tags", []),
+        },
+        "original_question": q,
+    }
+
+
+def render_curation_workspace(questions):
+    """Render a workspace for manually curating question content."""
+    st.subheader("Content Curation Workspace")
+
+    st.markdown(
+        """
+        This workspace helps you review and improve the question bank.
+        It does **not** edit `questions.json` automatically. Instead, it helps you
+        find weak items, inspect their JSON, and export curation files for manual editing.
+        """
+    )
+
+    rows = build_curation_rows(questions)
+
+    all_buckets = sorted(
+        {
+            bucket.strip()
+            for row in rows
+            for bucket in row["buckets"].split(",")
+            if bucket.strip()
+        }
+    )
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        selected_topics = st.multiselect(
+            "Curation topics",
+            sorted({row["topic"] for row in rows}),
+            default=sorted({row["topic"] for row in rows}),
+            key="curation_topics",
+        )
+    with c2:
+        selected_statuses = st.multiselect(
+            "Curation status",
+            sorted({row["status"] for row in rows}),
+            default=sorted({row["status"] for row in rows}),
+            key="curation_statuses",
+        )
+    with c3:
+        selected_buckets = st.multiselect(
+            "Curation bucket",
+            all_buckets,
+            default=[],
+            help="Leave empty to show all buckets.",
+            key="curation_buckets",
+        )
+
+    search = st.text_input("Search curation rows", key="curation_search")
+
+    filtered_rows = []
+    for row in rows:
+        topic_ok = row["topic"] in selected_topics
+        status_ok = row["status"] in selected_statuses
+        bucket_ok = True if not selected_buckets else any(b in row["buckets"] for b in selected_buckets)
+
+        search_text = " ".join(
+            [
+                row["id"],
+                row["topic"],
+                row["subtopic"],
+                row["difficulty"],
+                row["status"],
+                row["buckets"],
+                row["question"],
+            ]
+        ).lower()
+        search_ok = True if not search else search.lower() in search_text
+
+        if topic_ok and status_ok and bucket_ok and search_ok:
+            filtered_rows.append(row)
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Total questions", len(rows))
+    m2.metric("Filtered rows", len(filtered_rows))
+    m3.metric("Draft rows", sum(row["status"] == "Draft" for row in filtered_rows))
+    m4.metric("Rows with issues", sum(row["buckets"] != "No major issue" for row in filtered_rows))
+
+    st.markdown("### Curation table")
+    st.dataframe(filtered_rows, use_container_width=True, hide_index=True)
+
+    st.download_button(
+        label="Download filtered curation table JSON",
+        data=json.dumps(filtered_rows, indent=2, ensure_ascii=False),
+        file_name="quant_interview_curation_table.json",
+        mime="application/json",
+    )
+
+    st.markdown("### Inspect one question")
+
+    id_to_question = {q.get("id", ""): q for q in questions}
+    filtered_ids = [row["id"] for row in filtered_rows if row["id"] in id_to_question]
+
+    if not filtered_ids:
+        st.info("No question is available for inspection under the current filters.")
+        return
+
+    selected_id = st.selectbox("Select question ID", filtered_ids, key="curation_selected_id")
+    selected_question = id_to_question[selected_id]
+
+    st.markdown("#### Question preview")
+    question_card(selected_question, 1)
+
+    st.markdown("#### Raw JSON")
+    raw_json = json.dumps(selected_question, indent=2, ensure_ascii=False)
+    st.code(raw_json, language="json")
+
+    st.download_button(
+        label="Download selected question JSON",
+        data=raw_json,
+        file_name=f"{selected_id}.json",
+        mime="application/json",
+    )
+
+    patch_template = make_question_patch_template(selected_question)
+    patch_json = json.dumps(patch_template, indent=2, ensure_ascii=False)
+
+    st.markdown("#### Curation patch template")
+    st.caption(
+        "Use this as a manual editing guide. After editing, copy the improved fields back into data/questions.json."
+    )
+    st.code(patch_json, language="json")
+
+    st.download_button(
+        label="Download curation patch template",
+        data=patch_json,
+        file_name=f"{selected_id}_curation_patch.json",
+        mime="application/json",
+    )
+
+    st.markdown("### Manual update workflow")
+    st.info(
+        "Recommended workflow: inspect a draft or incomplete question → download/copy the patch template → "
+        "edit the content → paste the improved fields into data/questions.json → run the app locally → "
+        "check Content Dashboard → commit and push."
+    )
+
 def main():
     st.set_page_config(
         page_title=APP_TITLE,
@@ -1026,8 +1241,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_about = st.tabs(
-        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "About"]
+    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_quality, tab_curation, tab_about = st.tabs(
+        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "Content Dashboard", "Curation Workspace", "About"]
     )
 
 
@@ -1258,6 +1473,11 @@ def main():
         render_content_dashboard(questions, formulas)
 
 
+
+    with tab_curation:
+        render_curation_workspace(questions)
+
+
     with tab_about:
         st.subheader("About this app")
 
@@ -1280,14 +1500,15 @@ def main():
             - Review Mode for weak questions
             - Formula sheet / quick reference tab
             - Content Quality Dashboard for JSON validation
+            - Content Curation Workspace for manual review
             - JSON-based data structure
 
             **Suggested next versions**
             - Version 1.9: More C++ and quant developer questions
-            - Version 1.10B: Content cleanup and verification workflow
+            - Version 1.11A: Advanced derivatives and research-focused questions
             - Version 2.0: Persistent progress tracking
             - Version 1.9: More C++ and quant developer questions
-            - Version 1.10B: Content cleanup and verification workflow
+            - Version 1.11A: Advanced derivatives and research-focused questions
             - Version 2.0: Persistent progress tracking
             """
         )
