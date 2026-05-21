@@ -2,7 +2,7 @@
   "app_title": "Quant Interview Trainer",
   "page_icon": "📈",
   "layout": "wide",
-  "app_intro_markdown": "A Streamlit-based active-recall platform for quantitative finance interview preparation.\n\nUse it to review questions, practise mock interviews, revise formulas, work through coding exercises, and maintain a structured public-safe interview question bank.",
+  "app_intro_markdown": "A polished Streamlit active-recall platform for quantitative finance interview preparation.\n\nUse it to review questions, practise mock interviews, revise formulas, work through coding exercises, and maintain a structured public-safe interview question bank.",
   "default_status_filter": [
     "Verified",
     "Draft"

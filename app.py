@@ -2724,6 +2724,113 @@ v2.0    Optional persistent progress tracking
     )
 
 
+
+def apply_custom_ui_style():
+    """Apply lightweight UI polish for a more portfolio-ready Streamlit app."""
+    st.markdown(
+        """
+        <style>
+        /* Main page spacing */
+        .block-container {
+            padding-top: 1.4rem;
+            padding-bottom: 2.5rem;
+            max-width: 1500px;
+        }
+
+        /* App title */
+        h1 {
+            letter-spacing: -0.03em;
+            font-weight: 750;
+            margin-bottom: 0.25rem;
+        }
+
+        h2, h3 {
+            letter-spacing: -0.015em;
+        }
+
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background: #f8fafc;
+            border-right: 1px solid rgba(49, 51, 63, 0.12);
+        }
+
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 {
+            font-size: 1rem;
+        }
+
+        /* Metrics as soft cards */
+        div[data-testid="stMetric"] {
+            background: #ffffff;
+            border: 1px solid rgba(49, 51, 63, 0.12);
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        div[data-testid="stMetricLabel"] {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        div[data-testid="stMetricValue"] {
+            font-weight: 750;
+        }
+
+        /* Let Streamlit tabs wrap into multiple rows */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(49, 51, 63, 0.12);
+            padding-bottom: 0.45rem;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            height: 2.25rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(49, 51, 63, 0.14);
+            background: #f8fafc;
+            margin-bottom: 0.15rem;
+            font-size: 0.88rem;
+        }
+
+        .stTabs [aria-selected="true"] {
+            background: #111827;
+            color: #ffffff;
+            border-color: #111827;
+        }
+
+        /* Containers and expanders */
+        div[data-testid="stExpander"] {
+            border-radius: 12px;
+            border-color: rgba(49, 51, 63, 0.14);
+        }
+
+        div[data-testid="stDataFrame"] {
+            border-radius: 12px;
+        }
+
+        /* Slightly softer info boxes */
+        div[data-testid="stAlert"] {
+            border-radius: 12px;
+        }
+
+        /* Reduce excessive vertical gaps */
+        .element-container {
+            margin-bottom: 0.35rem;
+        }
+
+        /* Footer-like captions */
+        .stCaptionContainer {
+            color: #64748b;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main():
     # IMPORTANT:
     # st.set_page_config must be the first Streamlit command in the app.
@@ -2733,6 +2840,8 @@ def main():
         page_icon=DEFAULT_CONFIG.get("page_icon", "📈"),
         layout=DEFAULT_CONFIG.get("layout", "wide"),
     )
+
+    apply_custom_ui_style()
 
     config_mtime = CONFIG_PATH.stat().st_mtime if CONFIG_PATH.exists() else 0
     app_config = load_app_config(config_mtime)
@@ -2798,36 +2907,40 @@ def main():
             horizontal=True,
         )
 
-    selected_topics = st.sidebar.multiselect(
-        "Topic",
-        topics,
-        default=topics,
-    )
+    with st.sidebar.expander("Core filters", expanded=True):
+        st.caption("Leave a filter blank to include all values.")
 
-    selected_difficulties = st.sidebar.multiselect(
-        "Difficulty",
-        difficulties,
-        default=difficulties,
-    )
+        selected_topics = st.multiselect(
+            "Topic",
+            topics,
+            default=[],
+            placeholder="All topics",
+        )
 
-    default_statuses = [
-        status for status in app_config.get("default_status_filter", statuses)
-        if status in statuses
-    ] or statuses
+        selected_difficulties = st.multiselect(
+            "Difficulty",
+            difficulties,
+            default=[],
+            placeholder="All difficulties",
+        )
 
-    selected_statuses = st.sidebar.multiselect(
-        "Status",
-        statuses,
-        default=default_statuses,
-    )
+        selected_statuses = st.multiselect(
+            "Status",
+            statuses,
+            default=[],
+            placeholder="All statuses",
+        )
 
-    selected_tags = st.sidebar.multiselect(
-        "Tags",
-        tags,
-    )
+    with st.sidebar.expander("Advanced filters", expanded=False):
+        selected_tags = st.multiselect(
+            "Tags",
+            tags,
+            default=[],
+            placeholder="Optional tag filter",
+        )
 
-    only_derivations = st.sidebar.checkbox("Only show questions with derivations")
-    only_code = st.sidebar.checkbox("Only show questions with code examples")
+        only_derivations = st.checkbox("Only show questions with derivations")
+        only_code = st.checkbox("Only show questions with code examples")
 
     display_defaults = app_config.get("display_defaults", DEFAULT_CONFIG["display_defaults"])
 
@@ -2859,9 +2972,9 @@ def main():
     for item in questions:
         item_tags = set(item.get("tags", []))
 
-        topic_ok = item.get("topic") in selected_topics
-        difficulty_ok = item.get("difficulty") in selected_difficulties
-        status_ok = item.get("status") in selected_statuses
+        topic_ok = True if not selected_topics else item.get("topic") in selected_topics
+        difficulty_ok = True if not selected_difficulties else item.get("difficulty") in selected_difficulties
+        status_ok = True if not selected_statuses else item.get("status") in selected_statuses
         search_ok = match_search_scoped(item, search_text, scope=search_scope)
         tags_ok = True if not selected_tags else bool(item_tags.intersection(selected_tags))
         derivation_ok = True if not only_derivations else bool(item.get("derivation"))
@@ -2885,7 +2998,7 @@ def main():
     col6.metric("With code", n_code)
 
     tab_home, tab_navigator, tab_bank, tab_practice, tab_quiz, tab_mock, tab_coding, tab_review, tab_analytics, tab_formula_revision, tab_formula, tab_quality, tab_curation, tab_workflow, tab_status, tab_about = st.tabs(
-        ["Home", "Topic Navigator", "Question Bank", "Practice Mode", "Quiz Mode", "Mock Interview", "Coding Exercise", "Review Mode", "Performance Analytics", "Formula Revision", "Formula Sheet", "Content Dashboard", "Curation Workspace", "Content Workflow", "App Status", "About"]
+        ["Home", "Topics", "Questions", "Practice", "Quiz", "Mock", "Coding", "Review", "Analytics", "Formula Quiz", "Formulas", "Quality", "Curation", "Workflow", "Status", "About"]
     )
 
 
@@ -3208,8 +3321,8 @@ def main():
 
             **Suggested next versions**
 
-            - Version 1.20A: Screenshot refresh and deployment check
-            - Version 1.21A: Optional small bug-fix / stabilization release
+            - Version 1.21A: Screenshot refresh and deployment check
+            - Version 1.22A: Optional small bug-fix / stabilization release
             - Version 2.0: Optional persistent progress tracking
             """
         )
