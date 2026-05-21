@@ -1,5 +1,8 @@
+import csv
+import io
 import json
 import random
+from datetime import datetime
 from pathlib import Path
 from collections import Counter, defaultdict
 
@@ -262,6 +265,100 @@ def quiz_score_value(result_label):
     return 0.0
 
 
+
+def build_quiz_export_payload():
+    """Build a JSON-serializable quiz result payload."""
+    quiz_questions = st.session_state.quiz_questions
+    results = st.session_state.quiz_results
+
+    total = len(quiz_questions)
+    raw_score = sum(quiz_score_value(v["result"]) for v in results.values())
+    percentage = 100 * raw_score / total if total else 0
+
+    items = []
+    for idx, q in enumerate(quiz_questions, start=1):
+        qid = q.get("id", f"question_{idx}")
+        result = results.get(qid, {}).get("result", "Unanswered")
+        items.append(
+            {
+                "index": idx,
+                "id": qid,
+                "topic": q.get("topic", ""),
+                "subtopic": q.get("subtopic", ""),
+                "difficulty": q.get("difficulty", ""),
+                "status": q.get("status", ""),
+                "result": result,
+                "question": q.get("question", ""),
+                "formula": q.get("formula", ""),
+                "tags": ", ".join(q.get("tags", [])),
+            }
+        )
+
+    topic_summary = defaultdict(lambda: {"total": 0, "score": 0.0})
+    for q in quiz_questions:
+        qid = q.get("id")
+        topic = q.get("topic", "Unknown")
+        topic_summary[topic]["total"] += 1
+        if qid in results:
+            topic_summary[topic]["score"] += quiz_score_value(results[qid]["result"])
+
+    topic_rows = []
+    for topic, values in sorted(topic_summary.items()):
+        total_topic = values["total"]
+        score_topic = values["score"]
+        topic_rows.append(
+            {
+                "topic": topic,
+                "score": score_topic,
+                "total": total_topic,
+                "score_percent": 100 * score_topic / total_topic if total_topic else 0,
+            }
+        )
+
+    return {
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "total_questions": total,
+        "raw_score": raw_score,
+        "score_percent": percentage,
+        "items": items,
+        "topic_summary": topic_rows,
+    }
+
+
+def quiz_payload_to_csv(payload):
+    """Convert quiz export payload to CSV text."""
+    output = io.StringIO()
+    fieldnames = [
+        "index",
+        "id",
+        "topic",
+        "subtopic",
+        "difficulty",
+        "status",
+        "result",
+        "question",
+        "formula",
+        "tags",
+    ]
+
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    for row in payload["items"]:
+        writer.writerow(row)
+
+    return output.getvalue()
+
+
+def get_review_questions_from_quiz():
+    """Return questions marked as weak during the current quiz session."""
+    results = st.session_state.quiz_results
+    return [
+        v["question"]
+        for v in results.values()
+        if v["result"] in {"Wrong", "Need review", "Partially correct"}
+    ]
+
 def render_quiz_summary():
     quiz_questions = st.session_state.quiz_questions
     results = st.session_state.quiz_results
@@ -313,23 +410,65 @@ def render_quiz_summary():
         )
     st.dataframe(summary_rows, use_container_width=True, hide_index=True)
 
-    review_items = [
-        v["question"]
-        for v in results.values()
-        if v["result"] in {"Wrong", "Need review", "Partially correct"}
-    ]
+    payload = build_quiz_export_payload()
+    csv_text = quiz_payload_to_csv(payload)
+    json_text = json.dumps(payload, indent=2, ensure_ascii=False)
+
+    st.markdown("### Export quiz results")
+    export_col1, export_col2 = st.columns(2)
+    with export_col1:
+        st.download_button(
+            label="Download quiz results CSV",
+            data=csv_text,
+            file_name="quant_interview_quiz_results.csv",
+            mime="text/csv",
+        )
+    with export_col2:
+        st.download_button(
+            label="Download quiz results JSON",
+            data=json_text,
+            file_name="quant_interview_quiz_results.json",
+            mime="application/json",
+        )
+
+    review_items = get_review_questions_from_quiz()
 
     st.markdown("### Review list")
     if not review_items:
         st.info("No review items. Excellent work.")
     else:
         st.caption("Questions marked Wrong, Partially correct, or Need review.")
+
+        review_payload = {
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "review_count": len(review_items),
+            "review_items": [
+                {
+                    "id": q.get("id", ""),
+                    "topic": q.get("topic", ""),
+                    "subtopic": q.get("subtopic", ""),
+                    "difficulty": q.get("difficulty", ""),
+                    "question": q.get("question", ""),
+                    "solution": q.get("solution", ""),
+                    "formula": q.get("formula", ""),
+                    "tags": q.get("tags", []),
+                }
+                for q in review_items
+            ],
+        }
+
+        st.download_button(
+            label="Download review list JSON",
+            data=json.dumps(review_payload, indent=2, ensure_ascii=False),
+            file_name="quant_interview_review_list.json",
+            mime="application/json",
+        )
+
         for i, item in enumerate(review_items, start=1):
             question_card(item, i)
 
     if st.button("Start a new quiz"):
         reset_quiz()
-
 
 def main():
     st.set_page_config(
@@ -420,8 +559,8 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_bank, tab_practice, tab_quiz, tab_formula, tab_about = st.tabs(
-        ["Question Bank", "Practice Mode", "Quiz Mode", "Formula Sheet", "About"]
+    tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_about = st.tabs(
+        ["Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "About"]
     )
 
     with tab_bank:
@@ -579,6 +718,38 @@ def main():
                             record_quiz_result("Need review")
                             st.rerun()
 
+
+    with tab_review:
+        st.subheader("Review Mode")
+
+        if not st.session_state.quiz_started:
+            st.info("Complete a quiz first to generate a session review list.")
+        else:
+            review_items = get_review_questions_from_quiz()
+
+            if not review_items:
+                if st.session_state.quiz_finished:
+                    st.success("No weak questions in the latest quiz session.")
+                else:
+                    st.info("No review items yet. Finish or self-assess more quiz questions.")
+            else:
+                st.write(
+                    "This tab shows questions marked as **Wrong**, "
+                    "**Partially correct**, or **Need review** in the current quiz session."
+                )
+
+                topic_counts = Counter(q.get("topic", "Unknown") for q in review_items)
+                st.markdown("### Weak-topic count")
+                st.dataframe(
+                    [{"Topic": topic, "Review count": count} for topic, count in topic_counts.items()],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+                for i, item in enumerate(review_items, start=1):
+                    question_card(item, i)
+
+
     with tab_formula:
         st.subheader("Formula Sheet")
 
@@ -627,12 +798,14 @@ def main():
             - Optional common mistake and interview tip sections
             - Random practice mode
             - Session-based quiz mode with self-assessment
+            - Quiz result export to CSV and JSON
+            - Review Mode for weak questions
             - Formula sheet / quick reference tab
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.7B: Weak-topic review and quiz history export
             - Version 1.8: README polish + screenshots + LinkedIn-ready presentation
+            - Version 1.9: More C++ and quant developer questions
             - Version 1.9: More C++ and quant developer questions
             - Version 2.0: Persistent progress tracking
             """
