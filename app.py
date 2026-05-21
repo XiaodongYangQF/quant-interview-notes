@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 
 import streamlit as st
@@ -32,18 +33,34 @@ def match_search(item, search_text):
     if not search_text:
         return True
 
-    text = " ".join(
-        [
-            item.get("question", ""),
-            item.get("solution", ""),
-            item.get("intuition", ""),
-            item.get("topic", ""),
-            item.get("subtopic", ""),
-            " ".join(item.get("tags", [])),
-        ]
-    ).lower()
+    searchable_fields = [
+        item.get("question", ""),
+        item.get("solution", ""),
+        item.get("intuition", ""),
+        item.get("derivation", ""),
+        item.get("common_mistake", ""),
+        item.get("interview_tip", ""),
+        item.get("topic", ""),
+        item.get("subtopic", ""),
+        " ".join(item.get("tags", [])),
+    ]
 
+    text = " ".join(searchable_fields).lower()
     return search_text.lower() in text
+
+
+def render_optional_expander(title, content, kind="markdown"):
+    """Render an optional expandable section if content exists."""
+    if not content:
+        return
+
+    with st.expander(title):
+        if kind == "warning":
+            st.warning(content)
+        elif kind == "info":
+            st.info(content)
+        else:
+            st.markdown(content)
 
 
 def question_card(item, index):
@@ -60,8 +77,10 @@ def question_card(item, index):
         if tags:
             st.markdown(" ".join([f"`{tag}`" for tag in tags]))
 
-        with st.expander("Interview intuition"):
-            st.write(item.get("intuition", "No intuition added yet."))
+        render_optional_expander(
+            "Interview intuition",
+            item.get("intuition", "No intuition added yet."),
+        )
 
         with st.expander("Full solution"):
             st.write(item.get("solution", "No solution added yet."))
@@ -71,6 +90,10 @@ def question_card(item, index):
                 st.markdown("**Key formula**")
                 st.code(formula, language="text")
 
+        render_optional_expander("Math derivation", item.get("derivation", ""))
+        render_optional_expander("Common mistake", item.get("common_mistake", ""), kind="warning")
+        render_optional_expander("Interview tip", item.get("interview_tip", ""), kind="info")
+
 
 def main():
     st.set_page_config(
@@ -79,10 +102,8 @@ def main():
         layout="wide",
     )
 
-
     file_mtime = DATA_PATH.stat().st_mtime if DATA_PATH.exists() else 0
     questions = load_questions(file_mtime)
-
 
     st.title("📈 Quant Interview Trainer")
     st.markdown(
@@ -102,10 +123,11 @@ def main():
     difficulties = unique_values(questions, "difficulty")
     statuses = unique_values(questions, "status")
     tags = unique_tags(questions)
+    n_derivations = sum(bool(q.get("derivation")) for q in questions)
 
     st.sidebar.header("Filters")
 
-    search_text = st.sidebar.text_input("Search questions, answers, or tags")
+    search_text = st.sidebar.text_input("Search questions, answers, derivations, or tags")
 
     selected_topics = st.sidebar.multiselect(
         "Topic",
@@ -130,6 +152,8 @@ def main():
         tags,
     )
 
+    only_derivations = st.sidebar.checkbox("Only show questions with derivations")
+
     filtered = []
     for item in questions:
         item_tags = set(item.get("tags", []))
@@ -139,15 +163,17 @@ def main():
         status_ok = item.get("status") in selected_statuses
         search_ok = match_search(item, search_text)
         tags_ok = True if not selected_tags else bool(item_tags.intersection(selected_tags))
+        derivation_ok = True if not only_derivations else bool(item.get("derivation"))
 
-        if topic_ok and difficulty_ok and status_ok and search_ok and tags_ok:
+        if topic_ok and difficulty_ok and status_ok and search_ok and tags_ok and derivation_ok:
             filtered.append(item)
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Total questions", len(questions))
     col2.metric("Filtered questions", len(filtered))
     col3.metric("Topics", len(topics))
     col4.metric("Verified", sum(q.get("status") == "Verified" for q in questions))
+    col5.metric("With derivations", n_derivations)
 
     tab_bank, tab_practice, tab_about = st.tabs(
         ["Question Bank", "Practice Mode", "About"]
@@ -174,10 +200,7 @@ def main():
 
         if st.button("Generate random question"):
             if filtered:
-                st.session_state.practice_question = filtered[
-                    st.session_state.get("practice_index", 0) % len(filtered)
-                ]
-                st.session_state.practice_index = st.session_state.get("practice_index", 0) + 1
+                st.session_state.practice_question = random.choice(filtered)
 
         if st.session_state.practice_question:
             question_card(st.session_state.practice_question, 1)
@@ -185,26 +208,27 @@ def main():
             st.info("Generate a question to start practice mode.")
 
     with tab_about:
-        st.subheader("About this MVP")
+        st.subheader("About this app")
 
         st.markdown(
             """
-            This is Version 1.0 of the Quant Interview Trainer.
+            This is the Quant Interview Trainer.
 
             **Current features**
             - Searchable question bank
             - Topic, difficulty, status, and tag filters
             - Expandable intuition and solution sections
-            - Simple random practice mode
+            - Optional math derivation sections
+            - Optional common mistake and interview tip sections
+            - Random practice mode
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.1: better tags and subtopics
-            - Version 1.2: difficulty levels and verification workflow
-            - Version 1.3: stronger random practice mode
-            - Version 1.4: formula sheet
-            - Version 1.5: Python/C++ coding questions
-            - Version 2.0: progress tracking and quiz mode
+            - Version 1.2: Derivatives and Greeks question bank
+            - Version 1.3: Stochastic calculus question bank
+            - Version 1.4: Formula sheet
+            - Version 1.5: Python/C++ coding interview section
+            - Version 2.0: Progress tracking and quiz mode
             """
         )
 

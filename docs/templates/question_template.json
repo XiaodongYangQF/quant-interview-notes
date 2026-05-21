@@ -1,0 +1,20 @@
+[
+  {
+    "id": "example_001",
+    "topic": "Example Topic",
+    "subtopic": "Example Subtopic",
+    "difficulty": "Medium",
+    "status": "Draft",
+    "question": "Write your interview question here.",
+    "intuition": "Short intuition in simple English.",
+    "solution": "Short interview-level solution.",
+    "derivation": "Step 1: write math using LaTeX.\\n\\n$$E[X]=\\\\int x f(x) dx$$",
+    "formula": "Final formula here.",
+    "common_mistake": "A common mistake candidates make.",
+    "interview_tip": "A short practical interview tip.",
+    "tags": [
+      "Tag 1",
+      "Tag 2"
+    ]
+  }
+]

@@ -13,7 +13,10 @@
       "Bayes",
       "Conditional Probability",
       "Interview Basics"
-    ]
+    ],
+    "derivation": "Suppose event $B$ can happen under event $A$ or not $A$.\n\nStart from the definition of conditional probability:\n\n$$P(A \\mid B)=\\frac{P(A\\cap B)}{P(B)}.$$\n\nAlso,\n\n$$P(B \\mid A)=\\frac{P(A\\cap B)}{P(A)}.$$\n\nTherefore,\n\n$$P(A\\cap B)=P(B\\mid A)P(A).$$\n\nSubstitute this into the first equation:\n\n$$P(A \\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}.$$",
+    "common_mistake": "Do not treat $P(A \\mid B)$ and $P(B \\mid A)$ as the same. They answer different questions.",
+    "interview_tip": "In interview puzzles, first identify what is observed and what hidden state you are trying to infer."
   },
   {
     "id": "prob_002",
@@ -61,7 +64,10 @@
       "Order Statistics",
       "Uniform Distribution",
       "Expectation"
-    ]
+    ],
+    "derivation": "Let\n\n$$M=\\max(U_1,\\ldots,U_n),$$\n\nwhere $U_1,\\ldots,U_n$ are iid $U(0,1)$.\n\nStep 1: Compute the CDF.\n\n$$P(M\\le x)=P(U_1\\le x,\\ldots,U_n\\le x).$$\n\nBy independence,\n\n$$P(M\\le x)=x^n, \\quad 0\\le x\\le 1.$$\n\nStep 2: Differentiate to get the PDF.\n\n$$f_M(x)=\\frac{d}{dx}x^n=nx^{n-1}.$$\n\nStep 3: Compute the expectation.\n\n$$E[M]=\\int_0^1 x f_M(x) dx=\\int_0^1 xnx^{n-1}dx=\\int_0^1 nx^n dx=\\frac{n}{n+1}.$$",
+    "common_mistake": "Do not assume the expected maximum is simply the average of the sample. The maximum has its own distribution.",
+    "interview_tip": "For max/min questions, usually start from the CDF rather than the PDF."
   },
   {
     "id": "prob_005",
@@ -77,7 +83,10 @@
       "Poisson",
       "Series",
       "Probability"
-    ]
+    ],
+    "derivation": "Let $N\\sim \\text{Poisson}(\\lambda)$.\n\nWe want\n\n$$P(N\\text{ is even})=\\sum_{k=0}^{\\infty}P(N=2k).$$\n\nUsing the Poisson probability mass function:\n\n$$P(N\\text{ is even})=e^{-\\lambda}\\sum_{k=0}^{\\infty}\\frac{\\lambda^{2k}}{(2k)!}.$$\n\nRecall the expansion:\n\n$$\\cosh(\\lambda)=\\sum_{k=0}^{\\infty}\\frac{\\lambda^{2k}}{(2k)!}=\\frac{e^{\\lambda}+e^{-\\lambda}}{2}.$$\n\nTherefore,\n\n$$P(N\\text{ is even})=e^{-\\lambda}\\frac{e^{\\lambda}+e^{-\\lambda}}{2}=\\frac{1+e^{-2\\lambda}}{2}.$$",
+    "common_mistake": "Do not approximate this by 1/2 immediately. It approaches 1/2 for large lambda, but the exact answer has the extra term $e^{-2\\lambda}$.",
+    "interview_tip": "When a Poisson question asks for even or odd counts, think about exponential-series decomposition."
   },
   {
     "id": "prob_006",
@@ -93,7 +102,10 @@
       "Random Walk",
       "Gambler's Ruin",
       "Martingale"
-    ]
+    ],
+    "derivation": "Let $h(i)$ be the probability of hitting $b$ before $0$ starting from $i$.\n\nFor a symmetric random walk,\n\n$$h(i)=\\frac{1}{2}h(i+1)+\\frac{1}{2}h(i-1).$$\n\nRearrange:\n\n$$h(i+1)-h(i)=h(i)-h(i-1).$$\n\nSo the difference is constant, meaning $h(i)$ is linear:\n\n$$h(i)=A+Bi.$$\n\nUse the boundary conditions:\n\n$$h(0)=0,\\qquad h(b)=1.$$\n\nThus $A=0$ and $B=1/b$.\n\nTherefore,\n\n$$h(i)=\\frac{i}{b}.$$",
+    "common_mistake": "Do not ignore the boundary conditions. The recursion alone is not enough.",
+    "interview_tip": "For random-walk hitting probabilities, define the value function first, then write the recursion."
   },
   {
     "id": "prob_007",
@@ -380,7 +392,10 @@
       "Balls and Bins",
       "Indicator Variables",
       "Expectation"
-    ]
+    ],
+    "derivation": "Let $I_j$ be an indicator variable:\n\n$$I_j=1\\quad \\text{if bin }j\\text{ is empty}.$$\n\nFor a fixed bin $j$, each ball avoids this bin with probability $1-1/n$.\n\nSince the balls are thrown independently,\n\n$$P(I_j=1)=\\left(1-\\frac{1}{n}\\right)^n.$$\n\nThe total number of empty bins is\n\n$$X=\\sum_{j=1}^n I_j.$$\n\nBy linearity of expectation,\n\n$$E[X]=\\sum_{j=1}^n E[I_j]=n\\left(1-\\frac{1}{n}\\right)^n.$$\n\nFor large $n$,\n\n$$\\left(1-\\frac{1}{n}\\right)^n\\approx e^{-1},$$\n\nso\n\n$$E[X]\\approx \\frac{n}{e}.$$",
+    "common_mistake": "Do not try to compute the full distribution first. The expected value is much easier using indicators.",
+    "interview_tip": "For expected counts, indicator variables are often the fastest solution."
   },
   {
     "id": "prob_025",
@@ -540,7 +555,10 @@
       "Exponential Distribution",
       "Integration",
       "Joint Density"
-    ]
+    ],
+    "derivation": "Let $X,Y\\sim \\text{Exp}(1)$ independently. We want\n\n$$P(X-Y>1)=P(X>Y+1).$$\n\nUsing the joint density $f_{X,Y}(x,y)=e^{-x}e^{-y}$ for $x,y\\ge 0$,\n\n$$P(X-Y>1)=\\int_1^{\\infty}\\int_0^{x-1}e^{-x}e^{-y}\\,dy\\,dx.$$\n\nCompute the inner integral:\n\n$$\\int_0^{x-1}e^{-y}dy=1-e^{-(x-1)}.$$\n\nSo\n\n$$P(X-Y>1)=\\int_1^{\\infty}e^{-x}\\left(1-e^{-(x-1)}\\right)dx.$$\n\nThis becomes\n\n$$\\int_1^{\\infty}e^{-x}dx-\\int_1^{\\infty}e^{-2x+1}dx=e^{-1}-\\frac{1}{2}e^{-1}=\\frac{1}{2e}.$$",
+    "common_mistake": "Be careful with the integration region. The condition is $x>y+1$, not just $x>1$.",
+    "interview_tip": "For two continuous random variables, draw the integration region before integrating."
   },
   {
     "id": "prob_035",
@@ -764,7 +782,10 @@
       "BSM",
       "Delta Hedging",
       "Option Pricing"
-    ]
+    ],
+    "derivation": "Let the option value be $V(S,t)$ and the stock follow\n\n$$dS=\\mu Sdt+\\sigma S dW.$$\n\nBy Ito's lemma,\n\n$$dV=\\left(V_t+\\mu S V_S+\\frac{1}{2}\\sigma^2S^2V_{SS}\\right)dt+\\sigma S V_S dW.$$\n\nConstruct a delta-hedged portfolio:\n\n$$\\Pi=V-\\Delta S.$$\n\nChoose\n\n$$\\Delta=V_S,$$\n\nso the random $dW$ term is eliminated. The hedged portfolio is locally riskless, so it must earn the risk-free rate:\n\n$$d\\Pi=r\\Pi dt.$$\n\nThis leads to the Black-Scholes PDE:\n\n$$V_t+\\frac{1}{2}\\sigma^2S^2V_{SS}+rSV_S-rV=0.$$",
+    "common_mistake": "Do not say BSM assumes the expected stock return is the risk-free rate. The real-world drift disappears through hedging.",
+    "interview_tip": "In interviews, explain the economic logic first: delta hedge removes local risk, so the portfolio earns the risk-free rate."
   },
   {
     "id": "greeks_001",
@@ -780,7 +801,10 @@
       "Greeks",
       "Delta",
       "Risk Management"
-    ]
+    ],
+    "derivation": "Delta is defined as the first partial derivative of the option value with respect to the underlying price:\n\n$$\\Delta=\\frac{\\partial V}{\\partial S}.$$\n\nUsing a first-order Taylor approximation,\n\n$$dV\\approx \\Delta dS.$$\n\nThis means delta gives the local sensitivity of the option value to a small move in the underlying asset.",
+    "common_mistake": "Delta is not a constant. It changes with the underlying price, time to maturity, volatility, and moneyness.",
+    "interview_tip": "Connect delta to hedging: holding $\\Delta$ shares offsets the option's first-order exposure."
   },
   {
     "id": "code_001",
