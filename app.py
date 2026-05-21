@@ -470,6 +470,94 @@ def render_quiz_summary():
     if st.button("Start a new quiz"):
         reset_quiz()
 
+
+def build_topic_summary(questions):
+    """Build topic-level summary for the home page."""
+    rows = []
+    for topic in sorted({q.get("topic", "Unknown") for q in questions}):
+        topic_questions = [q for q in questions if q.get("topic", "Unknown") == topic]
+        rows.append(
+            {
+                "Topic": topic,
+                "Questions": len(topic_questions),
+                "Verified": sum(q.get("status") == "Verified" for q in topic_questions),
+                "With derivations": sum(bool(q.get("derivation")) for q in topic_questions),
+                "With code": sum(bool(q.get("code")) for q in topic_questions),
+            }
+        )
+    return rows
+
+
+def render_home_tab(questions, formulas):
+    """Render a portfolio-friendly home tab."""
+    st.subheader("Quant Interview Trainer")
+
+    st.markdown(
+        """
+        This app is an interactive preparation tool for quantitative finance interviews.
+        It turns structured quant interview notes into a searchable question bank,
+        formula sheet, coding-practice library, and quiz-based review system.
+        """
+    )
+
+    home_col1, home_col2, home_col3 = st.columns(3)
+    with home_col1:
+        st.markdown(
+            """
+            **For interview practice**
+            - Hidden-answer quiz mode
+            - Self-assessment workflow
+            - Review list for weak questions
+            """
+        )
+    with home_col2:
+        st.markdown(
+            """
+            **For technical revision**
+            - Probability and statistics
+            - Derivatives and Greeks
+            - Stochastic calculus and time series
+            """
+        )
+    with home_col3:
+        st.markdown(
+            """
+            **For coding preparation**
+            - Python examples
+            - Numerical methods
+            - Risk and option-pricing functions
+            """
+        )
+
+    st.markdown("### Project snapshot")
+
+    metric_cols = st.columns(5)
+    metric_cols[0].metric("Questions", len(questions))
+    metric_cols[1].metric("Formulas", len(formulas))
+    metric_cols[2].metric("Topics", len({q.get("topic", "Unknown") for q in questions}))
+    metric_cols[3].metric("Derivations", sum(bool(q.get("derivation")) for q in questions))
+    metric_cols[4].metric("Code examples", sum(bool(q.get("code")) for q in questions))
+
+    st.markdown("### Topic coverage")
+    st.dataframe(build_topic_summary(questions), use_container_width=True, hide_index=True)
+
+    st.markdown("### Suggested workflow")
+
+    st.markdown(
+        """
+        1. Use **Question Bank** to search and review topics.
+        2. Use **Formula Sheet** for quick revision before interviews.
+        3. Use **Quiz Mode** to simulate active recall.
+        4. Use **Review Mode** to revisit weak questions.
+        5. Export quiz results for your own study record.
+        """
+    )
+
+    st.info(
+        "Tip: For serious interview preparation, start with Probability, "
+        "then Derivatives/Greeks, then Stochastic Calculus, then Coding."
+    )
+
 def main():
     st.set_page_config(
         page_title=APP_TITLE,
@@ -559,9 +647,14 @@ def main():
     col5.metric("With derivations", n_derivations)
     col6.metric("With code", n_code)
 
-    tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_about = st.tabs(
-        ["Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "About"]
+    tab_home, tab_bank, tab_practice, tab_quiz, tab_review, tab_formula, tab_about = st.tabs(
+        ["Home", "Question Bank", "Practice Mode", "Quiz Mode", "Review Mode", "Formula Sheet", "About"]
     )
+
+
+    with tab_home:
+        render_home_tab(questions, formulas)
+
 
     with tab_bank:
         st.subheader("Question Bank")
@@ -789,6 +882,7 @@ def main():
             This is the Quant Interview Trainer.
 
             **Current features**
+            - Portfolio-friendly home page
             - Searchable question bank
             - Topic, difficulty, status, and tag filters
             - Expandable intuition and solution sections
@@ -804,8 +898,8 @@ def main():
             - JSON-based data structure
 
             **Suggested next versions**
-            - Version 1.8: README polish + screenshots + LinkedIn-ready presentation
             - Version 1.9: More C++ and quant developer questions
+            - Version 2.0: Persistent progress tracking
             - Version 1.9: More C++ and quant developer questions
             - Version 2.0: Persistent progress tracking
             """
