@@ -4,6 +4,14 @@ This repository contains my personal Quant Finance interview preparation notes.
 
 The notes cover probability, statistics, derivatives pricing, Greeks, stochastic calculus, numerical methods, coding, and mock interview questions. The project is currently under active development.
 
+## Interactive App
+
+I also built an interactive Streamlit version of these notes:
+
+[Launch Quant Interview Trainer](https://quant-interview-trainer.streamlit.app/)
+
+The app includes a searchable question bank, topic filters, difficulty filters, expandable solutions, and random practice mode.
+
 ## Current Progress
 
 ### Completed Drafts
